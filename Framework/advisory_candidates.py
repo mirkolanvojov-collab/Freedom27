@@ -74,9 +74,11 @@ def validate_document(document: object) -> list[str]:
             if candidate_id in seen:
                 errors.append(f"{prefix} duplicate id {candidate_id}")
             seen.add(candidate_id)
-        if item.get("target_applicability") not in ALLOWED_TARGET_STATUS:
+        target_applicability = item.get("target_applicability")
+        if not isinstance(target_applicability, str) or target_applicability not in ALLOWED_TARGET_STATUS:
             errors.append(f"{prefix}.target_applicability is not allowed")
-        if item.get("reproduction_status") not in ALLOWED_REPRODUCTION:
+        reproduction_status = item.get("reproduction_status")
+        if not isinstance(reproduction_status, str) or reproduction_status not in ALLOWED_REPRODUCTION:
             errors.append(f"{prefix}.reproduction_status is not allowed")
         if item.get("chain_status") != "not_established":
             errors.append(f"{prefix}.chain_status must remain not_established in advisory-only metadata")
