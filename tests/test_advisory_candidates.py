@@ -26,12 +26,12 @@ class AdvisoryCandidateTests(unittest.TestCase):
     def test_target_confirmation_cannot_be_asserted_without_separate_evidence(self):
         doc = copy.deepcopy(self.document)
         doc["candidates"][0]["target_applicability"] = "confirmed_by_primary_source"
-        self.assertTrue(any("target-specific evidence record" in e for e in validate_document(doc)))
+        self.assertTrue(any("target_applicability is not allowed" in e for e in validate_document(doc)))
 
     def test_advisory_cannot_claim_jailbreak_completion(self):
         doc = copy.deepcopy(self.document)
         doc["candidates"][0]["chain_status"] = "verified_complete_jailbreak"
-        self.assertTrue(any("complete jailbreak" in e for e in validate_document(doc)))
+        self.assertTrue(any("chain_status must remain not_established" in e for e in validate_document(doc)))
 
     def test_device_execution_policy_is_fail_closed(self):
         doc = copy.deepcopy(self.document)
