@@ -69,13 +69,14 @@ def analyze_advisories(document: dict) -> dict:
         status = item.get("target_applicability", "not_established")
         repro = item.get("reproduction_status", "not_reproduced_by_Freedom27")
         # Scores rank review work only; they are not exploitability estimates.
-        score = {"high": 30, "medium": 20, "low": 10}.get(item.get("priority"), 0)
+        priority = item.get("priority")
+        score = {"high": 30, "medium": 20, "low": 10}.get(priority, 0) if isinstance(priority, str) else 0
         if status != "not_established":
             score += 0
         if repro != "not_reproduced_by_Freedom27":
             errors.append(f"{item.get('id', '<unknown>')}: advisory record overstates reproduction status")
         scored.append({
-            "id": item.get("id", "unknown"),
+            "id": candidate_id,
             "component": item.get("component", "unknown"),
             "review_priority_score": score,
             "published_impact": item.get("published_impact", ""),
