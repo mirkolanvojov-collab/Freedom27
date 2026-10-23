@@ -6,6 +6,8 @@ OS protections, generate exploit payloads, or modify a device.
 from __future__ import annotations
 
 from typing import Any
+import json
+from pathlib import Path
 
 REQUIRED_GATES = (
     "entry",
@@ -95,7 +97,18 @@ def build_plan(status_document: dict[str, Any], evidence_records: list[Any] | No
 
     by_id = {item.get("id"): item for item in gates if isinstance(item, dict) and isinstance(item.get("id"), str)}
     tasks = []
-    verified_ids = {gate_id for gate_id, item in by_id.items() if item.get("status") == "verified"}
+    verified_ids: set[str] = set()
+    # Compute effective verification iteratively so an invalid downstream label
+    # cannot satisfy another gate's prerequisites.
+    changed = True
+    while changed:
+        changed = False
+        for gate_id in REQUIRED_GATES:
+            item = by_id.get(gate_id, {})
+            deps = DEPENDENCIES[gate_id]
+            if item.get("status") == "verified" and all(dep in verified_ids for dep in deps) and gate_id not in verified_ids:
+                verified_ids.add(gate_id)
+                changed = True
     for gate_id in REQUIRED_GATES:
         item = by_id.get(gate_id, {})
         status = item.get("status", "missing")
@@ -120,7 +133,7 @@ def build_plan(status_document: dict[str, Any], evidence_records: list[Any] | No
             "validation_errors": errors,
         })
 
-    verified_complete = status_document.get("verified_complete_jailbreak") is True and not tasks
+    verified_complete = status_document.get("verified_complete_jailbreak") is True and not tasks and len(verified_ids) == len(REQUIRED_GATES)
     return {
         "project": "Freedom27",
         "target": {
@@ -146,3 +159,15 @@ def build_plan(status_document: dict[str, Any], evidence_records: list[Any] | No
             "Only independently reproduced, exact-target evidence can close a gate."
         ),
     }
+
+
+def main() -> int:
+    root = Path(__file__).resolve().parents[1]
+    status_path = root / "research" / "current_exact_target_status.json"
+    document = json.loads(status_path.read_text(encoding="utf-8"))
+    print(json.dumps(build_plan(document), indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
