@@ -1,0 +1,65 @@
+name: Capture NVD affected configurations
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/capture-nvd-configurations.yml"
+      - "research/scripts/capture_nvd_configurations.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nvd-capture-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out Freedom27
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Capture official NVD JSON (GET-only)
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: python research/scripts/capture_nvd_configurations.py
+
+      - name: Publish capture summary in job report
+        if: always()
+        shell: bash
+        run: |
+          if [ -f research/nvd_api_capture/capture_summary.json ]; then
+            echo '## NVD capture summary' >> "$GITHUB_STEP_SUMMARY"
+            python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          data = json.loads(Path("research/nvd_api_capture/capture_summary.json").read_text())
+          print(f"- CVE JSON records saved: {data.get('successful_cve_records', 0)} / {len(data.get('records', []))}")
+          print(f"- CPE Match JSON records saved: {data.get('successful_cpe_match_records', 0)} / {len(data.get('records', []))}")
+          print(f"- API key configured: {'yes' if data.get('api_key_present') else 'no'}")
+          for item in data.get("records", []):
+              print(f"- {item['cve_id']}: CVE HTTP {item.get('cve_http_status')}; CPE Match HTTP {item.get('cpe_match_http_status')}")
+              for error in item.get("errors", []):
+                  print(f"  - Error: {error.get('endpoint')}: {error.get('detail')}")
+          PY
+          else
+            echo "Capture summary was not generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload raw NVD responses and summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nvd-affected-configurations
+          path: research/nvd_api_capture/
+          if-no-files-found: warn
+          retention-days: 14
