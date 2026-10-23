@@ -80,3 +80,10 @@ NIST's NVD status page says the current `/cves/` endpoint still returns the late
 - Not captured: direct NVD `configurations` JSON and associated CPE match-criteria records.
 - Not established: exact build applicability for `23G83`, or exploitability on the user's device.
 - Safety: no exploit was executed, no CVE was weaponized, and no device was accessed or modified.
+
+
+## Reproducible direct-API capture utility added
+
+A read-only retrieval utility is now committed at [`research/scripts/capture_nvd_configurations.py`](https://github.com/mirkolanvojov-collab/Freedom27/blob/main/research/scripts/capture_nvd_configurations.py). It queries the official NVD CVE API 2.0 and CPE Match API 2.0 sequentially for all 12 candidate identifiers, saves the complete raw JSON responses without rewriting their configuration fields, and emits a per-record HTTP/error summary. It accepts an optional `NVD_API_KEY` environment variable but does not require one by default. The utility only performs HTTP GET requests and writes local evidence files; it does not execute exploits or interact with a device.
+
+**Execution status:** the script has been added to the repository but has not been executed in this environment. The available GitHub retrieval interface cannot run arbitrary Python or make arbitrary outbound HTTP requests to the NVD service, and direct NVD requests from the research interface failed. Therefore the script's output has not yet been captured, and no claim is made that the 12 NVD responses were successfully retrieved. Once run in a normal Python environment with outbound HTTPS access, its summary will show per-CVE success or errors; preserve those raw responses as evidence rather than treating an HTTP failure as a missing CVE.
