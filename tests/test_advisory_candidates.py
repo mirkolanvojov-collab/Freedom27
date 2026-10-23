@@ -13,6 +13,18 @@ class AdvisoryCandidateTests(unittest.TestCase):
     def test_current_document_passes(self):
         self.assertEqual(validate_document(self.document), [])
 
+    def test_version_range_evidence_does_not_confirm_exact_build(self):
+        doc = copy.deepcopy(self.document)
+        candidate = next(
+            item for item in doc["candidates"]
+            if item["id"] == "CVE-2026-84523"
+        )
+        self.assertEqual(
+            candidate["target_applicability"],
+            "public_version_range_includes_26_6_1_exact_build_unverified",
+        )
+        self.assertEqual(validate_document(doc), [])
+
     def test_duplicate_candidate_ids_rejected(self):
         doc = copy.deepcopy(self.document)
         doc["candidates"].append(copy.deepcopy(doc["candidates"][0]))
