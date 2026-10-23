@@ -96,3 +96,22 @@ This improves confidence that the approach has been exercised on at least one ph
 
 - Compatibility source: https://github.com/everettjf/veilpath#compatibility
 - Build requirements include Xcode 27 beta and a physical device for sandbox-access testing; this is not a build path available on the user's iPhone alone.
+
+
+## Alternative path found: Erosion partial customization — 2026-10-23
+
+A direct alternative to waiting for a full jailbreak is the public [Erosion](https://github.com/jailbreakdotparty/Erosion) customization toolbox. Its README states support for iOS/iPadOS 26.0–26.6.2, with **limited functionality on iOS 26** and explicitly no MobileGestalt tweaks on iOS 26 because its underlying `bad_query` approach cannot write MobileGestalt. The latest listed release reviewed here is v0.2.1 and publishes an IPA asset with SHA-256 `8c1276ce612505233d04200a1bc568fd6e59087eaacb054f3e5edc854f0e18c`.
+
+The target OS version 26.6.1 is inside Erosion's declared range. This is a plausible partial-customization path, **not a full jailbreak** and not proof that every Erosion feature works on this specific iPhone 16 Plus/build. Its README asks users to back up first and warns that functionality is limited and tweak behavior can vary. No IPA was downloaded, installed, or executed during this review.
+
+- Compatibility statement: https://github.com/jailbreakdotparty/Erosion#supported-versions
+- Release: https://github.com/jailbreakdotparty/Erosion/releases/tag/0.2.1
+- Published IPA SHA-256 from GitHub release metadata: `8c1276ce612505233d04200a1bc568fd6e59087eaacb054f3e5edc854f0e18c`
+
+### Decision update
+
+To make progress without falsely clearing the full-jailbreak gate, split the goal into two tracks:
+1. **Partial customization track:** assess Erosion's release provenance, supported features on iOS 26, and whether it can be installed safely using only the user's available iPhone.
+2. **Full jailbreak track:** remain blocked until there is exact-target evidence for kernel privilege escalation, bootstrap/package manager, and independent reproduction.
+
+Do not label Erosion as Freedom27 or as a jailbreak. Do not claim iPhone-only installation is solved until its install/signing requirements are verified.
