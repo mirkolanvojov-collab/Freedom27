@@ -48,6 +48,13 @@ class HypothesisHarnessTests(unittest.TestCase):
         }
         self.assertTrue(any("valid HTTPS URL" in error for error in validate_record(record)))
 
+    def test_unhashable_result_is_reported_without_crashing(self):
+        record = {
+            "id": "h1", "hypothesis": "Hypothesis", "safe_test": "Safe test",
+            "expected_observation": "Observation", "result": ["reproduced_in_lab"],
+        }
+        self.assertTrue(any("result must be one of" in error for error in validate_record(record)))
+
 
 if __name__ == "__main__":
     unittest.main()
