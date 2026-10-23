@@ -132,6 +132,21 @@
         "Container access alone does not prove kernel control, system-wide privilege escalation, package-manager support, or persistence."
       ],
       "next_action": "Read upstream source and release notes for defensive compatibility assessment; require exact-target evidence before changing status."
+    },
+    {
+      "id": "apple-cve-2026-65343-65349-attribution-discrepancy",
+      "evidence_type": "official_advisory",
+      "patch_state": "patched_for_reported_scope",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "exact_target_build": "23G83",
+      "evidence_url": "https://support.apple.com/en-us/148282",
+      "limitations": [
+        "Apple describes CVE-2026-65343 as a kernel use-after-free and CVE-2026-65349 as a kernel out-of-bounds read; a third-party source attributes CVE-2026-65343 differently.",
+        "No primary technical disclosure reviewed corroborates the third-party AppleKeyStore/KASLR mapping.",
+        "No exploit was run and no reproduction was performed on iPhone 16 Plus / iOS 26.6.1 build 23G83."
+      ],
+      "next_action": "Keep attribution unverified; compare the Apple advisory with any future primary researcher disclosure and do not infer exact-target exploitability."
     }
   ]
 }
