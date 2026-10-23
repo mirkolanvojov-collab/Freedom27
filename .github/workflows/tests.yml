@@ -33,3 +33,5 @@ jobs:
         run: python -m Framework.research_triage
       - name: Validate machine-readable research triage output
         run: python -m Framework.research_triage --json > research/triage_report.json && python -c "import json; d=json.load(open('research/triage_report.json', encoding='utf-8')); assert d['summary']['joined_entries'] == d['summary']['registry_entries'] == d['summary']['ledger_entries']; assert d['summary']['reproduced_by_freedom27'] == 0; print('Research triage report validated')"
+      - name: Validate source-pinned research manifest
+        run: python -m Framework.research_manifest
