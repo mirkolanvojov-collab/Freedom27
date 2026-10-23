@@ -30,7 +30,7 @@ jobs:
       - name: Check exploit-chain evidence readiness
         run: python -m Framework.chain_readiness
       - name: Generate evidence-first blocker analysis
-        run: python -m Framework.blocker_analyzer > research/blocker_report.json && python -c "import json; d=json.load(open('research/blocker_report.json', encoding='utf-8')); assert d['assessment'] == 'blocked' or d['verified_complete_jailbreak']; assert d['device_modified'] is False; print(f\\\"Blocker report validated: {d['blocker_count']} blockers\\\")"
+        run: python -m Framework.blocker_analyzer > research/blocker_report.json && python -c "import json; d=json.load(open('research/blocker_report.json', encoding='utf-8')); assert d['assessment'] == 'blocked' or d['verified_complete_jailbreak']; assert d['device_modified'] is False; print('Blocker report validated:', d['blocker_count'], 'blockers')"
       - name: Run research triage report
         run: python -m Framework.research_triage
       - name: Validate machine-readable research triage output
