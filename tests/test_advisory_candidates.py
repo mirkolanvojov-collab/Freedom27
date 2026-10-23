@@ -70,6 +70,14 @@ class AdvisoryCandidateTests(unittest.TestCase):
         doc["candidates"][0]["reason"] = " "
         self.assertTrue(any("candidate[0].reason must be non-empty" in e for e in validate_document(doc)))
 
+    def test_malformed_status_values_fail_without_crashing(self):
+        doc = copy.deepcopy(self.document)
+        doc["candidates"][0]["target_applicability"] = ["verified"]
+        doc["candidates"][0]["reproduction_status"] = {"status": "done"}
+        errors = validate_document(doc)
+        self.assertTrue(any("target_applicability is not allowed" in e for e in errors))
+        self.assertTrue(any("reproduction_status is not allowed" in e for e in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
