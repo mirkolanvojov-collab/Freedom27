@@ -42,6 +42,9 @@ class Hypothesis:
     evidence_level: EvidenceLevel = EvidenceLevel.HYPOTHESIS
     tested_target: Target | None = None
     observed_result: str = ""
+    independent_reviewer: str = ""
+    test_artifact: str = ""
+    test_timestamp_utc: str = ""
 
     def validate(self, target: Target) -> list[str]:
         """Return blockers; an empty list means only that the record is complete."""
@@ -62,15 +65,26 @@ class Hypothesis:
             issues.append("source URLs must be absolute HTTP(S) URLs")
         if not self.non_destructive and not self.recovery_plan.strip():
             issues.append("potentially destructive test lacks a recovery plan")
+
         if self.evidence_level is EvidenceLevel.EXACT_TARGET_VERIFIED:
             if self.tested_target != target:
                 issues.append("exact-target label does not match the configured target")
             if not self.observed_result.strip():
                 issues.append("exact-target label lacks an observed result")
-        if self.evidence_level in (
-            EvidenceLevel.DEMONSTRATED,
-            EvidenceLevel.INDEPENDENTLY_REPRODUCED,
-        ) and not self.observed_result.strip():
+            if not self.test_artifact.strip():
+                issues.append("exact-target label lacks a test artifact reference")
+            if not self.test_timestamp_utc.strip():
+                issues.append("exact-target label lacks a test timestamp")
+        if self.evidence_level is EvidenceLevel.INDEPENDENTLY_REPRODUCED:
+            if not self.observed_result.strip():
+                issues.append("independent reproduction lacks an observed result")
+            if not self.independent_reviewer.strip():
+                issues.append("independent reproduction lacks reviewer attribution")
+            if not self.test_artifact.strip():
+                issues.append("independent reproduction lacks a test artifact reference")
+            if not self.test_timestamp_utc.strip():
+                issues.append("independent reproduction lacks a test timestamp")
+        if self.evidence_level is EvidenceLevel.DEMONSTRATED and not self.observed_result.strip():
             issues.append("demonstration label lacks an observed result")
         return issues
 
