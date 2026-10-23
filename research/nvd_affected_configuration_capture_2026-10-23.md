@@ -33,7 +33,7 @@ The exact per-record matches are stored under `nvd_configuration_capture.affecte
 - The listed iPhone OS/iPadOS upper bound below 26.7 includes version 26.6.1 as a **version-range match**.
 - It does not prove that a particular build (23G83) is vulnerable, that the vulnerability can be triggered, or that it yields a usable exploit primitive.
 - Some Apple CNA records express ranges such as `0 < 26.7` and `0 < 27` separately. These source ranges are preserved as separate entries rather than silently merged.
-- The capture is not yet a full direct-NVD API archive. The next evidence-quality step is to retrieve and save the official NVD CVE API JSON response for every candidate, then compare the `configurations` / CPE match fields and Apple CNA `affected` entries against these secondary representations.
+- The capture is not yet a full direct-NVD API archive. An additional primary-source cross-check was completed against Apple's iOS/iPadOS 26.7 security bulletin (released September 14, 2026): it independently confirms the disclosed impacts and that these named issues were addressed in 26.7, but Apple's bulletin is not a substitute for the NVD's machine-readable configuration payload. The official NVD endpoint was retried during this pass and remained inaccessible through the available retrieval interface; no response body was captured. The remaining evidence-quality step is to retrieve and save the official NVD CVE API JSON response for every candidate, then compare `configurations` / CPE match fields and Apple CNA `affected` entries against these secondary representations.
 
 ## Remaining direct API capture list
 
@@ -46,6 +46,12 @@ Capture at minimum:
 - `vulnerabilities[].cve.containers.cna.affected` where present
 - `published`, `lastModified`, `sourceIdentifier`, and reference URLs
 
+## Primary-source cross-check and retrieval blocker
+
+Apple's official iOS 26.7 / iPadOS 26.7 bulletin is available at https://support.apple.com/en-us/149041. It lists CVE-2026-84566 as a Kernel issue that may cause unexpected system termination or kernel-memory corruption, and CVE-2026-65405 as a Kernel information-disclosure issue that may reveal kernel memory layout. It also describes CVE-2026-84622 as an issue requiring root privileges to read uninitialized kernel memory. These impacts corroborate the general descriptions in the candidate ledger, and the bulletin says iOS/iPadOS 26.7 was released September 14, 2026. This does not independently prove that iOS 26.6.1 build 23G83 is affected or exploitable.
+
+The official NVD API URL pattern was retried for CVE-2026-84566: `https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=CVE-2026-84566`. The retrieval interface returned an inaccessible-endpoint error rather than JSON. Accordingly, no official NVD API response is attached and no response fields are claimed as captured. This is an access limitation, not evidence that the NVD record is absent.
+
 ## Status
 
-This commit records the secondary configuration captures. Direct NVD API JSON has not yet been saved. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
+Secondary configuration captures and an Apple advisory cross-check are recorded. Direct NVD API JSON has not yet been saved because the endpoint could not be retrieved through the available interface. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
