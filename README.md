@@ -15,10 +15,8 @@ Freedom27 is a research scaffold for investigating iOS customization and jailbre
 - Public-source links and limitations are tracked in [the vulnerability registry](research/vulnerability_registry.json) and [evidence ledger](research/evidence_ledger.json).
 - [Exact-target status report](research/exact_target_status.md) records what is and is not known for the current device/build.
 - [Next-step execution plan](research/next_steps.md) describes the safe order of work and gates before implementation.
-- [Blocker-resolution engine](research/blocker_resolution_engine.md) creates a fail-closed plan and requires exact-target, independently reproduced evidence to close gates.
-- [Read-only iOS security audit planner](research/ios_security_audit.md) catalogs security controls without attempting bypasses or modifying the device.
-- [Blocker resolution engine](research/blocker_resolution_engine.md) prioritizes missing evidence and prerequisites.
-- [Read-only iOS security audit planner](research/ios_security_audit.md) catalogs the security boundaries and safe research tasks.
+- [Blocker-resolution engine](research/blocker_resolution_engine.md) prioritizes missing evidence and prerequisites, and requires exact-target, independently reproduced evidence to close gates.
+- [Read-only iOS security audit planner](research/ios_security_audit.md) catalogs security controls and safe research tasks without attempting bypasses or modifying the device.
 - Automated checks reject incomplete verified claims and flag claims without exact-target reproduction.
 - [GitHub Actions](https://github.com/mirkolanvojov-collab/Freedom27/actions) runs unit tests, research-metadata checks, and validates machine-readable blocker and audit reports.
 
