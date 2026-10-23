@@ -72,3 +72,9 @@ This plan is a repository workflow, not a promise that a jailbreak exists or can
 - Updated [research/exact_target_status.md](exact_target_status.md) to clarify the scope of Apple's official [iOS 26.6.1 security-content advisory](https://support.apple.com/en-us/148282): issues described as fixed in build `23G83` are not evidence of vulnerabilities that remain usable on that build, and a single CVE does not establish a jailbreak chain.
 - GitHub's available commit-workflow lookup returned no workflow runs for the documentation commit `2daf87df7a6d0ad79b14d1ecef3f3f2233724437`. This is **unknown**, not a passing CI result. Check [GitHub Actions](https://github.com/mirkolanvojov-collab/Freedom27/actions) for the push-triggered run.
 - Next action remains read-only validation: inspect the latest Actions run and its test results, then continue primary-source review. No exploit was run and no phone settings were changed.
+
+
+### Latest CI and primary-advisory follow-up (2026-10-23)
+- Verified [GitHub Actions run #146](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40013306243) for main commit `c3be5c919cfae2d33476d97506516456819f2c93`: the workflow and all listed steps completed successfully. This is repository validation only, not device validation.
+- Added [research/ios_26_7_primary_advisory_followup_2026-10-23.md](ios_26_7_primary_advisory_followup_2026-10-23.md). Apple's iOS 26.7 advisory documents TCC, CoreMedia, and kernel issues fixed in 26.7. Because the recorded target is 26.6.1, these are potentially relevant pre-fix leads, but the advisory alone does not prove exact build 23G83 applicability or exploitability.
+- Current next blocker: obtain primary technical evidence that establishes the exact affected-version range and a specific, relevant primitive. Keep the chain blocked; no exploit was run and no phone was accessed or modified.
