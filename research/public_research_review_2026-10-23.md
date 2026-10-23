@@ -32,7 +32,18 @@ Assessment:
 - The described sandbox/container access is not itself kernel control, system-wide root, a complete jailbreak, persistence, or Cydia support.
 - Freedom27 has not reproduced this behavior. Do not run an untrusted payload on a daily-use device just to check a claim.
 
-### 3. Older-hardware projects do not transfer automatically
+### 3. Related projects show a narrower customization route may exist
+
+Two public projects provide useful context beyond the original PoC:
+
+- Erosion describes a customization toolbox built around bad_query and lists iOS 26.0–26.6.1 support with limited functionality. Its README warns that some tweaks do not work on iOS 26 and that support depends on the device cooperating. This is not a traditional persistent jailbreak and does not establish iPhone17,4 / build 23G83 compatibility by itself.
+  Source: https://github.com/jailbreakdotparty/Erosion
+- EscapeOS describes browsing and backing up selected app-data containers with bad_query, not a full jailbreak. Its compatibility table reports a physical-device test on an iPhone 17 running iOS 26.5.1, but does not establish a test on iPhone 16 Plus / build 23G83. It also documents additional host/pairing requirements.
+  Source: https://github.com/pwnapplehat/EscapeOS
+
+These are worth examining as potential user-facing customization or app-data tools, but do not close the kernel/root/persistence/Cydia gaps. Do not install them solely based on version overlap; first review the source, signing/distribution method, permissions, backup/recovery path, and exact hardware evidence.
+
+### 4. Older-hardware projects do not transfer automatically
 
 Projects with public reports for A12/A13-era hardware cannot be assumed to work on the iPhone 16 Plus. CPU generation, boot chain, mitigations, OS build, host requirements, and tested scope all matter.
 
@@ -40,7 +51,7 @@ Examples to review only within their documented scope:
 - https://github.com/Xplo8E/Liter8
 - https://github.com/Cyber-Scholar/usbliter8
 
-### 4. What is currently missing
+### 5. What is currently missing
 
 No reviewed public source establishes all of the following for iPhone17,4 / iOS 26.6.1 / 23G83:
 1. Reproducible entry vulnerability on this exact target.
@@ -54,7 +65,7 @@ These are research gates, not a promise that each stage must use a separate vuln
 
 ## Research decision
 
-Keep the exact target status **unverified / no public jailbreak tool listed**. The highest-value lead to inspect at source level is bad_query, because its stated OS range overlaps the target version. Source review should first establish its technical mechanism, prerequisites, limitations, and whether the code is safe to run in a controlled test environment. Do not infer a working jailbreak from README claims alone.
+Keep the exact target status **no verified full jailbreak for this exact device/build**. The best next source-review sequence is: inspect bad_query and its license/distribution state; compare Erosion and EscapeOS to understand the limited container/customization capabilities; then decide whether a safe, non-destructive, target-specific test can be made. These projects are potential research leads, not evidence that a full jailbreak with Cydia exists for this exact target.
 
 The next meaningful milestone is a source-level technical review with a reproducible, non-destructive test plan—not an invented exploit. Any test requiring an untrusted payload or modification of the daily-use phone should wait until the behavior, scope, and recovery path are understood.
 
