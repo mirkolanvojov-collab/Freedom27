@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Planning matrix only; no row currently claims working jailbreak compatibility.",
+  "description": "Evidence-tracking matrix. A reported demo is not a Freedom27-compatible release; no row currently claims Freedom27 is installable.",
   "allowed_statuses": [
     "not-investigated",
     "researching",
@@ -18,7 +18,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet."
     },
     {
       "device_family": "iPhone 14",
@@ -28,7 +28,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet."
     },
     {
       "device_family": "iPhone 15",
@@ -38,7 +38,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet."
     },
     {
       "device_family": "iPhone 15",
@@ -48,7 +48,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet."
     },
     {
       "device_family": "iPhone 16",
@@ -58,7 +58,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet."
     },
     {
       "device_family": "iPhone 16",
@@ -68,7 +68,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet."
     },
     {
       "device_family": "iPhone 17",
@@ -78,7 +78,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet."
     },
     {
       "device_family": "iPhone 17",
@@ -88,7 +88,17 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet."
+    },
+    {
+      "device_family": "iPhone 18",
+      "model_identifier": "iPhone19,2 (reported iPhone 18 Pro)",
+      "os_family": "iOS 27",
+      "os_version": "27.0.1",
+      "build": "24A446",
+      "status": "experimental",
+      "evidence_url": "https://www.iclarified.com/102876/untethered-ios-2701-jailbreak-demonstrated-on-iphone-18-pro-video",
+      "notes": "Public reporting describes a Calif stage demonstration on this single device/build. No public tool or implementation is available in the cited report. This is evidence of a reported demonstration only, not a Freedom27 port or installable compatibility. Independent reproduction and technical details are outstanding."
     },
     {
       "device_family": "iPhone 18",
@@ -98,7 +108,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "No exact model/build evidence recorded yet. Verify whether this OS family was available for this device variant before treating this row as a practical target."
     },
     {
       "device_family": "iPhone 18",
@@ -108,7 +118,7 @@
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+      "notes": "Other iPhone 18 variants remain unconfirmed; do not generalize the Pro demonstration."
     }
   ]
 }
