@@ -116,7 +116,7 @@ def main() -> int:
         return 1
     errors = validate_document(document)
     if errors:
-        print("\\n".join(errors))
+        print("\n".join(errors))
         return 1
     entries = document["entries"]
     print(f"Research manifest valid: {len(entries)} source-pinned entries; metadata only.")
