@@ -23,6 +23,8 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Check evidence metadata integrity
         run: python -m Framework.evidence_checks
+      - name: Check exact-target compatibility claim evidence
+        run: python -m Framework.claim_checks
       - name: Check project metadata integrity
         run: python -c "from Framework.project_checks import check_project; errors = check_project(); print('\\n'.join(errors) if errors else 'Project metadata checks passed'); raise SystemExit(bool(errors))"
       - name: Run research triage report
