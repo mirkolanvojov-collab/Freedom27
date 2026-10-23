@@ -67,10 +67,11 @@ class ResearchManifestTests(unittest.TestCase):
 
 class ResearchDocumentTests(unittest.TestCase):
     def make_document(self):
+        # Copy nested mutable records so a negative test cannot mutate module fixtures.
         return {
             "schema_version": 1,
-            "target": TARGET,
-            "entries": [VALID],
+            "target": dict(TARGET),
+            "entries": [{**VALID, "target": dict(TARGET)}],
             "warning": "Metadata only; does not establish exploitability.",
         }
 
