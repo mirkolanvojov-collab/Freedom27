@@ -31,6 +31,24 @@ class BlockerResolutionEngineTests(unittest.TestCase):
         self.assertFalse(plan["execution_policy"]["device_modified"])
         self.assertFalse(plan["execution_policy"]["exploit_execution_authorized"])
 
+    def test_verified_labels_without_evidence_records_do_not_close_gates(self):
+        doc = {
+            "generated_for": TARGET,
+            "verified_complete_jailbreak": True,
+            "gates": [
+                {"id": gate, "status": "verified"}
+                for gate in (
+                    "entry", "sandbox_escape", "kernel_primitive", "privilege_escalation",
+                    "platform_mitigations", "persistence_or_bootstrap", "package_manager",
+                    "independent_reproduction",
+                )
+            ],
+        }
+        plan = build_plan(doc)
+        self.assertEqual(plan["assessment"], "blocked")
+        self.assertEqual(plan["open_task_count"], 8)
+        self.assertFalse(plan["verified_complete_jailbreak"])
+
     def test_verified_downstream_gate_still_requires_prerequisites(self):
         doc = {
             "generated_for": TARGET,
