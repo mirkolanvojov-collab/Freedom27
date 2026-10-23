@@ -7,6 +7,7 @@ bypass code-signing, escalate privileges, or modify the device.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Iterable
 from urllib.parse import urlparse
@@ -73,8 +74,8 @@ class Hypothesis:
                 issues.append("exact-target label lacks an observed result")
             if not self.test_artifact.strip():
                 issues.append("exact-target label lacks a test artifact reference")
-            if not self.test_timestamp_utc.strip():
-                issues.append("exact-target label lacks a test timestamp")
+            if not self._is_utc_timestamp(self.test_timestamp_utc):
+                issues.append("exact-target label requires an ISO-8601 UTC timestamp")
         if self.evidence_level is EvidenceLevel.INDEPENDENTLY_REPRODUCED:
             if not self.observed_result.strip():
                 issues.append("independent reproduction lacks an observed result")
@@ -82,8 +83,8 @@ class Hypothesis:
                 issues.append("independent reproduction lacks reviewer attribution")
             if not self.test_artifact.strip():
                 issues.append("independent reproduction lacks a test artifact reference")
-            if not self.test_timestamp_utc.strip():
-                issues.append("independent reproduction lacks a test timestamp")
+            if not self._is_utc_timestamp(self.test_timestamp_utc):
+                issues.append("independent reproduction requires an ISO-8601 UTC timestamp")
         if self.evidence_level is EvidenceLevel.DEMONSTRATED and not self.observed_result.strip():
             issues.append("demonstration label lacks an observed result")
         return issues
@@ -94,6 +95,14 @@ class Hypothesis:
             parsed = urlparse(value.strip())
             return parsed.scheme in ("http", "https") and bool(parsed.netloc)
         except (AttributeError, ValueError):
+            return False
+
+    @staticmethod
+    def _is_utc_timestamp(value: str) -> bool:
+        try:
+            parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+            return parsed.tzinfo is not None and parsed.utcoffset() == timezone.utc.utcoffset(parsed)
+        except (AttributeError, ValueError, TypeError):
             return False
 
 
