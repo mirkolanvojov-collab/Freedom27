@@ -1,0 +1,9 @@
+{
+  "note": "No safety attestations are currently established. Do not set a gate to verified without reviewable evidence for the exact target.",
+  "exact_target_chain_verified": {"status": "missing"},
+  "backup_verified": {"status": "missing"},
+  "recovery_path_tested": {"status": "missing"},
+  "source_review_complete": {"status": "missing"},
+  "non_destructive_test_passed": {"status": "missing"},
+  "crash_recovery_tested": {"status": "missing"}
+}

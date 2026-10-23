@@ -36,6 +36,8 @@ jobs:
         run: python -c "from Framework.project_checks import check_project; errors = check_project(); print('\\n'.join(errors) if errors else 'Project metadata checks passed'); raise SystemExit(bool(errors))"
       - name: Check exploit-chain evidence readiness
         run: python -m Framework.chain_readiness
+      - name: Validate fail-closed device safety preflight
+        run: python -c "import json; from Framework.device_safety_gate import assess_safety; from pathlib import Path; t=json.loads(Path('research/current_exact_target_status.json').read_text()); a=json.loads(Path('research/device_safety_attestations.json').read_text()); r=assess_safety(t,a); print(json.dumps(r, indent=2)); assert r['preflight_passed'] is False; assert r['device_execution_authorized'] is False; assert r['guarantees_no_crash'] is False; assert r['blocker_count'] > 0"
       - name: Generate evidence-first blocker analysis
         run: python -m Framework.blocker_analyzer > research/blocker_report.json && python -c "import json; d=json.load(open('research/blocker_report.json', encoding='utf-8')); assert d['assessment'] == 'blocked' or d['verified_complete_jailbreak']; assert d['device_modified'] is False; print('Blocker report validated:', d['blocker_count'], 'blockers')"
       - name: Generate blocker-resolution plan
