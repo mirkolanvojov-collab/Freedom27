@@ -28,6 +28,11 @@
       "type": "NVD CVE record",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84607",
       "supports": "Published affected-version configuration and weakness metadata for CVE-2026-84607"
+    },
+    {
+      "type": "Official CVE Program record repository",
+      "url": "https://github.com/CVEProject/cvelistV5",
+      "supports": "Apple CNA affected-version ranges and vendor-supplied descriptions in CVE JSON 5 records; not NVD CPE configurations"
     }
   ],
   "results": [
@@ -51,7 +56,27 @@
         "race controllability",
         "kernel code execution",
         "working jailbreak chain"
-      ]
+      ],
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84607.json",
+        "date_updated": "2026-09-16T03:55:39.550Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "A race condition was addressed with improved state management; a sandboxed app may execute arbitrary code with kernel privileges.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
+      }
     },
     {
       "cve_id": "CVE-2026-43689",
@@ -76,7 +101,27 @@
         "complete chain"
       ],
       "evidence_checked_on": "2026-10-23",
-      "version_evidence_notes": "NVD record shows Apple affected-software configuration ending before 26.7."
+      "version_evidence_notes": "NVD record shows Apple affected-software configuration ending before 26.7.",
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/43xxx/CVE-2026-43689.json",
+        "date_updated": "2026-10-20T00:50:07.857Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "A permissions issue was addressed with additional restrictions; a malicious app may gain root privileges.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
+      }
     },
     {
       "cve_id": "CVE-2026-84523",
@@ -98,7 +143,27 @@
         "controllable write primitive",
         "reliable exploit",
         "kernel execution"
-      ]
+      ],
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84523.json",
+        "date_updated": "2026-10-20T00:50:29.405Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "An out-of-bounds write may allow unexpected system termination or kernel-memory writes.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
+      }
     },
     {
       "cve_id": "CVE-2026-86876",
@@ -123,7 +188,27 @@
         "target applicability"
       ],
       "evidence_checked_on": "2026-10-23",
-      "version_evidence_notes": "NVD/Apple advisory: sandbox restrictions may be circumvented; out-of-bounds write fixed with bounds checking."
+      "version_evidence_notes": "NVD/Apple advisory: sandbox restrictions may be circumvented; out-of-bounds write fixed with bounds checking.",
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/86xxx/CVE-2026-86876.json",
+        "date_updated": "2026-10-20T00:50:45.145Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "An out-of-bounds write may let a sandboxed process circumvent sandbox restrictions.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
+      }
     },
     {
       "cve_id": "CVE-2026-86886",
@@ -182,6 +267,26 @@
         ],
         "checked_on": "2026-10-23",
         "direct_nvd_api_payload_captured": false
+      },
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/86xxx/CVE-2026-86886.json",
+        "date_updated": "2026-09-17T15:38:26.054Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "A path traversal may let an app modify protected system files.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
       }
     },
     {
@@ -233,6 +338,26 @@
         ],
         "checked_on": "2026-10-23",
         "direct_nvd_api_payload_captured": false
+      },
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84566.json",
+        "date_updated": "2026-10-20T00:50:35.698Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "A local attacker may cause unexpected system termination or corrupt kernel memory.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
       }
     },
     {
@@ -253,7 +378,27 @@
         "memory disclosure on target",
         "network reachability",
         "usefulness for a chain"
-      ]
+      ],
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/43xxx/CVE-2026-43687.json",
+        "date_updated": "2026-10-20T00:50:07.607Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "Connecting to a malicious NFS server may disclose kernel memory.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
+      }
     },
     {
       "cve_id": "CVE-2026-43684",
@@ -277,7 +422,27 @@
         "code execution"
       ],
       "evidence_checked_on": "2026-10-23",
-      "version_evidence_notes": "Apple advisory identifies kernel use-after-free fixed with improved memory management."
+      "version_evidence_notes": "Apple advisory identifies kernel use-after-free fixed with improved memory management.",
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/43xxx/CVE-2026-43684.json",
+        "date_updated": "2026-10-20T00:50:07.078Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "A use-after-free may cause system termination or corrupt kernel memory.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
+      }
     },
     {
       "cve_id": "CVE-2026-43686",
@@ -301,7 +466,27 @@
         "exploitability"
       ],
       "evidence_checked_on": "2026-10-23",
-      "version_evidence_notes": "Apple advisory identifies NFS-triggered kernel memory corruption; use-after-free fixed with improved memory management."
+      "version_evidence_notes": "Apple advisory identifies NFS-triggered kernel memory corruption; use-after-free fixed with improved memory management.",
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/43xxx/CVE-2026-43686.json",
+        "date_updated": "2026-10-20T00:50:07.338Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "Connecting to a malicious NFS server may lead to kernel-memory corruption.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
+      }
     },
     {
       "cve_id": "CVE-2026-65405",
@@ -371,6 +556,26 @@
         ],
         "checked_on": "2026-10-23",
         "direct_nvd_api_payload_captured": false
+      },
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/65xxx/CVE-2026-65405.json",
+        "date_updated": "2026-10-20T00:50:24.905Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "An app may be able to determine kernel memory layout.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
       }
     },
     {
@@ -437,6 +642,26 @@
         ],
         "checked_on": "2026-10-23",
         "direct_nvd_api_payload_captured": false
+      },
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84622.json",
+        "date_updated": "2026-10-20T00:50:40.638Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "An app with root privileges may read uninitialized kernel memory.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
       }
     },
     {
@@ -503,6 +728,26 @@
         ],
         "checked_on": "2026-10-23",
         "direct_nvd_api_payload_captured": false
+      },
+      "official_cve_program_capture": {
+        "source_url": "https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/28xxx/CVE-2026-28968.json",
+        "date_updated": "2026-10-20T00:50:06.034Z",
+        "affected_product": "Apple iOS and iPadOS",
+        "affected_ranges": [
+          {
+            "version": "0",
+            "less_than": "26.7"
+          },
+          {
+            "version": "0",
+            "less_than": "27"
+          }
+        ],
+        "range_match_for_reported_26_6_1": true,
+        "exact_build_verified": false,
+        "description_summary": "An out-of-bounds write may cause unexpected system termination or corrupt kernel memory.",
+        "source_type": "CVE Program CVE JSON record (Apple CNA container)",
+        "nvd_cpe_configurations_captured": false
       }
     }
   ],
@@ -548,5 +793,12 @@
     "result": "Secondary public representations of NVD configurations captured for CVE-2026-84566, CVE-2026-84622, CVE-2026-28968, CVE-2026-65405 and CVE-2026-86886. iPhone OS/iPadOS CPE ranges below 26.7 are reported for these records; direct NVD API payload and exact build verification remain outstanding. No exploitability demonstrated.",
     "cves_cracked": 0,
     "exploits_executed": 0
+  },
+  "capture_summary": {
+    "official_cve_program_records_retrieved": 12,
+    "affected_range": "Apple CNA records list iOS/iPadOS below 26.7 and a separate range below 27 for all 12 candidates",
+    "interpretation": "A version-range match only; exact iPhone17,4 build 23G83 status and exploitability remain unverified.",
+    "nvd_direct_api_json_captured": false,
+    "updated_on": "2026-10-23"
   }
 }
