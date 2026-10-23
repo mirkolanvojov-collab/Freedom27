@@ -38,6 +38,26 @@ class AdvisoryCandidateTests(unittest.TestCase):
         doc["policy"]["exploit_executed"] = True
         self.assertTrue(any("exploit_executed must remain false" in e for e in validate_document(doc)))
 
+    def test_unknown_schema_version_rejected(self):
+        doc = copy.deepcopy(self.document)
+        doc["schema_version"] = 2
+        self.assertTrue(any("schema_version must be 1" in e for e in validate_document(doc)))
+
+    def test_positive_reproduction_claim_rejected_in_advisory_metadata(self):
+        doc = copy.deepcopy(self.document)
+        doc["candidates"][0]["reproduction_status"] = "reproduced_by_Freedom27"
+        self.assertTrue(any("reproduction_status is not allowed" in e for e in validate_document(doc)))
+
+    def test_chain_claim_must_remain_unestablished(self):
+        doc = copy.deepcopy(self.document)
+        doc["candidates"][0]["chain_status"] = "verified_complete_jailbreak"
+        self.assertTrue(any("chain_status must remain not_established" in e for e in validate_document(doc)))
+
+    def test_candidate_required_fields_cannot_be_blank(self):
+        doc = copy.deepcopy(self.document)
+        doc["candidates"][0]["reason"] = " "
+        self.assertTrue(any("candidate[0].reason must be non-empty" in e for e in validate_document(doc)))
+
 
 if __name__ == "__main__":
     unittest.main()
