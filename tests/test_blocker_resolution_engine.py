@@ -111,6 +111,16 @@ class BlockerResolutionEngineTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_plan([])
 
+    def test_malformed_gate_status_fails_closed_without_crashing(self):
+        doc = {
+            "generated_for": TARGET,
+            "verified_complete_jailbreak": False,
+            "gates": [{"id": "entry", "status": ["verified"]}],
+        }
+        plan = build_plan(doc)
+        self.assertEqual(plan["assessment"], "blocked")
+        self.assertTrue(any(task["status"] == "invalid" for task in plan["tasks"]))
+
     def test_malformed_evidence_target_and_url_fail_closed(self):
         record = {
             "target": [],
