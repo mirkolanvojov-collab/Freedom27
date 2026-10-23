@@ -38,10 +38,12 @@
       "fix": "Race condition addressed with improved state management",
       "version_evidence": {
         "source": "NVD",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84607",
-        "range": "iOS/iPadOS versions below 26.7",
+        "url": "https://nvd.nist.gov/vuln/detail/cve-2026-84607",
+        "range": "NVD CPE: Apple iPhone OS versions below 26.7",
         "target_version_in_range": true,
-        "exact_build_verified": false
+        "exact_build_verified": false,
+        "source_checked": "2026-10-23",
+        "source_detail": "NVD lists cpe:2.3:o:apple:iphone_os:* with an upper bound excluding 26.7; it also lists iPadOS below 26.7. This supports version-range applicability to 26.6.1, not exact build verification."
       },
       "validation_status": "version_range_supported_exact_build_unverified",
       "safe_next_step": "Search for public patch/bug references; document component/version evidence; use only a benign state-machine model test if it can capture the corrected synchronization property.",
@@ -57,11 +59,13 @@
       "impact": "A malicious app may be able to gain root privileges",
       "fix": "Permissions issue addressed with additional restrictions",
       "version_evidence": {
-        "source": "Apple advisory and CVE record references",
-        "url": "https://support.apple.com/en-us/149041",
-        "range": "fixed in iOS 26.7; NVD-style precise CPE range not independently captured in this review",
-        "target_version_in_range": "likely based on release ordering, but not established in this record",
-        "exact_build_verified": false
+        "source": "Apple advisory and GitHub Advisory Database",
+        "url": "https://github.com/advisories/GHSA-4jgx-p7cx-g39r",
+        "range": "The public description states fixed in iOS 26.7; advisory database says affected versions unknown.",
+        "target_version_in_range": "not established by this record",
+        "exact_build_verified": false,
+        "source_checked": "2026-10-23",
+        "note": "Do not infer a precise affected-version range from fixed-release wording alone."
       },
       "validation_status": "needs_precise_version_record",
       "safe_next_step": "Retrieve the exact NVD/CVE record and record its affected CPE configuration; seek public patch detail for the permission check.",
@@ -97,11 +101,12 @@
       "impact": "A sandboxed process may be able to circumvent sandbox restrictions",
       "fix": "Out-of-bounds write addressed with improved bounds checking",
       "version_evidence": {
-        "source": "Apple advisory",
-        "url": "https://support.apple.com/en-us/149041",
-        "range": "fixed in iOS 26.7; precise affected CPE not independently captured in this review",
+        "source": "NVD search result",
+        "url": "https://nvd.nist.gov/vuln/search?cpeFilterMode=cpe&cpeName=cpe%3A2.3%3Ao%3Aapple%3Aiphone_os%3A18.1.1%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A&resultType=records",
+        "range": "Public NVD search record says fixed in iOS 26.7; precise CPE range not confirmed in this review",
         "target_version_in_range": "not established",
-        "exact_build_verified": false
+        "exact_build_verified": false,
+        "source_checked": "2026-10-23"
       },
       "validation_status": "needs_precise_version_record",
       "safe_next_step": "Find exact CVE record/version configuration and any public bug/patch references; consider benign parser regression tests only.",
@@ -117,11 +122,12 @@
       "impact": "An app may be able to modify protected system files",
       "fix": "Path traversal addressed with improved input validation",
       "version_evidence": {
-        "source": "Apple advisory",
-        "url": "https://support.apple.com/en-us/149041",
-        "range": "fixed in iOS 26.7; precise affected CPE not independently captured in this review",
+        "source": "NVD search result",
+        "url": "https://nvd.nist.gov/vuln/search?cpeFilterMode=cpe&cpeName=cpe%3A2.3%3Ao%3Aapple%3Aiphone_os%3A18.1.1%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A&resultType=records",
+        "range": "Public NVD search record says fixed in iOS 26.7; precise CPE range not confirmed in this review",
         "target_version_in_range": "not established",
-        "exact_build_verified": false
+        "exact_build_verified": false,
+        "source_checked": "2026-10-23"
       },
       "validation_status": "needs_precise_version_record",
       "safe_next_step": "Find exact CVE record and document path-validation boundary and prerequisites; write toy path-normalization tests only.",
@@ -271,5 +277,11 @@
         "target applicability"
       ]
     }
+  ],
+  "review_notes": [
+    "CVE-2026-84607: NVD's explicit iPhone OS CPE upper bound below 26.7 supports the reported 26.6.1 version being within the listed affected range; exact build 23G83 and exploitability remain unverified.",
+    "CVE-2026-43689: secondary public advisory record reports affected versions unknown; do not treat release ordering as precise version evidence.",
+    "CVE-2026-86876 and CVE-2026-86886: Apple/NVD summaries confirm impact and fix release, but this review did not capture a precise CPE range for either.",
+    "For all candidates, public affected-version evidence does not establish exploitability, a usable primitive, or a jailbreak chain."
   ]
 }
