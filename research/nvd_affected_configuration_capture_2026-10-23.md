@@ -65,3 +65,18 @@ The official NVD API URL pattern was retried for CVE-2026-84566: `https://servic
 ## Status
 
 Secondary NVD/CPE representations, official CVE Program Apple CNA records for all 12 candidates, and an Apple advisory cross-check are recorded. Direct NVD API JSON has not yet been saved because the endpoint could not be retrieved through the available interface. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
+
+
+## Alternate feed retrieval attempt — 2026-10-23
+
+To avoid the blocked direct NVD API route, the community-maintained [FKIE NVD JSON data-feed reconstruction](https://github.com/fkie-cad/nvd-json-data-feeds) was checked. Its README explicitly says it reconstructs legacy feeds from NVD API data and is not endorsed or certified by NVD. The repository's per-CVE directory structure was queried for all five relevant numeric prefixes (84xx, 43xx, 86xx, 65xx, 28xx). The available directory listings contained only four-digit CVE suffixes (for example, `CVE-2026-8499.json`), and none of the 12 five-digit-suffix candidates in this ledger was present in those listings. The mirror therefore did **not** provide configuration JSON for these candidates in the checked snapshot. This is a mirror coverage/freshness limitation, not evidence that the CVEs do not exist.
+
+NIST's NVD status page says the current `/cves/` endpoint still returns the latest full affected JSON, while the history-feed format changed in August 2026: https://www.nist.gov/itl/nvd. The direct endpoint remains inaccessible through the current retrieval interface, so no NVD configuration payload or CPE match-criteria identifiers are claimed as captured. The Apple CNA records already captured remain useful version-range evidence, but are not a substitute for NVD CPE configuration data.
+
+## Updated status
+
+- Captured: official CVE Program / Apple CNA affected-version data for all 12 candidates.
+- Checked: community NVD feed mirror directory listings for all five numeric prefixes; no matching candidate records were present.
+- Not captured: direct NVD `configurations` JSON and associated CPE match-criteria records.
+- Not established: exact build applicability for `23G83`, or exploitability on the user's device.
+- Safety: no exploit was executed, no CVE was weaponized, and no device was accessed or modified.
