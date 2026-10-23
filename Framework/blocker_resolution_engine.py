@@ -142,7 +142,8 @@ def build_plan(status_document: dict[str, Any], evidence_records: list[Any] | No
                 changed = True
     for gate_id in REQUIRED_GATES:
         item = by_id.get(gate_id, {})
-        status = item.get("status", "missing")
+        raw_status = item.get("status", "missing")
+        status = raw_status if isinstance(raw_status, str) else "invalid"
         deps = list(DEPENDENCIES[gate_id])
         unmet = [dep for dep in deps if dep not in verified_ids]
         # Do not let a "verified" label alone satisfy a gate if its prerequisites are unmet.
