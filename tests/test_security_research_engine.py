@@ -34,15 +34,30 @@ class SecurityResearchEngineTests(unittest.TestCase):
                 h = self.make_hypothesis(source_urls=(url,))
                 self.assertIn("source URLs must be absolute HTTP(S) URLs", h.validate(TARGET))
 
-    def test_exact_target_requires_target_result_artifact_and_timestamp(self):
+    def test_exact_target_requires_valid_utc_timestamp(self):
+        for timestamp in ("", "yesterday", "2026-10-23T12:00:00+02:00", "2026-10-23T12:00:00"):
+            with self.subTest(timestamp=timestamp):
+                h = self.make_hypothesis(
+                    evidence_level=EvidenceLevel.EXACT_TARGET_VERIFIED,
+                    tested_target=TARGET,
+                    observed_result="Marker read succeeded",
+                    test_artifact="artifact.txt",
+                    test_timestamp_utc=timestamp,
+                )
+                self.assertIn(
+                    "exact-target label requires an ISO-8601 UTC timestamp",
+                    h.validate(TARGET),
+                )
+
+    def test_exact_target_accepts_iso_utc_timestamp(self):
         h = self.make_hypothesis(
             evidence_level=EvidenceLevel.EXACT_TARGET_VERIFIED,
             tested_target=TARGET,
             observed_result="Marker read succeeded",
+            test_artifact="artifact.txt",
+            test_timestamp_utc="2026-10-23T12:00:00Z",
         )
-        issues = h.validate(TARGET)
-        self.assertIn("exact-target label lacks a test artifact reference", issues)
-        self.assertIn("exact-target label lacks a test timestamp", issues)
+        self.assertEqual(h.validate(TARGET), [])
 
     def test_independent_reproduction_requires_reviewer_and_artifact(self):
         h = self.make_hypothesis(
@@ -52,7 +67,7 @@ class SecurityResearchEngineTests(unittest.TestCase):
         issues = h.validate(TARGET)
         self.assertIn("independent reproduction lacks reviewer attribution", issues)
         self.assertIn("independent reproduction lacks a test artifact reference", issues)
-        self.assertIn("independent reproduction lacks a test timestamp", issues)
+        self.assertIn("independent reproduction requires an ISO-8601 UTC timestamp", issues)
 
     def test_exact_target_label_fails_closed_for_wrong_device(self):
         other = Target("Other phone", "other1,1", "iOS 26.6.1", "23G83")
