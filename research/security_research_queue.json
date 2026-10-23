@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "target": {
+    "device_model": "iPhone 16 Plus",
+    "model_identifier": "iPhone17,4",
+    "exact_os_version": "iOS 26.6.1",
+    "build_number": "23G83"
+  },
+  "entries": [
+    {
+      "id": "PUB-BAD-QUERY-SCOPE",
+      "title": "Verify the published scope and technical limits of bad_query",
+      "boundary": "app sandbox / container access",
+      "claim": "The upstream project documents a sandbox-escape proof of concept whose stated OS range overlaps iOS 26.6.1.",
+      "expected_observation": "Primary source code and documentation identify the mechanism, prerequisites, limitations, and exact supported builds.",
+      "falsifying_observation": "The source does not support the stated version range, prerequisites are unmet, or no verifiable technical evidence backs the claim.",
+      "source_urls": [
+        "https://github.com/forcequitOS/bad_query"
+      ],
+      "prerequisites": [
+        "Review source and license without executing the project",
+        "Identify the exact upstream revision",
+        "Separate documentation claims from behavior established by code"
+      ],
+      "evidence_level": "source_supported",
+      "exact_target_verified": false,
+      "status": "source review pending"
+    },
+    {
+      "id": "PUB-EROSION-SCOPE",
+      "title": "Determine which customizations Erosion actually permits",
+      "boundary": "user-level customization / app container",
+      "claim": "Erosion documents limited customization capabilities on some iOS 26 versions.",
+      "expected_observation": "Source review identifies the features, required privileges, signing/distribution model, and device/version limitations.",
+      "falsifying_observation": "The feature list cannot be traced to code or its prerequisites exclude the target.",
+      "source_urls": [
+        "https://github.com/jailbreakdotparty/Erosion"
+      ],
+      "prerequisites": [
+        "Review source, dependencies, license, and distribution method",
+        "Do not install or execute binaries during initial review"
+      ],
+      "evidence_level": "hypothesis",
+      "exact_target_verified": false,
+      "status": "source review pending"
+    },
+    {
+      "id": "PUB-ESCAPEOS-SCOPE",
+      "title": "Separate documented app-data access from full jailbreak capability",
+      "boundary": "app container access",
+      "claim": "EscapeOS documents selected app-data browsing and backup behavior, which is narrower than a full jailbreak.",
+      "expected_observation": "Source review maps each user-visible operation to its required access and records the devices/builds explicitly tested upstream.",
+      "falsifying_observation": "The source does not substantiate the documented behavior or the target prerequisites differ materially.",
+      "source_urls": [
+        "https://github.com/pwnapplehat/EscapeOS"
+      ],
+      "prerequisites": [
+        "Review source and dependencies",
+        "Check whether host pairing or another computer is required",
+        "Do not assume a different iPhone/build test applies to iPhone17,4 / 23G83"
+      ],
+      "evidence_level": "hypothesis",
+      "exact_target_verified": false,
+      "status": "source review pending"
+    }
+  ],
+  "warning": "These entries are research questions, not proof of exploitability or a working jailbreak."
+}
