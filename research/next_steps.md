@@ -62,3 +62,9 @@ This plan is a repository workflow, not a promise that a jailbreak exists or can
 - `bad_query`, Erosion, and EscapeOS remain leads for separate, limited capabilities—not proof of a complete jailbreak for this exact target.
 - Next action: check the push-triggered GitHub Actions result for the documentation update; then continue primary-source review only. Do not install or execute the reviewed projects on the phone.
 
+### Public compatibility checkpoint (2026-10-23)
+- Read-only tracker review recorded at [research/public_compatibility_checkpoint_2026-10-23.md](public_compatibility_checkpoint_2026-10-23.md).
+- The Apple Wiki tracker currently lists no jailbreak tool for iOS 26.6.1 / iPhone 16 Plus.
+- The `bad_query` README still labels itself a developer PoC, not meaningfully usable; it does not establish a complete jailbreak.
+- Combined CI status for commit `40e99982b23061b994c4df776f270ad5fce81d8f` returned no statuses, so its workflow result remains unknown. Check the Actions page; do not infer success from an empty status list.
+
