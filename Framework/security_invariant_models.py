@@ -6,6 +6,7 @@ vendor-controlled harness could test once a primary-source invariant is known.
 """
 from __future__ import annotations
 
+import posixpath
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Iterable
@@ -68,14 +69,12 @@ def path_is_within_root(root: str, candidate: str) -> bool:
     This is deliberately not a substitute for descriptor-based filesystem
     authorization or platform-specific path resolution.
     """
-    root_path = PurePosixPath(root)
-    candidate_path = PurePosixPath(candidate)
-    if not root_path.is_absolute() or not candidate_path.is_absolute():
+    if not PurePosixPath(root).is_absolute() or not PurePosixPath(candidate).is_absolute():
         return False
-    normalized_root = PurePosixPath("/") / root_path.relative_to("/")
-    normalized_candidate = PurePosixPath("/") / candidate_path.relative_to("/")
+    normalized_root = posixpath.normpath(root)
+    normalized_candidate = posixpath.normpath(candidate)
     try:
-        normalized_candidate.relative_to(normalized_root)
+        PurePosixPath(normalized_candidate).relative_to(PurePosixPath(normalized_root))
         return True
     except ValueError:
         return False
