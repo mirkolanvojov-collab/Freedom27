@@ -11,7 +11,12 @@
     "title": "About the security content of iOS 26.7 and iPadOS 26.7",
     "url": "https://support.apple.com/en-us/149041",
     "published": "2026-09-14",
-    "reviewed": "2026-10-23"
+    "reviewed": "2026-10-23",
+    "verified_against": [
+      "https://support.apple.com/en-us/148282",
+      "https://support.apple.com/en-us/149041"
+    ],
+    "last_verification": "2026-10-23"
   },
   "policy": {
     "device_accessed": false,
@@ -123,5 +128,29 @@
     "A separately documented capability/primitive claim",
     "Authorized, scoped, reproducible validation before claiming a Freedom27 result",
     "Independent evidence for code-signing, persistence, and complete-chain claims"
+  ],
+  "excluded_candidates": [
+    {
+      "id": "CVE-2026-65343",
+      "component": "Kernel",
+      "published_impact": "A remote attacker may be able to cause unexpected system termination",
+      "fix_summary": "Use-after-free addressed with improved memory management",
+      "fixed_release": "iOS 26.6.1",
+      "target_build": "23G83",
+      "target_assessment": "Apple identifies iOS 26.6.1 as the fixed release; do not count this as a known unpatched lead on the target build.",
+      "source_url": "https://support.apple.com/en-us/148282",
+      "status": "excluded_as_fixed_in_target_release"
+    },
+    {
+      "id": "CVE-2026-65349",
+      "component": "Kernel",
+      "published_impact": "An app may be able to cause unexpected system termination or read kernel memory",
+      "fix_summary": "Out-of-bounds read addressed with improved input validation",
+      "fixed_release": "iOS 26.6.1",
+      "target_build": "23G83",
+      "target_assessment": "Apple identifies iOS 26.6.1 as the fixed release; do not count this as a known unpatched lead on the target build.",
+      "source_url": "https://support.apple.com/en-us/148282",
+      "status": "excluded_as_fixed_in_target_release"
+    }
   ]
 }
