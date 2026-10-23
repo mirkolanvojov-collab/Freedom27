@@ -69,6 +69,8 @@ class SecurityInvariantModelTests(unittest.TestCase):
         self.assertFalse(path_is_within_root("/safe/root", "/other/file"))
         self.assertFalse(path_is_within_root("safe/root", "/safe/root/file"))
         self.assertFalse(path_is_within_root("/safe/root", "safe/root/file"))
+        self.assertFalse(path_is_within_root("/safe/root", "/safe/root/../secret"))
+        self.assertFalse(path_is_within_root("/safe/root", "/safe/root/sub/../../secret"))
 
 
 if __name__ == "__main__":
