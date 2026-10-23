@@ -70,7 +70,7 @@ def check_claim_evidence(root: Path = ROOT) -> list[str]:
 def main() -> int:
     errors = check_claim_evidence()
     if errors:
-        print("\\n".join(errors))
+        print("\n".join(errors))
         return 1
     print("Exact-target claim-evidence checks passed; no device was tested.")
     return 0
