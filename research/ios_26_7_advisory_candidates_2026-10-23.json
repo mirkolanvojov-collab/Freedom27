@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "purpose": "Source-pinned public advisory triage. Records do not prove exploitability or target compatibility.",
+  "target": {
+    "device_model": "iPhone 16 Plus",
+    "model_identifier": "iPhone17,4",
+    "os_version": "26.6.1",
+    "build": "23G83"
+  },
+  "source": {
+    "title": "About the security content of iOS 26.7 and iPadOS 26.7",
+    "url": "https://support.apple.com/en-us/149041",
+    "published": "2026-09-14",
+    "reviewed": "2026-10-23"
+  },
+  "policy": {
+    "device_accessed": false,
+    "device_modified": false,
+    "exploit_executed": false,
+    "third_party_jailbreak_toolchain_used": false
+  },
+  "candidates": [
+    {
+      "id": "CVE-2026-43689",
+      "component": "Kernel",
+      "published_impact": "A malicious app may be able to gain root privileges",
+      "fix_summary": "Permissions issue addressed with additional restrictions",
+      "fixed_release": "iOS 26.7",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "high",
+      "reason": "Published impact is relevant to privilege boundaries, but exact build and complete chain are not established."
+    },
+    {
+      "id": "CVE-2026-86886",
+      "component": "TCC",
+      "published_impact": "An app may be able to modify protected system files",
+      "fix_summary": "Path traversal addressed with improved input validation",
+      "fixed_release": "iOS 26.7",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "high",
+      "reason": "Relevant protected-file boundary; no verified target primitive or complete chain."
+    },
+    {
+      "id": "CVE-2026-86876",
+      "component": "CoreMedia",
+      "published_impact": "A sandboxed process may be able to circumvent sandbox restrictions",
+      "fix_summary": "Out-of-bounds write addressed with improved bounds checking",
+      "fixed_release": "iOS 26.7",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "high",
+      "reason": "Relevant sandbox boundary; advisory summary does not provide exploit details."
+    },
+    {
+      "id": "CVE-2026-84607",
+      "component": "AVEVideoEncoder",
+      "published_impact": "A sandboxed app may be able to execute arbitrary code with kernel privileges",
+      "fix_summary": "Race condition addressed with improved state management",
+      "fixed_release": "iOS 26.7",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "high",
+      "reason": "High-impact published description, but no exact-build confirmation or Freedom27 reproduction."
+    },
+    {
+      "id": "CVE-2026-84566",
+      "component": "Kernel",
+      "published_impact": "A local attacker may be able to cause unexpected system termination or corrupt kernel memory",
+      "fix_summary": "Improved memory handling",
+      "fixed_release": "iOS 26.7",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "medium",
+      "reason": "Kernel memory impact alone does not establish useful read/write or privilege escalation."
+    },
+    {
+      "id": "CVE-2026-43687",
+      "component": "Kernel / NFS",
+      "published_impact": "Connecting to a malicious NFS server may disclose kernel memory",
+      "fix_summary": "Improved memory handling",
+      "fixed_release": "iOS 26.7",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "medium",
+      "reason": "Environment-dependent disclosure; no established route for the target."
+    },
+    {
+      "id": "CVE-2026-43684",
+      "component": "Kernel",
+      "published_impact": "An app may be able to cause unexpected system termination or corrupt kernel memory",
+      "fix_summary": "Use-after-free addressed with improved memory management",
+      "fixed_release": "iOS 26.7",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "medium",
+      "reason": "Public impact is not proof of a stable primitive or exact target applicability."
+    },
+    {
+      "id": "CVE-2026-43686",
+      "component": "Kernel / NFS",
+      "published_impact": "Connecting to a malicious NFS server may lead to kernel memory corruption",
+      "fix_summary": "Use-after-free addressed with improved memory management",
+      "fixed_release": "iOS 26.7",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "medium",
+      "reason": "NFS-specific interaction and exploitability remain unestablished."
+    }
+  ],
+  "required_evidence_for_upgrade": [
+    "Trustworthy affected-version/build evidence for 23G83",
+    "Technical disclosure that supports the claimed vulnerability class",
+    "A separately documented capability/primitive claim",
+    "Authorized, scoped, reproducible validation before claiming a Freedom27 result",
+    "Independent evidence for code-signing, persistence, and complete-chain claims"
+  ]
+}
