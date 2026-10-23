@@ -1,0 +1,7 @@
+{
+  "target_name": "Freedom27",
+  "target_os": "iOS 27",
+  "target_status": "planned; no device/build compatibility claims",
+  "required_fields_for_validation": ["device_model", "exact_os_version", "build_number", "available_public_research_sources"],
+  "notes": "Do not infer exploitability from OS version alone."
+}
