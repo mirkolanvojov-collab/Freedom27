@@ -56,6 +56,7 @@ summary = {
     "records": [],
 }
 for index, cve_id in enumerate(CVE_IDS):
+    print(f"[{index + 1}/{len(CVE_IDS)}] Capturing {cve_id}", flush=True)
     encoded_id = urllib.parse.quote(cve_id, safe="-")
     cve_url = f"{BASE}/cves/2.0?cveId={encoded_id}"
     status, payload, error = get_json(cve_url)
@@ -70,6 +71,7 @@ for index, cve_id in enumerate(CVE_IDS):
     }
     if payload is not None:
         save_json(OUT / f"{cve_id}_cves_2.0.json", payload)
+        print(f"  CVE endpoint: HTTP {status}; response saved", flush=True)
         entry["cve_saved"] = True
         entry["cve_total_results"] = payload.get("totalResults")
         # Keep the API response's configuration object exactly as returned.
@@ -79,6 +81,7 @@ for index, cve_id in enumerate(CVE_IDS):
         )
     else:
         entry["errors"].append({"endpoint": "cves/2.0", "detail": error})
+        print(f"  CVE endpoint: FAILED (HTTP/status {status})", flush=True)
     time.sleep(6 if API_KEY else 7)
     cpe_url = f"{BASE}/cpematch/2.0?cveId={encoded_id}"
     cpe_status, cpe_payload, cpe_error = get_json(cpe_url)
@@ -86,10 +89,12 @@ for index, cve_id in enumerate(CVE_IDS):
     entry["cpe_match_http_status"] = cpe_status
     if cpe_payload is not None:
         save_json(OUT / f"{cve_id}_cpematch_2.0.json", cpe_payload)
+        print(f"  CPE Match endpoint: HTTP {cpe_status}; response saved", flush=True)
         entry["cpe_match_saved"] = True
         entry["cpe_match_total_results"] = cpe_payload.get("totalResults")
     else:
         entry["errors"].append({"endpoint": "cpematch/2.0", "detail": cpe_error})
+        print(f"  CPE Match endpoint: FAILED (HTTP/status {cpe_status})", flush=True)
     summary["records"].append(entry)
     save_json(OUT / "capture_summary.json", summary)
     time.sleep(6 if API_KEY else 7)
