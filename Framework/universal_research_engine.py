@@ -37,12 +37,22 @@ def analyze_advisories(document: dict) -> dict:
         errors.append("excluded_candidates must be a list")
         excluded = []
 
+    source_metadata = document.get("source", {})
+    if not isinstance(source_metadata, dict):
+        errors.append("source metadata must be an object")
+        source_metadata = {}
+
+    seen_ids = set()
     scored = []
     for item in candidates:
         if not isinstance(item, dict):
             errors.append("candidate entry must be an object")
             continue
-        url = item.get("source_url") or document.get("source", {}).get("url", "")
+        candidate_id = item.get("id", "<unknown>")
+        if candidate_id in seen_ids:
+            errors.append(f"{candidate_id}: duplicate candidate ID")
+        seen_ids.add(candidate_id)
+        url = item.get("source_url") or source_metadata.get("url", "")
         parsed = urlparse(url) if isinstance(url, str) else None
         if not parsed or parsed.scheme != "https" or not parsed.netloc:
             errors.append(f"{item.get('id', '<unknown>')}: source URL is not HTTPS")
