@@ -1,9 +1,15 @@
 """Read-only triage of Freedom27 public research metadata."""
 import argparse
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _normalize_target_tuple(value):
+    """Normalize the human-readable exact-target tuple for stable comparisons."""
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", str(value).lower()).split())
 
 
 def load(path):
@@ -17,12 +23,14 @@ def load(path):
 def triage(target, registry_doc, ledger_doc):
     registry = {x["id"]: x for x in registry_doc.get("entries", []) if isinstance(x, dict) and x.get("id")}
     ledger = {x["id"]: x for x in ledger_doc.get("entries", []) if isinstance(x, dict) and x.get("id")}
-    target_triplet = " ".join(str(target.get(k, "")).strip().lower()
-                              for k in ("device_model", "exact_os_version", "build_number"))
+    target_triplet = _normalize_target_tuple(
+        f"{target.get('device_model', '')} {target.get('exact_os_version', '')} "
+        f"build {target.get('build_number', '')}"
+    )
     rows = []
     for key in dict.fromkeys([*registry, *ledger]):
         reg, ev = registry.get(key, {}), ledger.get(key, {})
-        exact = " ".join(str(ev.get("exact_target_build", "")).strip().lower().split())
+        exact = _normalize_target_tuple(ev.get("exact_target_build", ""))
         if exact and exact == target_triplet:
             category = "exact-target-mentioned"
             reason = "Ledger records the exact target triplet; primary-source verification is still required."
