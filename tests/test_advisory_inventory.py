@@ -45,6 +45,13 @@ def test_rejects_invalid_cve_format():
     assert any("cve_id is invalid" in e for e in module.validate(data))
 
 
+def test_malformed_cve_list_is_reported_without_crashing():
+    data = minimal_inventory()
+    data["sources"][0]["cve_ids"] = [["not", "hashable"], {"bad": "value"}]
+    errors = module.validate(data)
+    assert any("invalid CVE identifier" in error for error in errors)
+
+
 def test_rejects_unknown_release():
     data = minimal_inventory()
     data["entries"][0]["advisory_release"] = "iOS 99.0"
