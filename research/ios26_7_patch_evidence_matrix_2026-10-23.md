@@ -25,11 +25,10 @@ The user's reported 26.6.1 build predates the 26.7 release. That makes later fix
 | CVE-2026-43687 | Kernel / NFS | Malicious NFS server may disclose kernel memory; improved memory handling | Establish preconditions, NFS reachability and exact fix boundary | Requires server-side interaction; target applicability unknown |
 | CVE-2026-43684 | Kernel | Unexpected termination or kernel-memory corruption; use-after-free fixed with memory management | Locate public patch context and affected-version evidence | Memory-safety lead; exploitability unknown |
 | CVE-2026-43686 | Kernel / NFS | Malicious NFS server may cause kernel memory corruption; use-after-free fixed with memory management | Establish preconditions and whether target's shipped code contains the vulnerable path | Requires server-side interaction; target applicability unknown |
-| CVE-2026-84523 | APFS | App may cause system termination or write kernel memory | Determine file-system operation and safety constraints from public patch evidence | Primitive and applicability unknown |
 | CVE-2026-65405 | Kernel | App may determine kernel memory layout; memory initialization fixed | Assess whether the leak meaningfully weakens mitigations and whether it is independently reachable | Information-disclosure lead; chain relevance unknown |
 | CVE-2026-84622 | Kernel | App *with root privileges* may read uninitialized kernel memory | Treat as post-root only; do not count as an initial privilege-escalation bug | Not an initial-entry candidate |
 
-**Note:** CVE-2026-84523 is shown once in the research set; any repeated mention above is intentionally avoided in the machine-readable candidate file. The table's row count is not a count of all iOS 26.7 CVEs.
+**Note:** The table is a prioritized subset, not a complete count of all iOS 26.7 CVEs. The APFS entry appears once.
 
 ## Evidence checklist for each candidate
 
