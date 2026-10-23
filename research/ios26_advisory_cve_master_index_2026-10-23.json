@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "generated_on": "2026-10-23",
+  "purpose": "Source-pinned public Apple security-advisory inventory for iOS 26. This is an evidence ledger, not an exploitability assessment.",
+  "overall_status": "partial",
+  "completeness_policy": "Do not mark a release complete until the advisory page has been fully parsed and its extracted CVE IDs have been reconciled against the page. Search snippets and partial page extracts are leads only.",
+  "target_context": {
+    "device_identifier_reported_by_user": "iPhone17,4",
+    "os_version_reported_by_user": "iOS 26.6.1",
+    "build_reported_by_user": "23G83",
+    "target_applicability": "not established by public advisory presence alone"
+  },
+  "sources": [
+    {
+      "release": "iOS 26.7",
+      "released_on": "2026-10-??",
+      "url": "https://support.apple.com/en-us/149041",
+      "extraction_status": "partial",
+      "cve_ids": [],
+      "notes": "Official advisory identified; full-page extraction and reconciliation pending. Do not infer zero CVEs from empty list."
+    },
+    {
+      "release": "iOS 26.6.2",
+      "released_on": "2026-09-08",
+      "url": "https://support.apple.com/en-us/148???",
+      "extraction_status": "source_url_unverified",
+      "cve_ids": [],
+      "notes": "Official release is referenced by Apple Developer release listing; exact Apple security-content URL must be verified before using as a source."
+    },
+    {
+      "release": "iOS 26.6.1",
+      "released_on": "2026-08-17",
+      "url": "https://support.apple.com/en-us/148282",
+      "extraction_status": "partial",
+      "cve_ids": [],
+      "notes": "Official advisory identified; full-page extraction and reconciliation pending."
+    },
+    {
+      "release": "iOS 26.6",
+      "released_on": null,
+      "url": "https://support.apple.com/en-us/128066",
+      "extraction_status": "partial",
+      "cve_ids": [],
+      "notes": "Official advisory identified; full-page extraction and reconciliation pending."
+    },
+    {
+      "release": "iOS 26.5.2",
+      "released_on": null,
+      "url": "https://support.apple.com/en-us/127594",
+      "extraction_status": "partial",
+      "cve_ids": [],
+      "notes": "Prior partial extraction exists; must reconcile every identifier against full advisory before marking complete."
+    },
+    {
+      "release": "iOS 26.5.1",
+      "released_on": null,
+      "url": null,
+      "extraction_status": "url_unverified",
+      "cve_ids": [],
+      "notes": "Release mentioned in prior register; official security-content page URL needs verification."
+    },
+    {
+      "release": "iOS 26.5",
+      "released_on": null,
+      "url": null,
+      "extraction_status": "url_unverified",
+      "cve_ids": [],
+      "notes": "Release mentioned in prior register; official security-content page URL needs verification."
+    },
+    {
+      "release": "iOS 26.4.2",
+      "released_on": null,
+      "url": "https://support.apple.com/en-euro/127002",
+      "extraction_status": "partial",
+      "cve_ids": [],
+      "notes": "Official advisory identified; full-page extraction and reconciliation pending."
+    },
+    {
+      "release": "iOS 26.4",
+      "released_on": null,
+      "url": "https://support.apple.com/en-us/126792",
+      "extraction_status": "partial",
+      "cve_ids": [],
+      "notes": "Official advisory identified; full-page extraction and reconciliation pending."
+    },
+    {
+      "release": "iOS 26.3.1",
+      "released_on": null,
+      "url": null,
+      "extraction_status": "url_unverified",
+      "cve_ids": [],
+      "notes": "Release mentioned in prior register; official security-content page URL needs verification."
+    },
+    {
+      "release": "iOS 26.3",
+      "released_on": null,
+      "url": "https://support.apple.com/en-ae/126346",
+      "extraction_status": "partial",
+      "cve_ids": [],
+      "notes": "Official advisory identified; full-page extraction and reconciliation pending."
+    },
+    {
+      "release": "iOS 26.2.1",
+      "released_on": null,
+      "url": null,
+      "extraction_status": "url_unverified",
+      "cve_ids": [],
+      "notes": "Release mentioned in prior register; official security-content page URL needs verification."
+    },
+    {
+      "release": "iOS 26.2",
+      "released_on": null,
+      "url": null,
+      "extraction_status": "url_unverified",
+      "cve_ids": [],
+      "notes": "Release mentioned in prior register; official security-content page URL needs verification."
+    },
+    {
+      "release": "iOS 26.1",
+      "released_on": null,
+      "url": null,
+      "extraction_status": "url_unverified",
+      "cve_ids": [],
+      "notes": "Release mentioned in prior register; official security-content page URL needs verification."
+    },
+    {
+      "release": "iOS 26.0.1",
+      "released_on": null,
+      "url": null,
+      "extraction_status": "url_unverified",
+      "cve_ids": [],
+      "notes": "Release mentioned in prior register; official security-content page URL needs verification."
+    },
+    {
+      "release": "iOS 26.0",
+      "released_on": null,
+      "url": "https://support.apple.com/en-am/125108",
+      "extraction_status": "partial",
+      "cve_ids": [],
+      "notes": "Official advisory identified; full-page extraction and reconciliation pending."
+    }
+  ],
+  "entry_schema": {
+    "cve_id": "CVE-YYYY-NNNN or CVE-YYYY-NNNNN (validate against pattern)",
+    "advisory_release": "release string matching a source entry",
+    "advisory_url": "same verified HTTPS Apple Support URL as source entry",
+    "component": "only when explicitly stated by the advisory",
+    "status": "only record added/updated when explicitly stated; otherwise null",
+    "evidence_status": "public_advisory_only",
+    "target_assessment": "not_assessed"
+  },
+  "entries": [],
+  "limitations": [
+    "Empty cve_ids arrays mean extraction is not yet completed, not that the release has no CVEs.",
+    "A CVE listed in an advisory does not establish applicability to the reported device/build, exploitability, or a usable jailbreak chain.",
+    "Public advisories omit undisclosed issues and may not provide enough detail to reproduce a vulnerability.",
+    "Do not infer exploit reliability, primitive availability, mitigation bypasses, or chainability from CVE metadata alone."
+  ]
+}
