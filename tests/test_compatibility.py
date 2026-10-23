@@ -11,7 +11,7 @@ from Framework.compatibility import (
 class CompatibilityTests(unittest.TestCase):
     def test_incomplete_profile_is_rejected(self):
         profile = TargetProfile(device_model="", os_version="", build_number="")
-        self.assertFalse(validate_profile(profile))
+        self.assertTrue(validate_profile(profile))
 
     def test_complete_profile_is_accepted(self):
         profile = TargetProfile(
@@ -19,20 +19,25 @@ class CompatibilityTests(unittest.TestCase):
             os_version="27.0",
             build_number="21A000",
         )
-        self.assertTrue(validate_profile(profile))
+        self.assertEqual(validate_profile(profile), [])
 
     def test_unverified_claim_is_not_usable(self):
-        claim = CompatibilityClaim(status="unverified", source_url="", build_number="")
+        claim = CompatibilityClaim(
+            component="example",
+            status="unverified",
+            source_url="https://example.org/research",
+        )
         self.assertFalse(claim_is_usable(claim))
 
-    def test_verified_claim_needs_source_and_build_match(self):
-        claim = CompatibilityClaim(
+    def test_verified_claim_requires_public_source(self):
+        sourced = CompatibilityClaim(
+            component="example",
             status="verified",
             source_url="https://example.org/research",
-            build_number="21A000",
         )
-        self.assertTrue(claim_is_usable(claim, target_build="21A000"))
-        self.assertFalse(claim_is_usable(claim, target_build="21A001"))
+        unsourced = CompatibilityClaim(component="example", status="verified")
+        self.assertTrue(claim_is_usable(sourced))
+        self.assertFalse(claim_is_usable(unsourced))
 
 
 if __name__ == "__main__":
