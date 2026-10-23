@@ -57,3 +57,10 @@ Do not fill these fields with estimates or invented values. An exact-target veri
 No exploit was run, no payload was installed, and no device state was changed during this review. Do not downgrade or restore the daily-use iPhone to chase this lead; the listed iOS 26.6.1 firmware may no longer be signed.
 
 **Conclusion:** The public sources support investigating `bad_query` as a research lead, but they do not establish a working jailbreak on the exact iPhone 16 Plus target. Keep `exact_target_verified = false` until reproducible, exact-build evidence is collected.
+
+
+## Follow-up upstream status check — 2026-10-23
+
+A public upstream pull request remains open and unmerged: [bad_query hardening PR #1](https://github.com/forcequitOS/bad_query/pull/1). It proposes a NULL guard, a bound on an inode parameter, and cleanup of a security-scoped resource handle. Its own checklist marks Xcode compilation and the listed regression checks as not yet completed in the PR description.
+
+This is additional evidence that the public project still has unresolved engineering/testing work; it is **not** proof the core approach fails. It also provides no exact-target result for iPhone17,4 / build 23G83. Keep the exact-target gate blocked and do not use an unreviewed build on the daily-use phone.
