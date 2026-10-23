@@ -1,6 +1,6 @@
 import unittest
 
-from Framework.device_safety_gate import REQUIRED_ATTESTATIONS, assess_safety
+from Framework.device_safety_gate import REQUIRED_ATTESTATIONS, REQUIRED_CHAIN_GATES, TARGET_FIELDS, assess_safety
 
 
 class DeviceSafetyGateTests(unittest.TestCase):
@@ -14,6 +14,7 @@ class DeviceSafetyGateTests(unittest.TestCase):
                 "exact_os_version": "iOS 26.6.1",
                 "build_number": "23G83",
             },
+            "gates": [{"id": gate_id, "status": "missing"} for gate_id in REQUIRED_CHAIN_GATES],
         }
 
     def test_current_project_fails_closed(self):
@@ -29,19 +30,57 @@ class DeviceSafetyGateTests(unittest.TestCase):
         self.assertFalse(report["preflight_passed"])
         self.assertIn("exact_target_chain_verified", report["blockers"])
 
-    def test_claimed_chain_does_not_authorize_execution(self):
+    def test_generic_url_without_target_tuple_and_revision_is_rejected(self):
+        attestations = {
+            gate_id: {"status": "verified", "evidence_url": "https://example.org/evidence",
+                      "evidence_note": "Reviewed evidence"}
+            for gate_id, _ in REQUIRED_ATTESTATIONS
+        }
+        report = assess_safety(self.target_status, attestations)
+        self.assertFalse(report["preflight_passed"])
+        self.assertIn("backup_verified", report["blockers"])
+
+    def test_attestation_for_different_build_is_rejected(self):
+        target = self.target_status["generated_for"]
+        attestations = {
+            gate_id: {
+                "status": "verified",
+                "evidence_url": "https://example.org/evidence",
+                "evidence_note": "Reviewed evidence",
+                "source_revision": "a" * 40,
+                "target": {**target, "build_number": "23G84"},
+            }
+            for gate_id, _ in REQUIRED_ATTESTATIONS
+        }
+        report = assess_safety(self.target_status, attestations)
+        self.assertFalse(report["preflight_passed"])
+        self.assertIn("backup_verified", report["blockers"])
+
+    def test_claimed_chain_without_all_source_pinned_gates_does_not_pass(self):
         target = dict(self.target_status)
         target["status"] = "verified"
         target["verified_complete_jailbreak"] = True
+        target["gates"] = [{"id": gate_id, "status": "verified"} for gate_id in REQUIRED_CHAIN_GATES]
         attestations = {
-            gate_id: {"status": "verified", "evidence_url": "https://example.org/evidence",
-                      "evidence_note": "Reviewed test evidence"}
+            gate_id: {
+                "status": "verified",
+                "evidence_url": "https://example.org/evidence",
+                "evidence_note": "Reviewed evidence",
+                "source_revision": "a" * 40,
+                "target": target["generated_for"],
+            }
             for gate_id, _ in REQUIRED_ATTESTATIONS
         }
         report = assess_safety(target, attestations)
-        self.assertTrue(report["preflight_passed"])
+        self.assertFalse(report["preflight_passed"])
+        self.assertIn("project_exact_target_chain", report["blockers"])
         self.assertFalse(report["device_execution_authorized"])
         self.assertFalse(report["guarantees_no_crash"])
+
+    def test_invalid_input_fails_closed(self):
+        report = assess_safety(None, None)
+        self.assertFalse(report["preflight_passed"])
+        self.assertFalse(report["device_execution_authorized"])
 
 
 if __name__ == "__main__":
