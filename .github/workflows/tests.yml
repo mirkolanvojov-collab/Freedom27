@@ -27,6 +27,8 @@ jobs:
         run: python -m Framework.claim_checks
       - name: Check project metadata integrity
         run: python -c "from Framework.project_checks import check_project; errors = check_project(); print('\\n'.join(errors) if errors else 'Project metadata checks passed'); raise SystemExit(bool(errors))"
+      - name: Check exploit-chain evidence readiness
+        run: python -m Framework.chain_readiness
       - name: Run research triage report
         run: python -m Framework.research_triage
       - name: Validate machine-readable research triage output
