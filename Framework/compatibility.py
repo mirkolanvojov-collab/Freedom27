@@ -35,8 +35,11 @@ class CompatibilityClaim:
     @property
     def is_verified(self) -> bool:
         return (
-            self.status.strip().lower() == "verified"
+            isinstance(self.status, str)
+            and self.status.strip().lower() == "verified"
+            and isinstance(self.source_url, str)
             and _valid_https_url(self.source_url)
+            and isinstance(self.build_number, str)
             and bool(self.build_number.strip())
         )
 
