@@ -87,3 +87,32 @@ NIST's NVD status page says the current `/cves/` endpoint still returns the late
 A read-only retrieval utility is now committed at [`research/scripts/capture_nvd_configurations.py`](https://github.com/mirkolanvojov-collab/Freedom27/blob/main/research/scripts/capture_nvd_configurations.py). It queries the official NVD CVE API 2.0 and CPE Match API 2.0 sequentially for all 12 candidate identifiers, saves the complete raw JSON responses without rewriting their configuration fields, and emits a per-record HTTP/error summary. It accepts an optional `NVD_API_KEY` environment variable but does not require one by default. The utility only performs HTTP GET requests and writes local evidence files; it does not execute exploits or interact with a device.
 
 **Execution status:** the script has been added to the repository but has not been executed in this environment. The available GitHub retrieval interface cannot run arbitrary Python or make arbitrary outbound HTTP requests to the NVD service, and direct NVD requests from the research interface failed. Therefore the script's output has not yet been captured, and no claim is made that the 12 NVD responses were successfully retrieved. Once run in a normal Python environment with outbound HTTPS access, its summary will show per-CVE success or errors; preserve those raw responses as evidence rather than treating an HTTP failure as a missing CVE.
+
+
+## Successful direct NVD API capture — 2026-10-23
+
+The GitHub Actions runner successfully executed `research/scripts/capture_nvd_configurations.py` against the official NVD endpoints. The run completed with HTTP 200 for all 12 CVE 2.0 lookups and all 12 CPE Match 2.0 lookups; each CVE response contained one record and one configuration object. The CPE Match endpoint returned between 3 and 7 match records per candidate. No request errors were recorded.
+
+- Workflow run: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991
+- Raw evidence artifact (ZIP; 25 files, includes each full response and `capture_summary.json`): https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313
+- Artifact SHA-256 (ZIP): `adf4697a9bd9d2efcff3aaa1f7613432102da5186b58c50ba75a078a8080787c`
+- Capture interval: 2026-10-23 21:48:07Z to 21:51:06Z
+- API key: not used
+
+### Findings from the returned NVD configurations
+
+All 12 CVE records include vulnerable CPE matches for both `cpe:2.3:o:apple:iphone_os:*:*:*:*:*:*:*:*` and `cpe:2.3:o:apple:ipados:*:*:*:*:*:*:*:*`, each with `versionEndExcluding: 26.7`. The associated CPE Match identifiers returned consistently were:
+
+- iPhone OS: `B331E4FC-727F-403B-8689-E647A51204FD`
+- iPadOS: `0896A319-539F-45D2-ACA1-7225AE5C06ED`
+
+The candidate records are: CVE-2026-84607, CVE-2026-43689, CVE-2026-84523, CVE-2026-86876, CVE-2026-86886, CVE-2026-84566, CVE-2026-43687, CVE-2026-43684, CVE-2026-43686, CVE-2026-65405, CVE-2026-84622, and CVE-2026-28968.
+
+**Interpretation:** the NVD CPE bounds include versions below 26.7, so the reported version 26.6.1 is within the published version range. The records do not identify build `23G83` separately, and a version-range match does not establish that a usable exploit exists, that all exploit prerequisites are met, or that a jailbreak chain can be built. Validate the exact build and Apple advisory details separately before making device-specific conclusions.
+
+### Evidence status
+
+- Direct NVD CVE JSON: captured for 12/12 candidates.
+- Direct NVD CPE Match JSON: captured for 12/12 candidates.
+- Original API responses: preserved unchanged in the downloadable workflow artifact; not yet committed as 25 separate repository files.
+- Exploit execution / device testing: not performed.
