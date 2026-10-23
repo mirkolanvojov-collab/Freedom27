@@ -50,12 +50,21 @@ def validate(data: object) -> list[str]:
             errors.append(f"duplicate release source: {release}")
         else:
             by_release[release] = source
-        if source.get("extraction_status") not in ALLOWED_STATUSES:
+        extraction_status = source.get("extraction_status")
+        if not isinstance(extraction_status, str) or extraction_status not in ALLOWED_STATUSES:
             errors.append(f"sources[{i}].extraction_status is invalid")
         url = source.get("url")
         if url is not None:
-            parsed = urlparse(url) if isinstance(url, str) else None
-            if not parsed or parsed.scheme != "https" or parsed.hostname != "support.apple.com":
+            try:
+                parsed = urlparse(url) if isinstance(url, str) else None
+                valid_url = (
+                    parsed is not None and parsed.scheme == "https"
+                    and parsed.hostname == "support.apple.com"
+                    and not parsed.username and not parsed.password
+                )
+            except ValueError:
+                valid_url = False
+            if not valid_url:
                 errors.append(f"sources[{i}].url must be an HTTPS support.apple.com URL")
             elif url in source_urls:
                 errors.append(f"duplicate source URL: {url}")
