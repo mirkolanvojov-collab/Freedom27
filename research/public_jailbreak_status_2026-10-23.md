@@ -9,7 +9,8 @@ This is a read-only review of public compatibility trackers for the project's re
 - The Apple Wiki's [iOS 26.x jailbreak tracker](https://theapplewiki.com/wiki/Jailbreak/26.x) lists iOS 26.6.1 as having **no tool available** for iPhone 16 Plus and the other listed current iPhone models.
 - The Apple Wiki's [main jailbreak tracker](https://theapplewiki.com/wiki/Jailbreaking) lists current iPhone 16-series devices with no jailbreak tool.
 - The [iClarified jailbreak guide](https://www.iclarified.com/jailbreak), last updated in August 2026 according to the page, reports no public iOS 26 jailbreak for A18/A19 devices including the iPhone 16 lineup, while describing limited iOS 26 support only for certain older A12/A13 devices and versions.
-- These are public trackers, not proof that no private research exists. They do not provide exact-target evidence for a working Freedom27 chain.
+- A separate site, [nekoJB.com](https://nekojb.com/jailbreak-ios-26-6/), claims support for iOS 26.6.1 and modern iPhones through an online install flow. The reviewed page does not provide independently verified, source-pinned evidence sufficient to establish a real jailbreak chain for this exact target. Its claims conflict with the trackers above; treat it as **unverified** and do not install its profiles, apps, or payloads on the daily-use phone.
+- These public trackers are not proof that no private research exists. None of the reviewed sources provides independently reproduced exact-target evidence for a working Freedom27 chain.
 
 ## Decision for Freedom27
 
