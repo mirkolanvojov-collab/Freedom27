@@ -37,6 +37,13 @@ class ProjectCheckTests(unittest.TestCase):
             self.assertTrue(any("working_jailbreak must be false" in item
                                 for item in check_project(root)))
 
+    def test_non_object_config_fails_without_crashing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "research").mkdir()
+            (root / "config.json").write_text("[]", encoding="utf-8")
+            self.assertTrue(any("root must be an object" in item for item in check_project(root)))
+
     def test_duplicate_registry_ids_are_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
