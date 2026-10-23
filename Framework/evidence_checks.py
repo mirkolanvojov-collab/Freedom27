@@ -14,8 +14,14 @@ VERIFIED_STATUSES = {"experimental", "verified"}
 
 
 def _https_url(value: Any) -> bool:
-    parsed = urlparse(value) if isinstance(value, str) else None
-    return bool(parsed and parsed.scheme == "https" and parsed.netloc)
+    try:
+        parsed = urlparse(value) if isinstance(value, str) else None
+        return bool(
+            parsed and parsed.scheme == "https" and parsed.hostname
+            and not parsed.username and not parsed.password
+        )
+    except ValueError:
+        return False
 
 
 def check_evidence(root: Path = ROOT) -> list[str]:
