@@ -64,6 +64,12 @@ class ResearchTriageTests(unittest.TestCase):
         self.assertEqual(report["summary"]["unmatched_ledger_entries"], 1)
         self.assertEqual(len(report["results"]), 2)
 
+    def test_malformed_roots_fail_closed(self):
+        report = triage([], [], [])
+        self.assertEqual(report["summary"]["registry_entries"], 0)
+        self.assertEqual(report["summary"]["ledger_entries"], 0)
+        self.assertEqual(report["summary"]["joined_entries"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()
