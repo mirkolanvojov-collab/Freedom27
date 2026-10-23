@@ -90,14 +90,14 @@ def validate(data: object) -> list[str]:
         url = entry.get("advisory_url")
         if not isinstance(cve, str) or not CVE_RE.fullmatch(cve):
             errors.append(f"entries[{i}].cve_id is invalid")
-        if release not in by_release:
-            errors.append(f"entries[{i}] references unknown advisory_release: {release!r}")
-        elif url != by_release[release].get("url") or not url:
+        if not isinstance(release, str) or release not in by_release:
+            errors.append(f"entries[{i}] references unknown or invalid advisory_release: {release!r}")
+        elif url != by_release[release].get("url") or not isinstance(url, str) or not url:
             errors.append(f"entries[{i}] advisory_url does not match verified source URL")
         if entry.get("evidence_status") != "public_advisory_only":
             errors.append(f"entries[{i}].evidence_status must be public_advisory_only")
         assessment = entry.get("target_assessment")
-        if assessment not in ALLOWED_TARGET_ASSESSMENTS:
+        if not isinstance(assessment, str) or assessment not in ALLOWED_TARGET_ASSESSMENTS:
             errors.append(f"entries[{i}].target_assessment is invalid")
         if isinstance(target_os, str) and release == target_os and assessment != "fixed_in_target_release":
             errors.append(f"entries[{i}] is from the reported target release and must be assessed fixed_in_target_release")
