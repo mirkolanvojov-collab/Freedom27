@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "description": "Planning matrix only; no row currently claims working jailbreak compatibility.",
+  "allowed_statuses": [
+    "not-investigated",
+    "researching",
+    "theoretical",
+    "experimental",
+    "verified",
+    "not-supported"
+  ],
+  "rows": [
+    {
+      "device_family": "iPhone 14",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 14",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 15",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 15",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 16",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 16",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 17",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 17",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 18",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    },
+    {
+      "device_family": "iPhone 18",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "Planning target only. Populate exact model/version/build and evidence before making any compatibility claim."
+    }
+  ]
+}
