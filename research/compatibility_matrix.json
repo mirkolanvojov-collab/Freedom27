@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Evidence-tracking matrix for actual named variants across iPhone 14–18. Model lineup is based on Apple's current iPhone model-identification and compare pages; rows do not imply jailbreak compatibility. The reported iPhone 18 Pro demo is experimental only.",
+  "description": "Evidence-tracking matrix for named iPhone variants. Apple lists iPhone 14 through 18 Pro models and iPhone 17e as compatible with iOS 27; rows track model and OS family, not every point release/build. No row implies jailbreak compatibility. Reported iPhone 18 Pro demo remains experimental only.",
   "allowed_statuses": [
     "not-investigated",
     "researching",
@@ -387,24 +387,24 @@
     {
       "device_family": "iPhone 17",
       "variant": "17e",
-      "model_identifier": "",
+      "model_identifier": "iPhone18,5",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "https://support.apple.com/de-de/108044",
-      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
+      "notes": "Apple lists iPhone 17e as an iOS 27-compatible model. Exact build-by-build jailbreak compatibility remains uninvestigated; do not infer support from another model."
     },
     {
       "device_family": "iPhone 17",
       "variant": "17e",
-      "model_identifier": "",
+      "model_identifier": "iPhone18,5",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "https://support.apple.com/de-de/108044",
-      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
+      "notes": "Apple lists iPhone 17e as an iOS 27-compatible model. Exact build-by-build jailbreak compatibility remains uninvestigated; do not infer support from another model."
     },
     {
       "device_family": "iPhone 18",
@@ -420,23 +420,27 @@
     {
       "device_family": "iPhone 18",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone19,3 / iPhone19,7",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "https://support.apple.com/de-de/108044",
-      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
+      "notes": "Apple lists iPhone 18 Pro Max as an iOS 27-compatible model. Exact build-by-build jailbreak compatibility remains uninvestigated; do not infer support from the Pro demo."
     }
   ],
   "sources": [
     {
-      "title": "Apple Support — Identify your iPhone model",
-      "url": "https://support.apple.com/de-de/108044"
+      "title": "Apple Support — iPhone models compatible with iOS 27",
+      "url": "https://support.apple.com/guide/iphone/iphone-models-compatible-with-ios-27-iphe3fa5df43/27/ios/27"
     },
     {
-      "title": "Apple — Compare iPhone models",
-      "url": "https://www.apple.com/iphone/compare/"
+      "title": "Apple Support — Identify your iPhone model",
+      "url": "https://support.apple.com/en-mide/108044"
+    },
+    {
+      "title": "AppleDB device selection reference (secondary identifier cross-check)",
+      "url": "https://appledb.dev/device-selection/iPhone"
     },
     {
       "title": "iClarified — reported iPhone 18 Pro iOS 27.0.1 demo",
