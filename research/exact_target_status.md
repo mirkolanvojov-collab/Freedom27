@@ -10,6 +10,8 @@ Reviewed: 2026-10-23
 
 ## Findings
 
+0. Apple's official [iOS 26.6.1 security-content advisory](https://support.apple.com/en-us/148282) states that the release was published on 2026-08-17 and lists security issues addressed in that release, including kernel and WebKit issues. An advisory describing fixes shipped in build `23G83` is not evidence that those same issues remain exploitable on `23G83`, nor that any one issue provides the primitives required for a jailbreak. Each claim must be evaluated against the advisory's affected scope and patch state.
+
 1. The Apple Wiki's public iOS 26.x jailbreak tracker lists no tool for iOS 26.6.1 across the listed iPhone generations, including iPhone 16 Plus:
    https://theapplewiki.com/wiki/Jailbreak/26.x
 
