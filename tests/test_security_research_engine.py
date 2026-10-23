@@ -23,6 +23,22 @@ class SecurityResearchEngineTests(unittest.TestCase):
         )
         self.assertEqual(h.validate(TARGET), [])
 
+    def test_invalid_or_non_http_source_url_fails_closed(self):
+        for url in ("not-a-url", "file:///tmp/research", "https:///missing-host"):
+            with self.subTest(url=url):
+                h = Hypothesis(
+                    hypothesis_id="H-URL",
+                    boundary="app sandbox",
+                    claim="Example claim",
+                    expected_observation="Expected output",
+                    falsifying_observation="No output",
+                    source_urls=(url,),
+                )
+                self.assertIn(
+                    "source URLs must be absolute HTTP(S) URLs",
+                    h.validate(TARGET),
+                )
+
     def test_exact_target_label_fails_closed_for_wrong_device(self):
         other = Target("Other phone", "other1,1", "iOS 26.6.1", "23G83")
         h = Hypothesis(
