@@ -42,6 +42,21 @@ class ResearchTriageTests(unittest.TestCase):
         self.assertEqual(row["category"], "verified-claim-evidence-gap")
         self.assertIn("Downgrade", row["next_action"])
 
+    def test_exact_target_build_tuple_is_recognized(self):
+        report = triage(
+            self.target,
+            {"entries": [{"id": "exact", "title": "Exact target lead", "status": "unverified"}]},
+            {"entries": [{
+                "id": "exact",
+                "target_applicability": "reported_single_device_build",
+                "patch_state": "unknown",
+                "reproduction_status": "reported_demo_not_independently_reproduced",
+                "exact_target_build": "iPhone 16 Plus / iOS 26.6.1 / build 23G83",
+            }]},
+        )
+        self.assertEqual(report["summary"]["exact_target_mentions"], 1)
+        self.assertEqual(report["results"][0]["category"], "exact-target-mentioned")
+
     def test_flags_unmatched_records(self):
         report = triage(self.target, {"entries": [{"id": "only-registry"}]},
                         {"entries": [{"id": "only-ledger"}]})
