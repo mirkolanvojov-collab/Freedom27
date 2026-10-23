@@ -1,6 +1,6 @@
 import unittest
 
-from Framework.research_manifest import validate_manifest, target_key
+from Framework.research_manifest import validate_document, validate_manifest, target_key
 
 
 TARGET = {
@@ -57,6 +57,41 @@ class ResearchManifestTests(unittest.TestCase):
 
     def test_target_key_is_exact_and_ordered(self):
         self.assertEqual(target_key(TARGET), "iPhone 16 Plus|iPhone17,4|iOS 26.6.1|23G83")
+
+
+class ResearchDocumentTests(unittest.TestCase):
+    def make_document(self):
+        return {
+            "schema_version": 1,
+            "target": TARGET,
+            "entries": [VALID],
+            "warning": "Metadata only; does not establish exploitability.",
+        }
+
+    def test_document_with_matching_exact_target_passes(self):
+        self.assertEqual(validate_document(self.make_document()), [])
+
+    def test_document_rejects_entry_target_mismatch(self):
+        document = self.make_document()
+        document["entries"] = [{**VALID, "target": {**TARGET, "build": "23G71"}}]
+        self.assertTrue(any("target does not match document target" in e
+                            for e in validate_document(document)))
+
+    def test_document_rejects_missing_warning(self):
+        document = self.make_document()
+        document["warning"] = ""
+        self.assertTrue(any("warning must clearly state" in e
+                            for e in validate_document(document)))
+
+    def test_document_rejects_wrong_schema_version(self):
+        document = self.make_document()
+        document["schema_version"] = 2
+        self.assertTrue(any("schema_version must be 1" in e
+                            for e in validate_document(document)))
+
+    def test_document_rejects_non_object_root(self):
+        self.assertTrue(any("root must be an object" in e
+                            for e in validate_document([])))
 
 
 if __name__ == "__main__":
