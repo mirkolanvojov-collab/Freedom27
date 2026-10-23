@@ -98,9 +98,22 @@ summary["completed_at_utc"] = datetime.now(timezone.utc).isoformat()
 summary["successful_cve_records"] = sum(r["cve_saved"] for r in summary["records"])
 summary["successful_cpe_match_records"] = sum(r["cpe_match_saved"] for r in summary["records"])
 save_json(OUT / "capture_summary.json", summary)
+failed_records = [
+    record for record in summary["records"]
+    if not record["cve_saved"] or not record["cpe_match_saved"]
+]
 print(json.dumps({
     "output_directory": str(OUT),
     "successful_cve_records": summary["successful_cve_records"],
     "successful_cpe_match_records": summary["successful_cpe_match_records"],
+    "failed_record_count": len(failed_records),
     "summary_file": str(OUT / "capture_summary.json"),
 }, indent=2))
+
+# Keep the artifact-upload step running (it uses if: always()), but do not let
+# CI report a successful capture when any requested endpoint failed.
+if failed_records:
+    raise SystemExit(
+        f"NVD capture incomplete: {len(failed_records)} of {len(summary['records'])} "
+        "CVE records had at least one failed endpoint; inspect capture_summary.json."
+    )
