@@ -24,4 +24,8 @@ jobs:
       - name: Check evidence metadata integrity
         run: python -m Framework.evidence_checks
       - name: Check project metadata integrity
-        run: python -c "from Framework.project_checks import check_project; errors = check_project(); print('\n'.join(errors) if errors else 'Project metadata checks passed'); raise SystemExit(bool(errors))"
+        run: python -c "from Framework.project_checks import check_project; errors = check_project(); print('\\n'.join(errors) if errors else 'Project metadata checks passed'); raise SystemExit(bool(errors))"
+      - name: Run research triage report
+        run: python -m Framework.research_triage
+      - name: Validate machine-readable research triage output
+        run: python -m Framework.research_triage --json > research/triage_report.json && python -c "import json; d=json.load(open('research/triage_report.json', encoding='utf-8')); assert d['summary']['joined_entries'] == d['summary']['registry_entries'] == d['summary']['ledger_entries']; assert d['summary']['reproduced_by_freedom27'] == 0; print('Research triage report validated')"
