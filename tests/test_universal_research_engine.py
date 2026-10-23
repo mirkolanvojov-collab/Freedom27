@@ -32,6 +32,18 @@ class UnifiedResearchEngineTests(unittest.TestCase):
         document["candidates"][0]["source_url"] = "http://example.invalid"
         self.assertTrue(analyze_advisories(document)["validation_errors"])
 
+    def test_malformed_source_metadata_is_reported_not_crashed(self):
+        document = json.loads(json.dumps(self.document))
+        document["source"] = "not-an-object"
+        analysis = analyze_advisories(document)
+        self.assertTrue(any("source metadata must be an object" in error for error in analysis["validation_errors"]))
+
+    def test_duplicate_candidate_ids_are_reported(self):
+        document = json.loads(json.dumps(self.document))
+        document["candidates"].append(json.loads(json.dumps(document["candidates"][0])))
+        analysis = analyze_advisories(document)
+        self.assertTrue(any("duplicate candidate ID" in error for error in analysis["validation_errors"]))
+
     def test_review_priority_is_not_named_exploitability(self):
         report = build_report(self.document)
         self.assertIn("review_priority_score", report["advisory_analysis"]["candidates_ranked_for_review"][0])
