@@ -28,8 +28,15 @@ def validate_record(record: object) -> list[str]:
             errors.append(f"{field} must be a string when supplied")
     source_url = record.get("source_url", "")
     if isinstance(source_url, str) and source_url:
-        parsed = urlparse(source_url)
-        if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+        try:
+            parsed = urlparse(source_url)
+            valid_url = (
+                parsed.scheme == "https" and bool(parsed.hostname)
+                and not parsed.username and not parsed.password
+            )
+        except ValueError:
+            valid_url = False
+        if not valid_url:
             errors.append("source_url must be a valid HTTPS URL without embedded credentials")
     evidence_note = record.get("evidence_note", "")
     if evidence_note is not None and not isinstance(evidence_note, str):
