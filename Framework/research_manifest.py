@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import re
 from typing import Any, Iterable
+from urllib.parse import urlparse
 
 STATUSES = {"queued", "reviewed", "not_applicable", "reproduced_in_lab"}
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
@@ -35,8 +36,17 @@ def validate_manifest(items: Iterable[dict[str, Any]]) -> list[str]:
                 errors.append(f"{prefix}: {field} must be a non-empty string")
 
         source_url = item.get("source_url", "")
-        if isinstance(source_url, str) and source_url and not source_url.startswith("https://"):
-            errors.append(f"{prefix}: source_url must use HTTPS")
+        if isinstance(source_url, str) and source_url:
+            try:
+                parsed = urlparse(source_url)
+                valid_url = (
+                    parsed.scheme == "https" and bool(parsed.hostname)
+                    and not parsed.username and not parsed.password
+                )
+            except ValueError:
+                valid_url = False
+            if not valid_url:
+                errors.append(f"{prefix}: source_url must be a valid HTTPS URL without embedded credentials")
 
         revision = item.get("source_revision", "")
         if isinstance(revision, str) and revision and not SHA40.fullmatch(revision):
