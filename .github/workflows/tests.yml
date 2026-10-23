@@ -31,6 +31,10 @@ jobs:
         run: python -m Framework.chain_readiness
       - name: Generate evidence-first blocker analysis
         run: python -m Framework.blocker_analyzer > research/blocker_report.json && python -c "import json; d=json.load(open('research/blocker_report.json', encoding='utf-8')); assert d['assessment'] == 'blocked' or d['verified_complete_jailbreak']; assert d['device_modified'] is False; print('Blocker report validated:', d['blocker_count'], 'blockers')"
+      - name: Generate blocker-resolution plan
+        run: python -m Framework.blocker_resolution_engine > research/blocker_resolution_report.json && python -c "import json; d=json.load(open('research/blocker_resolution_report.json', encoding='utf-8')); assert d['assessment'] == 'blocked' or d['verified_complete_jailbreak']; assert d['execution_policy']['device_modified'] is False; assert d['execution_policy']['exploit_execution_authorized'] is False; print('Blocker-resolution report validated:', d['open_task_count'], 'open tasks')"
+      - name: Generate read-only iOS security audit
+        run: python -m Framework.ios_security_audit > research/ios_security_audit_report.json && python -c "import json; d=json.load(open('research/ios_security_audit_report.json', encoding='utf-8')); assert d['mode'] == 'read_only_defensive_audit'; assert d['device_modified'] is False; assert d['bypass_attempted'] is False; print('Security audit report validated:', d['controls_reviewed'], 'controls')"
       - name: Run research triage report
         run: python -m Framework.research_triage
       - name: Validate machine-readable research triage output
