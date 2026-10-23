@@ -24,7 +24,14 @@
       ],
       "evidence_level": "source_supported",
       "exact_target_verified": false,
-      "status": "source review pending"
+      "status": "README reviewed; exact-build evidence not established",
+      "reviewed_revision": "forcequitOS/bad_query@3563002bfaa6fc4be1eb2e0e33d6fc9076f7b67e",
+      "review_findings": [
+        "README claims iOS 26.0–26.6.1 / iOS 27.0 beta 4 support, but does not identify an exact tested build for iPhone 16 Plus identifier iPhone17,4 / build 23G83.",
+        "README explicitly calls the project a developer proof-of-concept and says it is not meaningfully usable.",
+        "Documented scope is selected container/data paths; this alone does not demonstrate kernel privilege escalation, persistence, package manager support, or a full jailbreak."
+      ],
+      "next_action": "Review relevant source files at the pinned revision for mechanism and prerequisites without executing the PoC; keep exact_target_verified false until reproducible evidence exists."
     },
     {
       "id": "PUB-EROSION-SCOPE",
