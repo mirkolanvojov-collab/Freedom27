@@ -29,6 +29,8 @@ def check_project(root: Path = ROOT) -> list[str]:
     except (OSError, json.JSONDecodeError) as exc:
         return [f"config.json could not be loaded: {exc}"]
 
+    if not isinstance(config, dict):
+        return ["config.json root must be an object"]
     for key in REQUIRED_CONFIG:
         if key not in config:
             errors.append(f"config.json is missing required key: {key}")
