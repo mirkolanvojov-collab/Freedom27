@@ -23,6 +23,7 @@ def check_evidence(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     matrix_path = root / "research" / "compatibility_matrix.json"
     registry_path = root / "research" / "vulnerability_registry.json"
+    ledger_path = root / "research" / "evidence_ledger.json"
 
     try:
         matrix = json.loads(matrix_path.read_text(encoding="utf-8"))
@@ -64,6 +65,47 @@ def check_evidence(root: Path = ROOT) -> list[str]:
                 notes = str(row.get("notes", "")).lower()
                 if any(term in notes for term in ("reported demonstration", "news report", "demo only")):
                     errors.append(f"{prefix} cannot be verified using demo/report-only notes")
+
+    try:
+        ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return errors + [f"evidence_ledger.json could not be loaded: {exc}"]
+
+    if not isinstance(ledger, dict):
+        errors.append("evidence ledger root must be an object")
+        ledger = {}
+    ledger_entries = ledger.get("entries")
+    if not isinstance(ledger_entries, list):
+        errors.append("evidence ledger entries must be a list")
+        ledger_entries = []
+    allowed_values = ledger.get("allowed_values", {})
+    ledger_required = ("id", "evidence_type", "patch_state", "target_applicability",
+                       "reproduction_status", "evidence_url", "next_action")
+    ledger_ids: set[str] = set()
+    for index, item in enumerate(ledger_entries):
+        prefix = f"evidence ledger entry {index}"
+        if not isinstance(item, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        for field in ledger_required:
+            if not isinstance(item.get(field), str) or not item[field].strip():
+                errors.append(f"{prefix} missing non-empty {field}")
+        item_id = item.get("id")
+        if isinstance(item_id, str) and item_id:
+            if item_id in ledger_ids:
+                errors.append(f"{prefix} duplicate id {item_id}")
+            ledger_ids.add(item_id)
+        if not _https_url(item.get("evidence_url")):
+            errors.append(f"{prefix} evidence_url must be HTTPS")
+        for field in ("evidence_type", "patch_state", "target_applicability", "reproduction_status"):
+            choices = allowed_values.get(field, [])
+            if item.get(field) not in choices:
+                errors.append(f"{prefix} has disallowed {field} {item.get(field)!r}")
+        if item.get("reproduction_status") == "reported_demo_not_independently_reproduced" and item.get("target_applicability") != "reported_single_device_build":
+            errors.append(f"{prefix} reported demo must be scoped to a single reported device/build")
+    registry_ids = {entry.get("id") for entry in registry.get("entries", []) if isinstance(entry, dict)}
+    if ledger_ids != registry_ids:
+        errors.append("evidence ledger IDs must match vulnerability registry IDs exactly")
 
     if not isinstance(registry, dict):
         errors.append("vulnerability registry root must be an object")
