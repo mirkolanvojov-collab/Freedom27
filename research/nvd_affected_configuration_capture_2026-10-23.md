@@ -4,7 +4,7 @@
 
 ## Scope and method
 
-This pass records publicly visible representations of NVD/CVE configuration data for the Freedom27 iOS 26.6.1 research candidates. Where a secondary site reproduces CPE configuration history or the CVE record's configuration JSON, the record is labelled as a secondary representation. It is **not** represented as a direct NVD API payload. A direct NVD API response capture remains a follow-up item.
+This document began as a record of secondary representations. The later official NVD API capture is recorded below and supersedes any interim statement that direct capture remained outstanding. Secondary-source records remain separately labelled and are not represented as raw NVD payloads.
 
 Target context supplied by user: iPhone17,4 / iOS 26.6.1 / build 23G83. No device inspection or testing was performed.
 
@@ -35,7 +35,7 @@ The exact per-record matches are stored under `nvd_configuration_capture.affecte
 - The listed iPhone OS/iPadOS upper bound below 26.7 includes version 26.6.1 as a **version-range match**.
 - It does not prove that a particular build (23G83) is vulnerable, that the vulnerability can be triggered, or that it yields a usable exploit primitive.
 - Some Apple CNA records express ranges such as `0 < 26.7` and `0 < 27` separately. These source ranges are preserved as separate entries rather than silently merged.
-- The capture is not yet a full direct-NVD API archive. An additional primary-source cross-check was completed against Apple's iOS/iPadOS 26.7 security bulletin (released September 14, 2026): it independently confirms the disclosed impacts and that these named issues were addressed in 26.7, but Apple's bulletin is not a substitute for the NVD's machine-readable configuration payload. The official NVD endpoint was retried during this pass and remained inaccessible through the available retrieval interface; no response body was captured. The remaining evidence-quality step is to retrieve and save the official NVD CVE API JSON response for every candidate, then compare `configurations` / CPE match fields and Apple CNA `affected` entries against these secondary representations.
+- **Historical note (superseded by the successful workflow capture below):** at the time of this initial pass, direct NVD API payloads had not yet been archived. Apple's iOS/iPadOS 26.7 security bulletin independently confirms disclosed impacts and fixes, but is not a substitute for machine-readable NVD configuration data. The later capture below closed the raw-response collection task; exact-build applicability and exploitability remain separate questions.
 
 ## Remaining direct API capture list
 
@@ -56,7 +56,7 @@ Retrieved official CVE Program JSON records from `CVEProject/cvelistV5` via raw 
 - [CVE-2026-84622 official CVE record](https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84622.json) — `dateUpdated` 2026-10-20; Apple CNA lists the same separate iOS/iPadOS ranges and describes the kernel-memory read as requiring root privileges.
 - Official repository documentation: https://github.com/CVEProject/cvelistV5
 
-This is a successful alternate route for capturing the **CVE Program's vendor-supplied affected-version data for all 12 candidates**. All 12 records list iOS/iPadOS below 26.7 and a separate range below 27; this is a version-range match for 26.6.1, not confirmation of the exact build. It does not replace the outstanding task of capturing NVD `configurations` and CPE match fields.
+This was a successful alternate route for capturing the **CVE Program's vendor-supplied affected-version data for all 12 candidates**. At the time, it preceded the direct NVD capture recorded below. All 12 records list iOS/iPadOS below 26.7 and a separate range below 27; this is a version-range match for 26.6.1, not confirmation of the exact build.
 
 ## Primary-source cross-check and retrieval blocker
 
@@ -66,7 +66,7 @@ The official NVD API URL pattern was retried for CVE-2026-84566: `https://servic
 
 ## Status
 
-Secondary NVD/CPE representations, official CVE Program Apple CNA records for all 12 candidates, and an Apple advisory cross-check are recorded. Direct NVD API JSON has not yet been saved because the endpoint could not be retrieved through the available interface. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
+At the time of the initial inventory checkpoint, secondary NVD/CPE representations, official CVE Program Apple CNA records, and an Apple advisory cross-check were recorded, while direct NVD JSON was still pending. The successful workflow capture below supersedes that collection-status statement. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
 
 
 ## Alternate feed retrieval attempt — 2026-10-23
@@ -79,7 +79,7 @@ NIST's NVD status page says the current `/cves/` endpoint still returns the late
 
 - Captured: official CVE Program / Apple CNA affected-version data for all 12 candidates.
 - Checked: community NVD feed mirror directory listings for all five numeric prefixes; no matching candidate records were present.
-- Not captured: direct NVD `configurations` JSON and associated CPE match-criteria records.
+- At the time of this checkpoint, direct NVD `configurations` JSON and associated CPE match-criteria records had not yet been captured; see the successful capture section below.
 - Not established: exact build applicability for `23G83`, or exploitability on the user's device.
 - Safety: no exploit was executed, no CVE was weaponized, and no device was accessed or modified.
 
@@ -88,7 +88,7 @@ NIST's NVD status page says the current `/cves/` endpoint still returns the late
 
 A read-only retrieval utility is now committed at [`research/scripts/capture_nvd_configurations.py`](https://github.com/mirkolanvojov-collab/Freedom27/blob/main/research/scripts/capture_nvd_configurations.py). It queries the official NVD CVE API 2.0 and CPE Match API 2.0 sequentially for all 12 candidate identifiers, saves the complete raw JSON responses without rewriting their configuration fields, and emits a per-record HTTP/error summary. It accepts an optional `NVD_API_KEY` environment variable but does not require one by default. The utility only performs HTTP GET requests and writes local evidence files; it does not execute exploits or interact with a device.
 
-**Execution status:** the script has been added to the repository but has not been executed in this environment. The available GitHub retrieval interface cannot run arbitrary Python or make arbitrary outbound HTTP requests to the NVD service, and direct NVD requests from the research interface failed. Therefore the script's output has not yet been captured, and no claim is made that the 12 NVD responses were successfully retrieved. Once run in a normal Python environment with outbound HTTPS access, its summary will show per-CVE success or errors; preserve those raw responses as evidence rather than treating an HTTP failure as a missing CVE.
+**Historical execution status (superseded):** this paragraph describes the state before the GitHub Actions capture ran. The workflow later executed the script successfully; see the successful capture sections below for verified run IDs, HTTP statuses, and artifact digests.
 
 
 ## Successful direct NVD API capture — 2026-10-23
