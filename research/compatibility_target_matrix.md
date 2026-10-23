@@ -6,7 +6,7 @@ Freedom27 aims to investigate jailbreak feasibility across the iPhone 14 through
 
 ## Scope
 
-- Hardware scope tracks individually named models, not just family labels: iPhone 14/14 Plus/14 Pro/14 Pro Max; iPhone 15/15 Plus/15 Pro/15 Pro Max; iPhone 16/16 Plus/16 Pro/16 Pro Max/16e; iPhone 17/17 Pro/17 Pro Max/Air/17e; and currently listed iPhone 18 Pro/18 Pro Max.
+- Hardware scope tracks individually named models, not just family labels: iPhone 14/14 Plus/14 Pro/14 Pro Max; iPhone 15/15 Plus/15 Pro/15 Pro Max; iPhone 16/16 Plus/16 Pro/16 Pro Max/16e; iPhone 17/17 Pro/17 Pro Max/Air/17e; and iPhone 18 Pro/18 Pro Max.
 - This is an evidence inventory, not a promise that every listed model supports both OS families. The matrix includes iOS 26 and iOS 27 rows for iPhone 14–17 and iOS 27 rows for iPhone 18 Pro models; verify exact OS/build availability and device identifiers before claiming compatibility.
 - The base iPhone 18 and any unlisted future variants are not presumed to exist or be supported until confirmed by primary sources.
 - OS families: iOS 26 and iOS 27.
@@ -34,6 +34,7 @@ Do not describe the project as an installable jailbreak until a compatible imple
 - A reported iPhone 18 Pro/iOS 27.0.1 untethered demonstration is not, by itself, a public tool or a compatibility matrix: https://www.iclarified.com/102876/untethered-ios-2701-jailbreak-demonstrated-on-iphone-18-pro-video
 - Apple model identification: https://support.apple.com/de-de/108044
 - Apple model comparison: https://www.apple.com/iphone/compare/
+- Apple iOS 27 compatible models: https://support.apple.com/guide/iphone/iphone-models-compatible-with-ios-27-iphe3fa5df43/27/ios/27
 - iOS 26 and iOS 27 builds must be tracked separately. Point releases and security patches may change exploitability.
 - The development environment currently available to the project owner is iPhone-only. Host-side builds that require macOS/Xcode cannot be assumed feasible on that device alone; cloud CI can test supported project checks but cannot replace real-device validation.
 
