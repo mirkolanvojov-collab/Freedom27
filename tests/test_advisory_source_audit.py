@@ -1,5 +1,3 @@
-import copy
-import json
 import unittest
 
 from Framework.advisory_source_audit import audit_document
@@ -44,6 +42,46 @@ class AdvisorySourceAuditTests(unittest.TestCase):
         report = audit_document(self.document, fail)
         self.assertFalse(report["ok"])
         self.assertTrue(any("source fetch failed" in error for error in report["errors"]))
+
+    def test_candidate_specific_source_is_fetched(self):
+        doc = {
+            "source": {"url": "https://support.apple.com/en-us/149041"},
+            "candidates": [
+                {"id": "CVE-2026-12345", "source_url": "https://support.apple.com/en-us/128066"}
+            ],
+        }
+        pages = {
+            "https://support.apple.com/en-us/149041": "base page",
+            "https://support.apple.com/en-us/128066": "CVE-2026-12345",
+        }
+        report = audit_document(doc, pages.__getitem__)
+        self.assertTrue(report["ok"])
+        self.assertEqual(report["checked"], 1)
+        self.assertEqual(report["source_count"], 2)
+
+    def test_non_apple_source_is_rejected(self):
+        doc = {
+            "source": {"url": "https://support.apple.com/en-us/149041"},
+            "candidates": [
+                {"id": "CVE-2026-12345", "source_url": "https://example.com/advisory"}
+            ],
+        }
+        def fetch(url):
+            if "example.com" in url:
+                raise ValueError("refusing non-Apple or non-HTTPS source")
+            return "base page"
+        report = audit_document(doc, fetch)
+        self.assertFalse(report["ok"])
+        self.assertTrue(any("source fetch failed" in error for error in report["errors"]))
+
+    def test_invalid_cve_id_rejected(self):
+        doc = {
+            "source": {"url": "https://support.apple.com/en-us/149041"},
+            "candidates": [{"id": "not-a-cve"}],
+        }
+        report = audit_document(doc, lambda _url: "")
+        self.assertFalse(report["ok"])
+        self.assertTrue(any("invalid CVE identifier" in error for error in report["errors"]))
 
     def test_non_object_input_rejected(self):
         report = audit_document([], lambda _url: "")
