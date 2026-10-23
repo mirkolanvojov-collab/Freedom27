@@ -27,6 +27,10 @@ def triage(target, registry_doc, ledger_doc):
             category = "exact-target-mentioned"
             reason = "Ledger records the exact target triplet; primary-source verification is still required."
             action = "Verify the source and seek independent reproduction for this exact target."
+        elif reg.get("status") == "verified" and ev.get("reproduction_status") != "reproduced_by_Freedom27":
+            category = "verified-claim-evidence-gap"
+            reason = "Registry says verified, but the ledger does not record Freedom27 reproduction for the exact target; do not treat this as target compatibility."
+            action = "Downgrade the claim to unverified until exact-target evidence and independent reproduction are recorded."
         elif ev.get("target_applicability") == "older_hardware_only":
             category = "hardware-mismatch"
             reason = "The recorded upstream scope is older hardware; it does not establish support for this target."
