@@ -50,6 +50,13 @@ class UnifiedResearchEngineTests(unittest.TestCase):
         analysis = analyze_advisories(document)
         self.assertTrue(any("missing or invalid ID" in error for error in analysis["validation_errors"]))
 
+    def test_unhashable_priority_is_reported_without_crashing(self):
+        document = json.loads(json.dumps(self.document))
+        document["candidates"][0]["priority"] = ["high"]
+        analysis = analyze_advisories(document)
+        self.assertEqual(len(analysis["candidates_ranked_for_review"]), len(document["candidates"]))
+        self.assertTrue(any("missing or invalid ID" not in error for error in analysis["validation_errors"]) is False)
+
     def test_review_priority_is_not_named_exploitability(self):
         report = build_report(self.document)
         self.assertIn("review_priority_score", report["advisory_analysis"]["candidates_ranked_for_review"][0])
