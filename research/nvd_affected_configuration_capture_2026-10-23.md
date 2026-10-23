@@ -46,6 +46,16 @@ Capture at minimum:
 - `vulnerabilities[].cve.containers.cna.affected` where present
 - `published`, `lastModified`, `sourceIdentifier`, and reference URLs
 
+## Alternate primary-source route
+
+Retrieved the official CVE Program JSON records from `CVEProject/cvelistV5` via raw GitHub URLs. These records are Apple CNA records, not NVD API responses. For example:
+
+- [CVE-2026-84566 official CVE record](https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84566.json) — `dateUpdated` 2026-10-20; Apple CNA lists iOS/iPadOS affected below `26.7` and in a separate range below `27`.
+- [CVE-2026-84622 official CVE record](https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84622.json) — `dateUpdated` 2026-10-20; Apple CNA lists the same separate iOS/iPadOS ranges and describes the kernel-memory read as requiring root privileges.
+- Official repository documentation: https://github.com/CVEProject/cvelistV5
+
+This is a successful way around the blocked NVD retrieval path for the **CVE Program's vendor-supplied affected-version data**. It does not replace the outstanding task of capturing NVD `configurations` and CPE match fields.
+
 ## Primary-source cross-check and retrieval blocker
 
 Apple's official iOS 26.7 / iPadOS 26.7 bulletin is available at https://support.apple.com/en-us/149041. It lists CVE-2026-84566 as a Kernel issue that may cause unexpected system termination or kernel-memory corruption, and CVE-2026-65405 as a Kernel information-disclosure issue that may reveal kernel memory layout. It also describes CVE-2026-84622 as an issue requiring root privileges to read uninitialized kernel memory. These impacts corroborate the general descriptions in the candidate ledger, and the bulletin says iOS/iPadOS 26.7 was released September 14, 2026. This does not independently prove that iOS 26.6.1 build 23G83 is affected or exploitable.
@@ -54,4 +64,4 @@ The official NVD API URL pattern was retried for CVE-2026-84566: `https://servic
 
 ## Status
 
-Secondary configuration captures and an Apple advisory cross-check are recorded. Direct NVD API JSON has not yet been saved because the endpoint could not be retrieved through the available interface. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
+Secondary NVD/CPE representations, official CVE Program Apple CNA records for two candidates, and an Apple advisory cross-check are recorded. Direct NVD API JSON has not yet been saved because the endpoint could not be retrieved through the available interface. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
