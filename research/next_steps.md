@@ -68,3 +68,7 @@ This plan is a repository workflow, not a promise that a jailbreak exists or can
 - The `bad_query` README still labels itself a developer PoC, not meaningfully usable; it does not establish a complete jailbreak.
 - Combined CI status for commit `40e99982b23061b994c4df776f270ad5fce81d8f` returned no statuses, so its workflow result remains unknown. Check the Actions page; do not infer success from an empty status list.
 
+### Official advisory scope check (2026-10-23)
+- Updated [research/exact_target_status.md](exact_target_status.md) to clarify the scope of Apple's official [iOS 26.6.1 security-content advisory](https://support.apple.com/en-us/148282): issues described as fixed in build `23G83` are not evidence of vulnerabilities that remain usable on that build, and a single CVE does not establish a jailbreak chain.
+- GitHub's available commit-workflow lookup returned no workflow runs for the documentation commit `2daf87df7a6d0ad79b14d1ecef3f3f2233724437`. This is **unknown**, not a passing CI result. Check [GitHub Actions](https://github.com/mirkolanvojov-collab/Freedom27/actions) for the push-triggered run.
+- Next action remains read-only validation: inspect the latest Actions run and its test results, then continue primary-source review. No exploit was run and no phone settings were changed.
