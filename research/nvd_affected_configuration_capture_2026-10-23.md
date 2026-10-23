@@ -48,13 +48,13 @@ Capture at minimum:
 
 ## Alternate primary-source route
 
-Retrieved the official CVE Program JSON records from `CVEProject/cvelistV5` via raw GitHub URLs. These records are Apple CNA records, not NVD API responses. For example:
+Retrieved official CVE Program JSON records from `CVEProject/cvelistV5` via raw GitHub URLs for all 12 candidates in the validation ledger. These records are Apple CNA records, not NVD API responses. Each record's source URL, update timestamp, affected product/ranges, and impact summary are now stored under `official_cve_program_capture` for its candidate in the JSON ledger. For example:
 
 - [CVE-2026-84566 official CVE record](https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84566.json) — `dateUpdated` 2026-10-20; Apple CNA lists iOS/iPadOS affected below `26.7` and in a separate range below `27`.
 - [CVE-2026-84622 official CVE record](https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/2026/84xxx/CVE-2026-84622.json) — `dateUpdated` 2026-10-20; Apple CNA lists the same separate iOS/iPadOS ranges and describes the kernel-memory read as requiring root privileges.
 - Official repository documentation: https://github.com/CVEProject/cvelistV5
 
-This is a successful way around the blocked NVD retrieval path for the **CVE Program's vendor-supplied affected-version data**. It does not replace the outstanding task of capturing NVD `configurations` and CPE match fields.
+This is a successful alternate route for capturing the **CVE Program's vendor-supplied affected-version data for all 12 candidates**. All 12 records list iOS/iPadOS below 26.7 and a separate range below 27; this is a version-range match for 26.6.1, not confirmation of the exact build. It does not replace the outstanding task of capturing NVD `configurations` and CPE match fields.
 
 ## Primary-source cross-check and retrieval blocker
 
@@ -64,4 +64,4 @@ The official NVD API URL pattern was retried for CVE-2026-84566: `https://servic
 
 ## Status
 
-Secondary NVD/CPE representations, official CVE Program Apple CNA records for two candidates, and an Apple advisory cross-check are recorded. Direct NVD API JSON has not yet been saved because the endpoint could not be retrieved through the available interface. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
+Secondary NVD/CPE representations, official CVE Program Apple CNA records for all 12 candidates, and an Apple advisory cross-check are recorded. Direct NVD API JSON has not yet been saved because the endpoint could not be retrieved through the available interface. No exploit was executed, no CVE was cracked, and the target device was not accessed or modified.
