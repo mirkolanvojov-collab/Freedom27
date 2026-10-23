@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "target": {
+    "device_model": "iPhone 16 Plus",
+    "model_identifier": "iPhone17,4",
+    "os_version": "iOS 26.6.1",
+    "build": "23G83"
+  },
+  "entries": [
+    {
+      "id": "bad-query",
+      "title": "bad_query developer proof-of-concept scope",
+      "source_url": "https://github.com/forcequitOS/bad_query/commit/3563002bfaa6fc4be1eb2e0e33d6fc9076f7b67e",
+      "source_revision": "3563002bfaa6fc4be1eb2e0e33d6fc9076f7b67e",
+      "claim": "Upstream README claims overlapping OS versions and describes selected container/data access; this is not evidence of a complete jailbreak or exact-target compatibility.",
+      "status": "reviewed",
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build": "23G83"
+      },
+      "evidence_note": "Static source review only. No exact-target execution or independent reproduction; README labels it a developer PoC and not meaningfully usable.",
+      "independent_reproduction": false
+    },
+    {
+      "id": "erosion",
+      "title": "Erosion limited customization scope",
+      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/71069b7313bf7aa5130392034856aa147b9a4bc2",
+      "source_revision": "71069b7313bf7aa5130392034856aa147b9a4bc2",
+      "claim": "Upstream describes a limited customization toolbox dependent on bad_query; version overlap does not establish exact-target support.",
+      "status": "reviewed",
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build": "23G83"
+      },
+      "evidence_note": "Static source review only. No independent reproduction on the exact device/build and no installation or execution.",
+      "independent_reproduction": false
+    },
+    {
+      "id": "escapeos",
+      "title": "EscapeOS app-data access and host prerequisites",
+      "source_url": "https://github.com/pwnapplehat/EscapeOS/commit/a3743f96764e5198c3e01ac672f949118c844cb6",
+      "source_revision": "a3743f96764e5198c3e01ac672f949118c844cb6",
+      "claim": "Upstream documents selected app-container browsing and backup behavior, not a complete jailbreak; documented setup requires a Windows host.",
+      "status": "reviewed",
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build": "23G83"
+      },
+      "evidence_note": "Static source review only. Workflow is not suitable for current iPhone-only access as documented; no exact-target reproduction.",
+      "independent_reproduction": false
+    }
+  ],
+  "warning": "Research metadata only. No entry establishes exploitability, privilege escalation, persistence, package manager support, or a working jailbreak."
+}
