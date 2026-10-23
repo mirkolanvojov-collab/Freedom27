@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Evidence-tracking matrix. A reported demo is not a Freedom27-compatible release; no row currently claims Freedom27 is installable.",
+  "description": "Evidence-tracking matrix expanded to track base, Plus, Pro, and Pro Max variants separately where applicable. A reported demo is not a Freedom27-compatible release; no row currently claims Freedom27 is installable.",
   "allowed_statuses": [
     "not-investigated",
     "researching",
@@ -12,113 +12,443 @@
   "rows": [
     {
       "device_family": "iPhone 14",
+      "variant": "base",
       "model_identifier": "",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
       "device_family": "iPhone 14",
+      "variant": "base",
       "model_identifier": "",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 14",
+      "variant": "Plus",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 14",
+      "variant": "Plus",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 14",
+      "variant": "Pro",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 14",
+      "variant": "Pro",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 14",
+      "variant": "Pro Max",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 14",
+      "variant": "Pro Max",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
       "device_family": "iPhone 15",
+      "variant": "base",
       "model_identifier": "",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
       "device_family": "iPhone 15",
+      "variant": "base",
       "model_identifier": "",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
-      "device_family": "iPhone 16",
+      "device_family": "iPhone 15",
+      "variant": "Plus",
       "model_identifier": "",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
-      "device_family": "iPhone 16",
+      "device_family": "iPhone 15",
+      "variant": "Plus",
       "model_identifier": "",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
-      "device_family": "iPhone 17",
+      "device_family": "iPhone 15",
+      "variant": "Pro",
       "model_identifier": "",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
-      "device_family": "iPhone 17",
+      "device_family": "iPhone 15",
+      "variant": "Pro",
       "model_identifier": "",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 15",
+      "variant": "Pro Max",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 15",
+      "variant": "Pro Max",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "base",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "base",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "Plus",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "Plus",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "Pro",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "Pro",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "Pro Max",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "Pro Max",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "base",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "base",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "Plus",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "Plus",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "Pro",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "Pro",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "Pro Max",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "Pro Max",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
       "device_family": "iPhone 18",
+      "variant": "base",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 18",
+      "variant": "base",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 18",
+      "variant": "Plus",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 18",
+      "variant": "Plus",
+      "model_identifier": "",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 18",
+      "variant": "Pro",
+      "model_identifier": "",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "",
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+    },
+    {
+      "device_family": "iPhone 18",
+      "variant": "Pro",
       "model_identifier": "iPhone19,2 (reported iPhone 18 Pro)",
       "os_family": "iOS 27",
       "os_version": "27.0.1",
       "build": "24A446",
       "status": "experimental",
       "evidence_url": "https://www.iclarified.com/102876/untethered-ios-2701-jailbreak-demonstrated-on-iphone-18-pro-video",
-      "notes": "Public reporting describes a Calif stage demonstration on this single device/build. No public tool or implementation is available in the cited report. This is evidence of a reported demonstration only, not a Freedom27 port or installable compatibility. Independent reproduction and technical details are outstanding."
+      "notes": "Public reporting describes a demonstration on this exact device/build only. No public tool or Freedom27 port is established; independent reproduction and technical details remain outstanding."
     },
     {
       "device_family": "iPhone 18",
+      "variant": "Pro Max",
       "model_identifier": "",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Verify whether this OS family was available for this device variant before treating this row as a practical target."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     },
     {
       "device_family": "iPhone 18",
+      "variant": "Pro Max",
       "model_identifier": "",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
       "evidence_url": "",
-      "notes": "Other iPhone 18 variants remain unconfirmed; do not generalize the Pro demonstration."
+      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
     }
   ]
 }
