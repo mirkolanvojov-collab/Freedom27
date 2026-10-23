@@ -84,11 +84,13 @@
       "impact": "An app may be able to cause unexpected system termination or write kernel memory",
       "fix": "Out-of-bounds write addressed with improved bounds checking",
       "version_evidence": {
-        "source": "NVD",
+        "source": "NVD/CVE public record",
         "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84523",
-        "range": "iOS versions below 26.7 (previously recorded)",
+        "range": "NVD CPE: Apple iPhone OS and iPadOS versions below 26.7",
         "target_version_in_range": true,
-        "exact_build_verified": false
+        "exact_build_verified": false,
+        "checked_on": "2026-10-23",
+        "notes": "NVD explicitly lists iPhone OS and iPadOS CPE upper bound excluding 26.7; supports range applicability to 26.6.1, not exact build or exploitability."
       },
       "validation_status": "version_range_supported_exact_build_unverified",
       "safe_next_step": "Find public patch details; distinguish advisory impact from proof of controllable write; no live kernel-memory testing.",
@@ -194,13 +196,15 @@
       "impact": "A local attacker may be able to cause unexpected system termination or corrupt kernel memory",
       "fix": "Use-after-free addressed with improved memory management",
       "version_evidence": {
-        "source": "NVD / Apple advisory",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-43684",
-        "range": "Apple iPhone OS versions below 26.7 (Apple advisory fix context; exact NVD configuration not captured in this pass)",
-        "target_version_in_range": "not fully established from captured configuration",
-        "exact_build_verified": false
+        "source": "NVD/CVE public record",
+        "url": "https://db.gcve.eu/vuln/ncsc-2026-0371?page=2",
+        "range": "NVD/CVE record: Apple iPhone OS and iPadOS versions below 26.7",
+        "target_version_in_range": true,
+        "exact_build_verified": false,
+        "checked_on": "2026-10-23",
+        "notes": "Public CVE record explicitly lists affected iOS/iPadOS version 0 < 26.7. Exact build 23G83 and exploitability remain unverified."
       },
-      "validation_status": "version_range_needs_nvd_confirmation",
+      "validation_status": "version_range_supported_exact_build_unverified",
       "safe_next_step": "Search public patch/bug references; use a model-level lifetime regression test if a precise invariant is documented. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "use-after-free trigger",
@@ -216,13 +220,15 @@
       "impact": "Connecting to a malicious NFS server may lead to kernel memory corruption",
       "fix": "Use-after-free addressed with improved memory management",
       "version_evidence": {
-        "source": "NVD / Apple advisory",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-43686",
-        "range": "Apple iPhone OS versions below 26.7 (Apple advisory fix context; exact NVD configuration not captured in this pass)",
-        "target_version_in_range": "not fully established from captured configuration",
-        "exact_build_verified": false
+        "source": "NVD/CVE public record",
+        "url": "https://db.gcve.eu/vuln/ncsc-2026-0370",
+        "range": "CVE record: Apple iOS/iPadOS versions below 26.7",
+        "target_version_in_range": true,
+        "exact_build_verified": false,
+        "checked_on": "2026-10-23",
+        "notes": "Public CVE record lists affected iOS/iPadOS 0 < 26.7; malicious NFS server prerequisite noted. Exact build and reachability not verified."
       },
-      "validation_status": "version_range_needs_nvd_confirmation",
+      "validation_status": "version_range_supported_exact_build_unverified",
       "safe_next_step": "Record NFS prerequisites and patch references; avoid live corruption tests. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "target reachability",
@@ -238,13 +244,15 @@
       "impact": "An app may be able to determine kernel memory layout",
       "fix": "Memory initialization issue addressed",
       "version_evidence": {
-        "source": "NVD / Apple advisory",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-65405",
-        "range": "Apple iPhone OS versions below 26.7 (Apple advisory fix context; exact NVD configuration not captured in this pass)",
+        "source": "NVD/CVE public record",
+        "url": "https://vulnerability.circl.lu/vuln/cve-2026-65405",
+        "range": "Secondary record says fixed in iOS/iPadOS 26.7; exact NVD CPE still pending",
         "target_version_in_range": "not fully established from captured configuration",
-        "exact_build_verified": false
+        "exact_build_verified": false,
+        "checked_on": "2026-10-23",
+        "notes": "Secondary public record corroborates the 26.7 fix and kernel-layout disclosure; exact NVD affected-software configuration still needs capture."
       },
-      "validation_status": "version_range_needs_nvd_confirmation",
+      "validation_status": "secondary_range_evidence_exact_nvd_cpe_pending",
       "safe_next_step": "Find exact CVE record and determine what data is disclosed according to public evidence; do not infer mitigation bypass. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "useful kernel address disclosure",
@@ -299,22 +307,33 @@
     "CVE-2026-84607: NVD's explicit iPhone OS CPE upper bound below 26.7 supports the reported 26.6.1 version being within the listed affected range; exact build 23G83 and exploitability remain unverified.",
     "CVE-2026-43689: secondary public advisory record reports affected versions unknown; do not treat release ordering as precise version evidence.",
     "CVE-2026-86876 and CVE-2026-86886: Apple/NVD summaries confirm impact and fix release, but this review did not capture a precise CPE range for either.",
-    "For all candidates, public affected-version evidence does not establish exploitability, a usable primitive, or a jailbreak chain."
+    "For all candidates, public affected-version evidence does not establish exploitability, a usable primitive, or a jailbreak chain.",
+    "2026-10-23 follow-up: public CVE records provide explicit iOS/iPadOS <26.7 range evidence for CVE-2026-43684 and CVE-2026-43686; NVD explicitly lists iPhone OS/iPadOS <26.7 for CVE-2026-84523. These are version-range matches only, not exact-build or exploitability confirmations.",
+    "CVE-2026-65405: secondary public record corroborates the 26.7 fix and impact, but exact NVD affected-software configuration still needs capture.",
+    "The search pass did not obtain reliable exact NVD CPE output for CVE-2026-84566, CVE-2026-84622, CVE-2026-28968, or CVE-2026-86886; these remain unresolved rather than inferred from release timing."
   ],
   "audit_summary": {
     "checked_on": "2026-10-23",
     "newly_reviewed": [
       "CVE-2026-43689",
       "CVE-2026-86876",
-      "CVE-2026-86886"
+      "CVE-2026-86886",
+      "CVE-2026-43684",
+      "CVE-2026-43686",
+      "CVE-2026-65405",
+      "CVE-2026-84523"
     ],
     "sources": [
       "https://nvd.nist.gov/vuln/detail/CVE-2026-84607",
       "https://nvd.nist.gov/vuln/detail/CVE-2026-43689",
       "https://nvd.nist.gov/vuln/detail/CVE-2026-86876",
-      "https://nvd.nist.gov/vuln/search?cpeName=cpe%3A2.3%3Ao%3Aapple%3Aiphone_os%3A26.6.1"
+      "https://nvd.nist.gov/vuln/search?cpeName=cpe%3A2.3%3Ao%3Aapple%3Aiphone_os%3A26.6.1",
+      "https://db.gcve.eu/vuln/ncsc-2026-0371?page=2",
+      "https://db.gcve.eu/vuln/ncsc-2026-0370",
+      "https://vulnerability.circl.lu/vuln/cve-2026-65405",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-84523"
     ],
-    "result": "Public version-range evidence supports investigating iOS 26.6.1 for these fixes; no exact-build reproduction or exploitability demonstrated.",
+    "result": "Public version-range evidence supports 26.6.1 range applicability for CVE-2026-84607, CVE-2026-43689, CVE-2026-84523, CVE-2026-86876, CVE-2026-43684, and CVE-2026-43686. CVE-2026-65405 remains secondary-source-only; several candidates still need exact NVD configuration capture. No exact-build reproduction or exploitability demonstrated.",
     "cves_cracked": 0,
     "exploits_executed": 0
   }
