@@ -75,7 +75,23 @@
         "exact_build_verified": false,
         "description_summary": "A race condition was addressed with improved state management; a sandboxed app may execute arbitrary code with kernel privileges.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 7,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -120,7 +136,23 @@
         "exact_build_verified": false,
         "description_summary": "A permissions issue was addressed with additional restrictions; a malicious app may gain root privileges.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 4,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -162,7 +194,23 @@
         "exact_build_verified": false,
         "description_summary": "An out-of-bounds write may allow unexpected system termination or kernel-memory writes.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 7,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -207,7 +255,23 @@
         "exact_build_verified": false,
         "description_summary": "An out-of-bounds write may let a sandboxed process circumvent sandbox restrictions.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 6,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -286,7 +350,23 @@
         "exact_build_verified": false,
         "description_summary": "A path traversal may let an app modify protected system files.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 3,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -357,7 +437,23 @@
         "exact_build_verified": false,
         "description_summary": "A local attacker may cause unexpected system termination or corrupt kernel memory.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 4,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -397,7 +493,23 @@
         "exact_build_verified": false,
         "description_summary": "Connecting to a malicious NFS server may disclose kernel memory.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 6,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -441,7 +553,23 @@
         "exact_build_verified": false,
         "description_summary": "A use-after-free may cause system termination or corrupt kernel memory.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 4,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -485,7 +613,23 @@
         "exact_build_verified": false,
         "description_summary": "Connecting to a malicious NFS server may lead to kernel-memory corruption.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 7,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -575,7 +719,23 @@
         "exact_build_verified": false,
         "description_summary": "An app may be able to determine kernel memory layout.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 7,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -661,7 +821,23 @@
         "exact_build_verified": false,
         "description_summary": "An app with root privileges may read uninitialized kernel memory.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 7,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     },
     {
@@ -747,7 +923,23 @@
         "exact_build_verified": false,
         "description_summary": "An out-of-bounds write may cause unexpected system termination or corrupt kernel memory.",
         "source_type": "CVE Program CVE JSON record (Apple CNA container)",
-        "nvd_cpe_configurations_captured": false
+        "nvd_cpe_configurations_captured": true
+      },
+      "nvd_api_capture": {
+        "cve_api_http_status": 200,
+        "cve_api_record_count": 1,
+        "cpe_match_api_http_status": 200,
+        "cpe_match_total_results": 7,
+        "cpe_match_ids": {
+          "iphone_os": "B331E4FC-727F-403B-8689-E647A51204FD",
+          "ipados": "0896A319-539F-45D2-ACA1-7225AE5C06ED"
+        },
+        "iphone_os_version_end_excluding": "26.7",
+        "ipados_version_end_excluding": "26.7",
+        "evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+        "direct_api_capture_complete": true,
+        "exact_build_verified": false,
+        "exploitability_verified": false
       }
     }
   ],
@@ -797,8 +989,17 @@
   "capture_summary": {
     "official_cve_program_records_retrieved": 12,
     "affected_range": "Apple CNA records list iOS/iPadOS below 26.7 and a separate range below 27 for all 12 candidates",
-    "interpretation": "A version-range match only; exact iPhone17,4 build 23G83 status and exploitability remain unverified.",
+    "interpretation": "26.6.1 falls within the published version range; exact build 23G83 and exploitability are not verified.",
     "nvd_direct_api_json_captured": false,
-    "updated_on": "2026-10-23"
+    "updated_on": "2026-10-23",
+    "nvd_cve_api_records_captured": 12,
+    "nvd_cpe_match_api_responses_captured": 12,
+    "nvd_cve_http_status": "200 for all 12",
+    "nvd_cpe_match_http_status": "200 for all 12",
+    "captured_at_utc": "2026-10-23T21:48:07Z/2026-10-23T21:51:06Z",
+    "workflow_run": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991",
+    "raw_evidence_artifact": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313",
+    "artifact_sha256": "adf4697a9bd9d2efcff3aaa1f7613432102da5186b58c50ba75a078a8080787c",
+    "cpe_version_bound": "iPhone OS and iPadOS versions below 26.7"
   }
 }
