@@ -6,8 +6,10 @@ It does not generate exploit code, execute payloads, or modify a device.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -46,6 +48,38 @@ NEXT_ACTIONS = {
     ),
 }
 
+def _has_verified_evidence(item: dict[str, Any], target: dict[str, Any]) -> bool:
+    """A status label alone cannot close a gate; require source-pinned target evidence."""
+    evidence = item.get("evidence")
+    if not isinstance(evidence, dict):
+        return False
+    expected = {
+        "device_model": target.get("device_model"),
+        "model_identifier": target.get("model_identifier"),
+        "exact_os_version": target.get("exact_os_version"),
+        "build_number": target.get("build_number"),
+    }
+    recorded = evidence.get("target")
+    if not isinstance(recorded, dict) or any(
+        not isinstance(value, str) or not value or recorded.get(key) != value
+        for key, value in expected.items()
+    ):
+        return False
+    source = evidence.get("source_url")
+    parsed = urlparse(source) if isinstance(source, str) else None
+    if not parsed or parsed.scheme != "https" or not parsed.netloc:
+        return False
+    revision = evidence.get("source_revision")
+    if not isinstance(revision, str) or re.fullmatch(r"[0-9a-f]{40}", revision) is None:
+        return False
+    return (
+        isinstance(evidence.get("evidence_note"), str)
+        and bool(evidence["evidence_note"].strip())
+        and evidence.get("independent_reproduction") is True
+        and evidence.get("scope_confirmed") is True
+    )
+
+
 def analyze(status_document: dict[str, Any]) -> dict[str, Any]:
     """Summarize blockers and propose safe, evidence-oriented next actions."""
     if not isinstance(status_document, dict):
@@ -65,11 +99,15 @@ def analyze(status_document: dict[str, Any]) -> dict[str, Any]:
             continue
         seen.add(gate_id)
         status = item.get("status")
-        if status != "verified":
+        if status != "verified" or not _has_verified_evidence(item, target):
             blockers.append({
                 "id": gate_id,
                 "current_status": status if isinstance(status, str) else "unknown",
-                "blocker": item.get("note", "No verified evidence recorded."),
+                "blocker": (
+                    item.get("note", "No verified evidence recorded.")
+                    if status != "verified"
+                    else "Gate is labeled verified but lacks valid source-pinned exact-target evidence."
+                ),
                 "next_safe_action": NEXT_ACTIONS.get(
                     gate_id,
                     "Review primary sources, exact-target scope, and reproducibility; keep unverified."

@@ -16,7 +16,12 @@ REQUIRED_CANDIDATE_FIELDS = (
 )
 # This file is advisory metadata only. Positive target/reproduction claims must
 # be supported in a separate evidence record, never asserted in this dataset.
-ALLOWED_TARGET_STATUS = {"not_established"}
+# This explicit status records version-range evidence only; it must not be
+# interpreted as confirmation for the exact device/build.
+ALLOWED_TARGET_STATUS = {
+    "not_established",
+    "public_version_range_includes_26_6_1_exact_build_unverified",
+}
 ALLOWED_REPRODUCTION = {"not_reproduced_by_Freedom27"}
 
 

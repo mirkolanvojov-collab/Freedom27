@@ -65,7 +65,8 @@ def validate(data: object) -> list[str]:
         if not isinstance(ids, list):
             errors.append(f"sources[{i}].cve_ids must be a list")
         else:
-            if len(ids) != len(set(ids)):
+            valid_ids = [cve for cve in ids if isinstance(cve, str)]
+            if len(valid_ids) != len(set(valid_ids)):
                 errors.append(f"sources[{i}].cve_ids contains duplicates")
             for cve in ids:
                 if not isinstance(cve, str) or not CVE_RE.fullmatch(cve):

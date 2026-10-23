@@ -96,34 +96,6 @@ def build_plan(status_document: dict[str, Any], evidence_records: list[Any] | No
         raise ValueError("status document must contain generated_for object and gates list")
 
     by_id = {item.get("id"): item for item in gates if isinstance(item, dict) and isinstance(item.get("id"), str)}
-    tasks = []
-    verified_ids: set[str] = set()
-    # Compute effective verification iteratively so an invalid downstream label
-    # cannot satisfy another gate's prerequisites.
-    changed = True
-    while changed:
-        changed = False
-        for gate_id in REQUIRED_GATES:
-            item = by_id.get(gate_id, {})
-            deps = DEPENDENCIES[gate_id]
-            if item.get("status") == "verified" and all(dep in verified_ids for dep in deps) and gate_id not in verified_ids:
-                verified_ids.add(gate_id)
-                changed = True
-    for gate_id in REQUIRED_GATES:
-        item = by_id.get(gate_id, {})
-        status = item.get("status", "missing")
-        deps = list(DEPENDENCIES[gate_id])
-        unmet = [dep for dep in deps if dep not in verified_ids]
-        # Do not let a "verified" label alone satisfy a gate if its prerequisites are unmet.
-        if status != "verified" or unmet:
-            tasks.append({
-                "gate": gate_id,
-                "status": status,
-                "priority": "prerequisite" if unmet else ("evidence_review" if status in {"lead", "reviewed", "evidence-recorded"} else "blocked"),
-                "unmet_prerequisites": unmet,
-                "next_action": SAFE_ACTIONS[gate_id],
-            })
-
     evidence_results = []
     for record in evidence_records or []:
         errors = validate_evidence_record(record, target)
@@ -132,6 +104,43 @@ def build_plan(status_document: dict[str, Any], evidence_records: list[Any] | No
             "accepted_as_verified": not errors and record.get("status") == "verified",
             "validation_errors": errors,
         })
+    evidence_verified_ids = {
+        result["claim_id"] for result in evidence_results
+        if result["accepted_as_verified"]
+    }
+
+    tasks = []
+    verified_ids: set[str] = set()
+    # A "verified" status label is insufficient: require a valid evidence record
+    # keyed to the gate, then satisfy prerequisites transitively.
+    changed = True
+    while changed:
+        changed = False
+        for gate_id in REQUIRED_GATES:
+            item = by_id.get(gate_id, {})
+            deps = DEPENDENCIES[gate_id]
+            if (
+                item.get("status") == "verified"
+                and gate_id in evidence_verified_ids
+                and all(dep in verified_ids for dep in deps)
+                and gate_id not in verified_ids
+            ):
+                verified_ids.add(gate_id)
+                changed = True
+    for gate_id in REQUIRED_GATES:
+        item = by_id.get(gate_id, {})
+        status = item.get("status", "missing")
+        deps = list(DEPENDENCIES[gate_id])
+        unmet = [dep for dep in deps if dep not in verified_ids]
+        # Do not let a "verified" label alone satisfy a gate if its prerequisites are unmet.
+        if status != "verified" or gate_id not in verified_ids or unmet:
+            tasks.append({
+                "gate": gate_id,
+                "status": status,
+                "priority": "prerequisite" if unmet else ("evidence_review" if status in {"lead", "reviewed", "evidence-recorded"} else "blocked"),
+                "unmet_prerequisites": unmet,
+                "next_action": SAFE_ACTIONS[gate_id],
+            })
 
     verified_complete = status_document.get("verified_complete_jailbreak") is True and not tasks and len(verified_ids) == len(REQUIRED_GATES)
     return {
