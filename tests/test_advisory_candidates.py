@@ -33,7 +33,7 @@ class AdvisoryCandidateTests(unittest.TestCase):
     def test_missing_source_url_rejected(self):
         doc = copy.deepcopy(self.document)
         doc["source"]["url"] = "http://example.invalid"
-        self.assertTrue(any("source.url must be HTTPS" in e for e in validate_document(doc)))
+        self.assertTrue(any("source.url must be an HTTPS" in e for e in validate_document(doc)))
 
     def test_target_confirmation_cannot_be_asserted_without_separate_evidence(self):
         doc = copy.deepcopy(self.document)
