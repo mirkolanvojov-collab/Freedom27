@@ -42,3 +42,30 @@ Interpretation: this project is useful as architecture and historical research c
 ## Current conclusion
 
 The matrix has one experimental evidence row for the reported iPhone 18 Pro / iOS 27.0.1 build 24A446 demonstration. It has no verified Freedom27 compatibility rows. This is the honest current state; no installable Freedom27 jailbreak is available from this repository.
+
+
+## Build-level evidence update (2026-10-23)
+
+### Confirmed public demonstration tuple
+
+| Device | Model identifier | OS version | Build | Evidence status |
+|---|---|---|---|---|
+| iPhone 18 Pro | iPhone19,2 | iOS 27.0.1 | 24A446 | Experimental report only |
+
+Sources:
+- iClarified's report identifies the device as iPhone19,2 and the software as iOS 27.0.1 build 24A446: https://www.iclarified.com/102876/untethered-ios-2701-jailbreak-demonstrated-on-iphone-18-pro-video
+- Decrypt independently reports that the demo survived a reboot, while noting that no public tool or vulnerability details were released: https://decrypt.co/381177/s4tgnpn724j1.html
+- Apple's official iOS 27 compatibility list defines the current supported model lineup, but does not establish jailbreak compatibility: https://support.apple.com/guide/iphone/iphone-models-compatible-with-ios-27-iphe3fa5df43/27/ios/27
+
+### Related Apple security disclosures are not proof of the demo's exploit chain
+
+A secondary report notes Apple security bulletin entries CVE-2026-28968 (kernel memory corruption) and CVE-2026-86886 (TCC protected-file modification) with Calif-linked researcher credits. The public record does **not** link either CVE to the Hexacon jailbreak demo. These should be tracked as research leads only, not marked as the exploit chain or as evidence that a specific Freedom27 target is exploitable.
+
+Source: https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/
+
+### Exact-build coverage status
+
+- Only one target tuple currently has a public report describing jailbreak-level access: iPhone 18 Pro / iOS 27.0.1 / 24A446.
+- The matrix does not yet have reliable, primary-source build numbers for every other device/point-release combination. Those cells intentionally remain blank instead of guessing.
+- A device being listed as compatible with iOS 27 says which OS it can run; it does not show which point release/build is installed, still signed, or vulnerable.
+- Next evidence gate: obtain a primary-source release/build catalog for iOS 26 and 27 and map it to exact model identifiers, then cross-reference each build against public vulnerability disclosures and patch notes. Do not infer exploitability from a CVE credit alone.
