@@ -26,18 +26,23 @@ class CompatibilityTests(unittest.TestCase):
             component="example",
             status="unverified",
             source_url="https://example.org/research",
+            build_number="21A000",
         )
-        self.assertFalse(claim_is_usable(claim))
+        self.assertFalse(claim_is_usable(claim, target_build="21A000"))
 
-    def test_verified_claim_requires_public_source(self):
-        sourced = CompatibilityClaim(
+    def test_verified_claim_requires_source_and_matching_build(self):
+        claim = CompatibilityClaim(
             component="example",
             status="verified",
             source_url="https://example.org/research",
+            build_number="21A000",
         )
-        unsourced = CompatibilityClaim(component="example", status="verified")
-        self.assertTrue(claim_is_usable(sourced))
-        self.assertFalse(claim_is_usable(unsourced))
+        self.assertTrue(claim_is_usable(claim, target_build="21A000"))
+        self.assertFalse(claim_is_usable(claim, target_build="21A001"))
+        self.assertFalse(claim_is_usable(
+            CompatibilityClaim(component="example", status="verified"),
+            target_build="21A000",
+        ))
 
 
 if __name__ == "__main__":
