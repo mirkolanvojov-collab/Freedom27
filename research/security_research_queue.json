@@ -24,14 +24,27 @@
       ],
       "evidence_level": "source_supported",
       "exact_target_verified": false,
-      "status": "README reviewed; exact-build evidence not established",
+      "status": "source review completed; exact-target verification blocked",
       "reviewed_revision": "forcequitOS/bad_query@3563002bfaa6fc4be1eb2e0e33d6fc9076f7b67e",
       "review_findings": [
         "README claims iOS 26.0–26.6.1 / iOS 27.0 beta 4 support, but does not identify an exact tested build for iPhone 16 Plus identifier iPhone17,4 / build 23G83.",
         "README explicitly calls the project a developer proof-of-concept and says it is not meaningfully usable.",
-        "Documented scope is selected container/data paths; this alone does not demonstrate kernel privilege escalation, persistence, package manager support, or a full jailbreak."
+        "Documented scope is selected container/data paths; this alone does not demonstrate kernel privilege escalation, persistence, package manager support, or a full jailbreak.",
+        "Source confirms the general implementation approach, but this static review does not establish successful execution, a kernel primitive, privilege escalation, persistence, or full jailbreak capability."
       ],
-      "next_action": "Review relevant source files at the pinned revision for mechanism and prerequisites without executing the PoC; keep exact_target_verified false until reproducible evidence exists."
+      "next_action": "Keep exact_target_verified false. Seek upstream documented device/build test evidence and compare prerequisites/version-specific behavior; do not execute the PoC on the daily-use phone.",
+      "reviewed_source_files": [
+        {
+          "path": "bad_query/bad_query.c",
+          "revision": "dce2c4db47152efd4f84826c99e4348016126416",
+          "findings": [
+            "Uses dlopen/dlsym to resolve private container-manager and sandbox-extension APIs.",
+            "Builds a container query and sets a path component containing parent-directory traversal.",
+            "Requests a sandbox token, then attempts to consume the returned extension; failure paths include query failure and kernel refusal.",
+            "Implementation contains OS-specific container classes and flags, so claimed version range alone cannot establish compatibility with the exact device build."
+          ]
+        }
+      ]
     },
     {
       "id": "PUB-EROSION-SCOPE",
