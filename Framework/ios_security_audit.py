@@ -48,14 +48,15 @@ CONTROL_CATALOG = {
 def build_audit(target: dict[str, Any], observed: dict[str, Any] | None = None) -> dict[str, Any]:
     if not isinstance(target, dict):
         raise ValueError("target must be an object")
-    observed = observed or {}
+    if observed is None:
+        observed = {}
     if not isinstance(observed, dict):
         raise ValueError("observed must be an object")
 
     controls = []
     for name, info in CONTROL_CATALOG.items():
         value = observed.get(name, "not_assessed")
-        if value not in {"not_assessed", "documented", "reviewed"}:
+        if not isinstance(value, str) or value not in {"not_assessed", "documented", "reviewed"}:
             value = "invalid_status"
         controls.append({
             "control": name,
