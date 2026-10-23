@@ -13,7 +13,7 @@
   "sources": [
     {
       "release": "iOS 26.7",
-      "released_on": "2026-10-??",
+      "released_on": null,
       "url": "https://support.apple.com/en-us/149041",
       "extraction_status": "partial",
       "cve_ids": [],
@@ -22,10 +22,10 @@
     {
       "release": "iOS 26.6.2",
       "released_on": "2026-09-08",
-      "url": "https://support.apple.com/en-us/148???",
-      "extraction_status": "source_url_unverified",
+      "url": null,
+      "extraction_status": "url_unverified",
       "cve_ids": [],
-      "notes": "Official release is referenced by Apple Developer release listing; exact Apple security-content URL must be verified before using as a source."
+      "notes": "Release date is listed by Apple Developer release notes; exact security-content URL has not yet been verified. Do not use guessed URL."
     },
     {
       "release": "iOS 26.6.1",
