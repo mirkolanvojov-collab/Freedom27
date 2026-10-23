@@ -111,6 +111,18 @@ class BlockerResolutionEngineTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_plan([])
 
+    def test_malformed_evidence_target_and_url_fail_closed(self):
+        record = {
+            "target": [],
+            "source_url": "https://",
+            "source_revision": "a" * 40,
+            "status": ["verified"],
+        }
+        errors = validate_evidence_record(record, TARGET)
+        self.assertTrue(any("exactly match" in error for error in errors))
+        self.assertTrue(any("valid HTTPS URL" in error for error in errors))
+        self.assertTrue(any("status must be" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
