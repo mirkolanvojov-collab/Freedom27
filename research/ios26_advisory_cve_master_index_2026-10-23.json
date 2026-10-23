@@ -32,8 +32,44 @@
       "released_on": "2026-08-17",
       "url": "https://support.apple.com/en-us/148282",
       "extraction_status": "partial",
-      "cve_ids": [],
-      "notes": "Official advisory identified; full-page extraction and reconciliation pending."
+      "cve_ids": [
+        "CVE-2026-65339",
+        "CVE-2026-65355",
+        "CVE-2026-65347",
+        "CVE-2026-65346",
+        "CVE-2026-64788",
+        "CVE-2026-64736",
+        "CVE-2026-65343",
+        "CVE-2026-65349",
+        "CVE-2026-65330",
+        "CVE-2026-28935",
+        "CVE-2026-65329",
+        "CVE-2026-64784",
+        "CVE-2026-43795",
+        "CVE-2026-65338",
+        "CVE-2026-65341",
+        "CVE-2026-64782",
+        "CVE-2026-64781",
+        "CVE-2026-65351",
+        "CVE-2026-65340",
+        "CVE-2026-65337",
+        "CVE-2026-65336",
+        "CVE-2026-65335",
+        "CVE-2026-65333",
+        "CVE-2026-65332",
+        "CVE-2026-65331",
+        "CVE-2026-64715",
+        "CVE-2026-64780",
+        "CVE-2026-65334",
+        "CVE-2026-43794",
+        "CVE-2026-64787",
+        "CVE-2026-65352",
+        "CVE-2026-64778",
+        "CVE-2026-64779",
+        "CVE-2026-65391",
+        "CVE-2026-65390"
+      ],
+      "notes": "Identifiers captured from the official advisory page text available during this pass; duplicate/related entries and page completeness still require reconciliation before status can be marked complete."
     },
     {
       "release": "iOS 26.6",
@@ -149,7 +185,358 @@
     "evidence_status": "public_advisory_only",
     "target_assessment": "not_assessed"
   },
-  "entries": [],
+  "entries": [
+    {
+      "cve_id": "CVE-2026-65339",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65355",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65347",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65346",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64788",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64736",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65343",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65349",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65330",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-28935",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65329",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64784",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-43795",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65338",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65341",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64782",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64781",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65351",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65340",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65337",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65336",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65335",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65333",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65332",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65331",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64715",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64780",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65334",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-43794",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64787",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65352",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64778",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-64779",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65391",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    },
+    {
+      "cve_id": "CVE-2026-65390",
+      "advisory_release": "iOS 26.6.1",
+      "advisory_url": "https://support.apple.com/en-us/148282",
+      "component": null,
+      "status": null,
+      "evidence_status": "public_advisory_only",
+      "target_assessment": "not_assessed",
+      "notes": "Identifier visible in Apple advisory; no exploitability or device-build applicability inferred."
+    }
+  ],
   "limitations": [
     "Empty cve_ids arrays mean extraction is not yet completed, not that the release has no CVEs.",
     "A CVE listed in an advisory does not establish applicability to the reported device/build, exploitability, or a usable jailbreak chain.",
