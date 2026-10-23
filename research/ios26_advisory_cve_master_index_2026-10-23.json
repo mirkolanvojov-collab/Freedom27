@@ -183,7 +183,7 @@
     "component": "only when explicitly stated by the advisory",
     "status": "only record added/updated when explicitly stated; otherwise null",
     "evidence_status": "public_advisory_only",
-    "target_assessment": "not_assessed"
+    "target_assessment": "not_assessed | fixed_in_target_release | candidate_for_review | not_applicable"
   },
   "entries": [
     {
@@ -193,8 +193,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65355",
@@ -203,8 +203,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65347",
@@ -213,8 +213,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65346",
@@ -223,8 +223,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64788",
@@ -233,8 +233,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64736",
@@ -243,8 +243,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65343",
@@ -253,8 +253,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65349",
@@ -263,8 +263,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65330",
@@ -273,8 +273,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-28935",
@@ -283,8 +283,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65329",
@@ -293,8 +293,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64784",
@@ -303,8 +303,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-43795",
@@ -313,8 +313,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65338",
@@ -323,8 +323,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65341",
@@ -333,8 +333,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64782",
@@ -343,8 +343,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64781",
@@ -353,8 +353,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65351",
@@ -363,8 +363,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65340",
@@ -373,8 +373,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65337",
@@ -383,8 +383,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65336",
@@ -393,8 +393,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65335",
@@ -403,8 +403,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65333",
@@ -413,8 +413,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65332",
@@ -423,8 +423,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65331",
@@ -433,8 +433,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64715",
@@ -443,8 +443,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64780",
@@ -453,8 +453,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65334",
@@ -463,8 +463,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-43794",
@@ -473,8 +473,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64787",
@@ -483,8 +483,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65352",
@@ -493,8 +493,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64778",
@@ -503,8 +503,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-64779",
@@ -513,8 +513,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65391",
@@ -523,8 +523,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     },
     {
       "cve_id": "CVE-2026-65390",
@@ -533,8 +533,8 @@
       "component": null,
       "status": null,
       "evidence_status": "public_advisory_only",
-      "target_assessment": "historical_fix",
-      "notes": "Listed in the iOS 26.6.1 security advisory. This release is the published fix context; no claim that the vulnerability is exploitable on the reported 26.6.1 build."
+      "target_assessment": "fixed_in_target_release",
+      "notes": "Listed in the iOS 26.6.1 security advisory. Apple identifies this advisory as the fix context; treat it as fixed in the reported target release, not as an unpatched lead. Advisory listing alone does not prove details beyond Apple's stated fix."
     }
   ],
   "limitations": [
