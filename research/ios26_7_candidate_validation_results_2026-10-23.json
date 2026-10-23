@@ -59,22 +59,24 @@
       "impact": "A malicious app may be able to gain root privileges",
       "fix": "Permissions issue addressed with additional restrictions",
       "version_evidence": {
-        "source": "NVD / CVE record",
+        "source": "NVD / Apple advisory",
         "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-43689",
         "range": "iOS/iPadOS versions below 26.7",
-        "target_version_in_range": true,
+        "target_version_in_range": "yes",
         "exact_build_verified": false,
         "weakness": "CWE-862 Missing Authorization",
         "confidence": "published affected-version range supports 26.6.1; exact build not independently tested",
         "checked_on": "2026-10-23"
       },
       "validation_status": "version_range_supported_exact_build_unverified",
-      "safe_next_step": "Capture the full NVD affected-software configuration and source references; look for public patch or bug details; do not infer a reproducible exploit from advisory wording.",
+      "safe_next_step": "Capture the full NVD affected-software configuration and source references; look for public patch or bug details; do not infer a reproducible exploit from advisory wording. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "root access on target",
         "kernel privilege",
         "complete chain"
-      ]
+      ],
+      "evidence_checked_on": "2026-10-23",
+      "version_evidence_notes": "NVD record shows Apple affected-software configuration ending before 26.7."
     },
     {
       "cve_id": "CVE-2026-84523",
@@ -102,22 +104,24 @@
       "impact": "A sandboxed process may be able to circumvent sandbox restrictions",
       "fix": "Out-of-bounds write addressed with improved bounds checking",
       "version_evidence": {
-        "source": "NVD / CVE record",
+        "source": "NVD / Apple advisory",
         "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86876",
         "range": "iOS/iPadOS versions below 26.7",
-        "target_version_in_range": true,
+        "target_version_in_range": "yes",
         "exact_build_verified": false,
         "weakness": "CWE not captured in this pass",
         "confidence": "published affected-version range supports 26.6.1; exact build not independently tested",
         "checked_on": "2026-10-23"
       },
       "validation_status": "version_range_supported_exact_build_unverified",
-      "safe_next_step": "Capture the full NVD affected-software configuration and source references; look for public patch or bug details; do not infer a reproducible exploit from advisory wording.",
+      "safe_next_step": "Capture the full NVD affected-software configuration and source references; look for public patch or bug details; do not infer a reproducible exploit from advisory wording. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "sandbox escape",
         "controlled out-of-bounds write",
         "target applicability"
-      ]
+      ],
+      "evidence_checked_on": "2026-10-23",
+      "version_evidence_notes": "NVD/Apple advisory: sandbox restrictions may be circumvented; out-of-bounds write fixed with bounds checking."
     },
     {
       "cve_id": "CVE-2026-86886",
@@ -125,22 +129,24 @@
       "impact": "An app may be able to modify protected system files",
       "fix": "Path traversal addressed with improved input validation",
       "version_evidence": {
-        "source": "NVD / CVE record",
-        "url": "https://nvd.nist.gov/vuln/search?cpeName=cpe%3A2.3%3Ao%3Aapple%3Aiphone_os%3A26.6.1",
-        "range": "iOS/iPadOS versions below 26.7 per NVD Apple advisory listing",
-        "target_version_in_range": true,
+        "source": "NVD / Apple advisory",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86886",
+        "range": "iOS/iPadOS versions below 26.7 (Apple advisory fix context; exact NVD configuration not captured in this pass)",
+        "target_version_in_range": "not fully established from captured configuration",
         "exact_build_verified": false,
         "weakness": "path traversal",
         "confidence": "search result corroborates fix in 26.7; exact record/configuration should be captured next",
         "checked_on": "2026-10-23"
       },
-      "validation_status": "version_range_supported_exact_build_unverified",
-      "safe_next_step": "Capture the full NVD affected-software configuration and source references; look for public patch or bug details; do not infer a reproducible exploit from advisory wording.",
+      "validation_status": "version_range_needs_nvd_confirmation",
+      "safe_next_step": "Capture the full NVD affected-software configuration and source references; look for public patch or bug details; do not infer a reproducible exploit from advisory wording. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "protected-file write on target",
         "TCC bypass",
         "privilege escalation"
-      ]
+      ],
+      "evidence_checked_on": "2026-10-23",
+      "version_evidence_notes": "Apple advisory: TCC path traversal could permit protected system-file modification; input validation improved."
     },
     {
       "cve_id": "CVE-2026-84566",
@@ -188,19 +194,21 @@
       "impact": "A local attacker may be able to cause unexpected system termination or corrupt kernel memory",
       "fix": "Use-after-free addressed with improved memory management",
       "version_evidence": {
-        "source": "Apple advisory",
-        "url": "https://support.apple.com/en-us/149041",
-        "range": "fixed in iOS 26.7; precise affected CPE not independently captured in this review",
-        "target_version_in_range": "not established",
+        "source": "NVD / Apple advisory",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-43684",
+        "range": "Apple iPhone OS versions below 26.7 (Apple advisory fix context; exact NVD configuration not captured in this pass)",
+        "target_version_in_range": "not fully established from captured configuration",
         "exact_build_verified": false
       },
-      "validation_status": "needs_precise_version_record",
-      "safe_next_step": "Search public patch/bug references; use a model-level lifetime regression test if a precise invariant is documented.",
+      "validation_status": "version_range_needs_nvd_confirmation",
+      "safe_next_step": "Search public patch/bug references; use a model-level lifetime regression test if a precise invariant is documented. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "use-after-free trigger",
         "controlled corruption",
         "code execution"
-      ]
+      ],
+      "evidence_checked_on": "2026-10-23",
+      "version_evidence_notes": "Apple advisory identifies kernel use-after-free fixed with improved memory management."
     },
     {
       "cve_id": "CVE-2026-43686",
@@ -208,19 +216,21 @@
       "impact": "Connecting to a malicious NFS server may lead to kernel memory corruption",
       "fix": "Use-after-free addressed with improved memory management",
       "version_evidence": {
-        "source": "Apple advisory",
-        "url": "https://support.apple.com/en-us/149041",
-        "range": "fixed in iOS 26.7; precise affected CPE not independently captured in this review",
-        "target_version_in_range": "not established",
+        "source": "NVD / Apple advisory",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-43686",
+        "range": "Apple iPhone OS versions below 26.7 (Apple advisory fix context; exact NVD configuration not captured in this pass)",
+        "target_version_in_range": "not fully established from captured configuration",
         "exact_build_verified": false
       },
-      "validation_status": "needs_precise_version_record",
-      "safe_next_step": "Record NFS prerequisites and patch references; avoid live corruption tests.",
+      "validation_status": "version_range_needs_nvd_confirmation",
+      "safe_next_step": "Record NFS prerequisites and patch references; avoid live corruption tests. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "target reachability",
         "controlled memory corruption",
         "exploitability"
-      ]
+      ],
+      "evidence_checked_on": "2026-10-23",
+      "version_evidence_notes": "Apple advisory identifies NFS-triggered kernel memory corruption; use-after-free fixed with improved memory management."
     },
     {
       "cve_id": "CVE-2026-65405",
@@ -228,19 +238,21 @@
       "impact": "An app may be able to determine kernel memory layout",
       "fix": "Memory initialization issue addressed",
       "version_evidence": {
-        "source": "Apple advisory",
-        "url": "https://support.apple.com/en-us/149041",
-        "range": "fixed in iOS 26.7; precise affected CPE not independently captured in this review",
-        "target_version_in_range": "not established",
+        "source": "NVD / Apple advisory",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-65405",
+        "range": "Apple iPhone OS versions below 26.7 (Apple advisory fix context; exact NVD configuration not captured in this pass)",
+        "target_version_in_range": "not fully established from captured configuration",
         "exact_build_verified": false
       },
-      "validation_status": "needs_precise_version_record",
-      "safe_next_step": "Find exact CVE record and determine what data is disclosed according to public evidence; do not infer mitigation bypass.",
+      "validation_status": "version_range_needs_nvd_confirmation",
+      "safe_next_step": "Find exact CVE record and determine what data is disclosed according to public evidence; do not infer mitigation bypass. Capture the full NVD affected-software configuration and public patch/bug references before raising confidence.",
       "not_proven": [
         "useful kernel address disclosure",
         "mitigation bypass",
         "chain relevance"
-      ]
+      ],
+      "evidence_checked_on": "2026-10-23",
+      "version_evidence_notes": "Apple advisory describes an app determining kernel memory layout; memory initialization improved."
     },
     {
       "cve_id": "CVE-2026-84622",
