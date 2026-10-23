@@ -67,7 +67,7 @@ class TargetBuildCveAssessmentTests(unittest.TestCase):
 
     def test_global_conclusion_does_not_overstate_exact_build_evidence(self):
         conclusion = self.doc["conclusions"]
-        self.assertIn("not independently verified", conclusion["exact_build"])
+        self.assertIn("not independent exact-build validation", conclusion["exact_build"])
         self.assertIn("No CVE", conclusion["exploitability"])
         self.assertIn("No device", conclusion["safety"])
 
