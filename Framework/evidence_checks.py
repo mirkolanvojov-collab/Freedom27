@@ -59,9 +59,9 @@ def check_evidence(root: Path = ROOT) -> list[str]:
             if not isinstance(row.get(field), str) or not row[field].strip():
                 errors.append(f"{prefix} missing non-empty {field}")
         status = row.get("status")
-        if status not in allowed:
+        if not isinstance(status, str) or status not in allowed:
             errors.append(f"{prefix} has disallowed status {status!r}")
-        if status in VERIFIED_STATUSES:
+        if isinstance(status, str) and status in VERIFIED_STATUSES:
             if not _https_url(row.get("evidence_url")):
                 errors.append(f"{prefix} status {status} requires an HTTPS evidence_url")
             if status == "verified":
