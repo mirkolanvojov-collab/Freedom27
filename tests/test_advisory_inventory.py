@@ -58,6 +58,11 @@ class AdvisoryInventoryTests(unittest.TestCase):
         data["entries"][0]["target_assessment"] = {"unexpected": "object"}
         self.assertTrue(any("target_assessment is invalid" in e for e in validate(data)))
 
+    def test_malformed_extraction_status_does_not_crash(self):
+        data = minimal_inventory()
+        data["sources"][0]["extraction_status"] = ["complete"]
+        self.assertTrue(any("extraction_status is invalid" in e for e in validate(data)))
+
     def test_rejects_url_mismatch(self):
         data = minimal_inventory()
         data["entries"][0]["advisory_url"] = "https://support.apple.com/en-us/999999"
