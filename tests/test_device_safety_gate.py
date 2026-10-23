@@ -77,6 +77,22 @@ class DeviceSafetyGateTests(unittest.TestCase):
         self.assertFalse(report["device_execution_authorized"])
         self.assertFalse(report["guarantees_no_crash"])
 
+    def test_malformed_ipv6_evidence_url_fails_closed_without_crashing(self):
+        target = self.target_status["generated_for"]
+        attestations = {
+            gate_id: {
+                "status": "verified",
+                "evidence_url": "https://[::1",
+                "evidence_note": "Reviewed evidence",
+                "source_revision": "a" * 40,
+                "target": target,
+            }
+            for gate_id, _ in REQUIRED_ATTESTATIONS
+        }
+        report = assess_safety(self.target_status, attestations)
+        self.assertFalse(report["preflight_passed"])
+        self.assertIn("backup_verified", report["blockers"])
+
     def test_invalid_input_fails_closed(self):
         report = assess_safety(None, None)
         self.assertFalse(report["preflight_passed"])
