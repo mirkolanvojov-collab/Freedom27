@@ -1,5 +1,7 @@
 # NVD affected-software configuration capture — 2026-10-23
 
+> **Latest capture status (2026-10-23 23:21 UTC):** The later workflow run linked at the end of this file supersedes interim statements above that direct NVD capture was still outstanding. It returned HTTP 200 for all 12 CVE API and 12 CPE Match API requests and uploaded the 25-file raw-response artifact. This does **not** verify exploitability or exact build 23G83.
+
 ## Scope and method
 
 This pass records publicly visible representations of NVD/CVE configuration data for the Freedom27 iOS 26.6.1 research candidates. Where a secondary site reproduces CPE configuration history or the CVE record's configuration JSON, the record is labelled as a secondary representation. It is **not** represented as a direct NVD API payload. A direct NVD API response capture remains a follow-up item.
@@ -116,3 +118,14 @@ The candidate records are: CVE-2026-84607, CVE-2026-43689, CVE-2026-84523, CVE-2
 - Direct NVD CPE Match JSON: captured for 12/12 candidates.
 - Original API responses: preserved unchanged in the downloadable workflow artifact; not yet committed as 25 separate repository files.
 - Exploit execution / device testing: not performed.
+
+
+## Latest verified workflow artifact
+
+- Workflow run: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40038959123
+- Raw evidence artifact: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40038959123/artifacts/12538253226
+- Artifact SHA-256 (ZIP): `4885397b1c735aa870ee3c0c3ff76819d72a1f90b44e1aec58788421827fc56b`
+- Captured: 12/12 CVE JSON responses and 12/12 CPE Match JSON responses; all HTTP 200; zero failed records.
+- Artifact: 25 files, including all raw response files and `capture_summary.json`.
+- API key: not configured for this run.
+- Exact build 23G83, exploitability, and a complete jailbreak chain remain unverified.
