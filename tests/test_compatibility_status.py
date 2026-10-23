@@ -71,6 +71,15 @@ class CompatibilityStatusTests(unittest.TestCase):
         path.write_text(json.dumps(data), encoding="utf-8")
         self.assertTrue(assess_target(root)["errors"])
 
+    def test_malformed_status_claims_fail_closed(self):
+        temp, root = self.make_root()
+        self.addCleanup(temp.cleanup)
+        path = root / "research" / "target_status.json"
+        path.write_text(json.dumps({"claims": {}}), encoding="utf-8")
+        report = assess_target(root)
+        self.assertEqual(report["status"], "unknown")
+        self.assertTrue(any("claims must be a list" in error for error in report["errors"]))
+
 
 if __name__ == "__main__":
     unittest.main()
