@@ -55,3 +55,10 @@ A future implementation phase requires a public technical source and exact-targe
 - The project status continues to say research-only until a working chain is independently reproduced on the exact target.
 
 This plan is a repository workflow, not a promise that a jailbreak exists or can be built for the current target.
+
+### Latest source-review checkpoint (2026-10-23)
+- Read-only audit recorded at [research/read_only_source_audit_2026-10-23.md](read_only_source_audit_2026-10-23.md).
+- The public CVE report reviewed does not establish a working issue on build `23G83`; its own stated affected scope ends at iOS 26.6 / build `23G71`.
+- `bad_query`, Erosion, and EscapeOS remain leads for separate, limited capabilities—not proof of a complete jailbreak for this exact target.
+- Next action: check the push-triggered GitHub Actions result for the documentation update; then continue primary-source review only. Do not install or execute the reviewed projects on the phone.
+
