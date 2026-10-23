@@ -127,11 +127,18 @@
       "published_impact": "An app may be able to cause unexpected system termination or write kernel memory",
       "fix_summary": "Out-of-bounds write addressed with improved bounds checking",
       "fixed_release": "iOS 26.7",
-      "target_applicability": "not_established",
+      "target_applicability": "public_version_range_includes_26_6_1_exact_build_unverified",
       "reproduction_status": "not_reproduced_by_Freedom27",
       "chain_status": "not_established",
       "priority": "high",
-      "reason": "Kernel-memory write impact is explicitly described by Apple, but no target-build applicability, primitive details, or reproduction is established."
+      "reason": "Apple describes an out-of-bounds write that may cause system termination or write kernel memory. NVD's affected-software configuration lists iOS versions below 26.7, which includes the reported 26.6.1 version; this is version-range evidence, not proof of a controllable primitive or exploit.",
+      "version_evidence": {
+        "source_url": "https://nvd.nist.gov/vuln/detail/cve-2026-84523",
+        "source_type": "NVD affected-software configuration",
+        "stated_range": "Apple iOS/iPadOS versions below 26.7",
+        "interpretation": "The published product range includes the reported iOS 26.6.1 version; the exact build 23G83 and device-specific behavior have not been independently verified.",
+        "checked_on": "2026-10-23"
+      }
     },
     {
       "id": "CVE-2026-65405",
