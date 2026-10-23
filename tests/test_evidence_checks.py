@@ -96,6 +96,35 @@ class EvidenceCheckTests(unittest.TestCase):
             self.assertTrue(any("duplicate id" in e for e in errors))
             self.assertTrue(any("source_url must be HTTPS" in e for e in errors))
 
+    def test_malformed_status_type_is_reported_without_crashing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_root(root, rows=[{
+                "device_family": "iPhone test", "variant": "base", "os_family": "iOS 27",
+                "status": ["verified"], "notes": "Malformed status."
+            }])
+            errors = check_evidence(root)
+            self.assertTrue(any("has disallowed status" in error for error in errors))
+
+    def test_non_object_registry_root_is_reported_without_crashing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_root(root)
+            (root / "research" / "vulnerability_registry.json").write_text("[]", encoding="utf-8")
+            errors = check_evidence(root)
+            self.assertTrue(any("registry root must be an object" in e for e in errors))
+
+    def test_non_object_allowed_values_is_reported_without_crashing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_root(root)
+            path = root / "research" / "evidence_ledger.json"
+            ledger = json.loads(path.read_text(encoding="utf-8"))
+            ledger["allowed_values"] = []
+            path.write_text(json.dumps(ledger), encoding="utf-8")
+            errors = check_evidence(root)
+            self.assertTrue(any("allowed_values must be an object" in e for e in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

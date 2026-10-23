@@ -66,8 +66,15 @@ def _has_verified_evidence(item: dict[str, Any], target: dict[str, Any]) -> bool
     ):
         return False
     source = evidence.get("source_url")
-    parsed = urlparse(source) if isinstance(source, str) else None
-    if not parsed or parsed.scheme != "https" or not parsed.netloc:
+    try:
+        parsed = urlparse(source) if isinstance(source, str) else None
+        valid_source = (
+            parsed is not None and parsed.scheme == "https"
+            and bool(parsed.hostname) and not parsed.username and not parsed.password
+        )
+    except ValueError:
+        valid_source = False
+    if not valid_source:
         return False
     revision = evidence.get("source_revision")
     if not isinstance(revision, str) or re.fullmatch(r"[0-9a-f]{40}", revision) is None:

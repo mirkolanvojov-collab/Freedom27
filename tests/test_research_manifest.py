@@ -39,7 +39,13 @@ class ResearchManifestTests(unittest.TestCase):
 
     def test_non_https_source_is_rejected(self):
         item = {**VALID, "source_url": "http://example.org"}
-        self.assertTrue(any("must use HTTPS" in e for e in validate_manifest([item])))
+        self.assertTrue(any("valid HTTPS URL" in e for e in validate_manifest([item])))
+
+    def test_https_without_host_or_with_credentials_is_rejected(self):
+        for source in ("https://", "https://user:pass@example.org/research"):
+            with self.subTest(source=source):
+                item = {**VALID, "source_url": source}
+                self.assertTrue(any("valid HTTPS URL" in e for e in validate_manifest([item])))
 
     def test_reproduction_claim_requires_evidence_and_independent_replication(self):
         item = {**VALID, "status": "reproduced_in_lab"}
@@ -61,10 +67,11 @@ class ResearchManifestTests(unittest.TestCase):
 
 class ResearchDocumentTests(unittest.TestCase):
     def make_document(self):
+        # Copy nested mutable records so a negative test cannot mutate module fixtures.
         return {
             "schema_version": 1,
-            "target": TARGET,
-            "entries": [VALID],
+            "target": dict(TARGET),
+            "entries": [{**VALID, "target": dict(TARGET)}],
             "warning": "Metadata only; does not establish exploitability.",
         }
 
@@ -92,6 +99,12 @@ class ResearchDocumentTests(unittest.TestCase):
     def test_document_rejects_non_object_root(self):
         self.assertTrue(any("root must be an object" in e
                             for e in validate_document([])))
+
+    def test_document_reports_malformed_target_values_without_crashing(self):
+        document = self.make_document()
+        document["target"]["build"] = 23
+        errors = validate_document(document)
+        self.assertTrue(any("target.build must be a non-empty string" in e for e in errors))
 
 
 if __name__ == "__main__":

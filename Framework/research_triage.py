@@ -21,8 +21,18 @@ def load(path):
 
 
 def triage(target, registry_doc, ledger_doc):
-    registry = {x["id"]: x for x in registry_doc.get("entries", []) if isinstance(x, dict) and x.get("id")}
-    ledger = {x["id"]: x for x in ledger_doc.get("entries", []) if isinstance(x, dict) and x.get("id")}
+    """Join research metadata; malformed document roots degrade to empty inputs."""
+    target = target if isinstance(target, dict) else {}
+    registry_doc = registry_doc if isinstance(registry_doc, dict) else {}
+    ledger_doc = ledger_doc if isinstance(ledger_doc, dict) else {}
+    registry_entries = registry_doc.get("entries", [])
+    ledger_entries = ledger_doc.get("entries", [])
+    if not isinstance(registry_entries, list):
+        registry_entries = []
+    if not isinstance(ledger_entries, list):
+        ledger_entries = []
+    registry = {x["id"]: x for x in registry_entries if isinstance(x, dict) and isinstance(x.get("id"), str) and x.get("id")}
+    ledger = {x["id"]: x for x in ledger_entries if isinstance(x, dict) and isinstance(x.get("id"), str) and x.get("id")}
     target_triplet = _normalize_target_tuple(
         f"{target.get('device_model', '')} {target.get('exact_os_version', '')} "
         f"build {target.get('build_number', '')}"

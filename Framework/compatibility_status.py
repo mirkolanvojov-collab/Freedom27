@@ -24,15 +24,32 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
     profile = _read(root / "research" / "target_profile.json")
     status_path = root / "research" / "target_status.json"
     status_data = _read(status_path) if status_path.exists() else {"claims": []}
+    if not isinstance(profile, dict):
+        return {
+            "target": {"device_model": "", "model_identifier": "", "os_version": "", "build_number": ""},
+            "status": "invalid-input",
+            "summary": "Target profile root must be a JSON object.",
+            "matching_claims": [],
+            "errors": ["target profile root must be a JSON object"],
+            "scope_note": "Repository metadata check only; not a device test.",
+        }
+    input_errors: list[str] = []
+    if not isinstance(status_data, dict):
+        input_errors.append("target status root must be a JSON object")
+        status_data = {"claims": []}
+    claims = status_data.get("claims", [])
+    if not isinstance(claims, list):
+        input_errors.append("target status claims must be a list")
+        claims = []
     identity = {
         "device_model": str(profile.get("device_model", "")),
         "model_identifier": str(profile.get("model_identifier", "")),
         "os_version": str(profile.get("exact_os_version", "")),
         "build_number": str(profile.get("build_number", "")),
     }
-    errors = [f"{key} is missing" for key, value in identity.items() if not value]
+    errors = input_errors + [f"{key} is missing" for key, value in identity.items() if not value]
     matches = []
-    for item in status_data.get("claims", []):
+    for item in claims:
         if not isinstance(item, dict):
             continue
         if all(str(item.get(key, "")) == identity[key] for key in ("model_identifier", "os_version", "build_number")):

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import re
 from typing import Any, Iterable
+from urllib.parse import urlparse
 
 STATUSES = {"queued", "reviewed", "not_applicable", "reproduced_in_lab"}
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
@@ -35,15 +36,24 @@ def validate_manifest(items: Iterable[dict[str, Any]]) -> list[str]:
                 errors.append(f"{prefix}: {field} must be a non-empty string")
 
         source_url = item.get("source_url", "")
-        if isinstance(source_url, str) and source_url and not source_url.startswith("https://"):
-            errors.append(f"{prefix}: source_url must use HTTPS")
+        if isinstance(source_url, str) and source_url:
+            try:
+                parsed = urlparse(source_url)
+                valid_url = (
+                    parsed.scheme == "https" and bool(parsed.hostname)
+                    and not parsed.username and not parsed.password
+                )
+            except ValueError:
+                valid_url = False
+            if not valid_url:
+                errors.append(f"{prefix}: source_url must be a valid HTTPS URL without embedded credentials")
 
         revision = item.get("source_revision", "")
         if isinstance(revision, str) and revision and not SHA40.fullmatch(revision):
             errors.append(f"{prefix}: source_revision must be a full 40-character commit SHA")
 
         status = item.get("status")
-        if status not in STATUSES:
+        if not isinstance(status, str) or status not in STATUSES:
             errors.append(f"{prefix}: status must be one of {', '.join(sorted(STATUSES))}")
 
         target = item.get("target")
@@ -66,9 +76,12 @@ def validate_manifest(items: Iterable[dict[str, Any]]) -> list[str]:
     return errors
 
 
-def target_key(target: dict[str, str]) -> str:
-    """Stable human-readable exact-target key; does not imply compatibility."""
-    return "|".join(target.get(field, "").strip() for field in REQUIRED_TARGET_FIELDS)
+def target_key(target: dict[str, Any]) -> str:
+    """Stable human-readable exact-target key; malformed values become empty fields."""
+    return "|".join(
+        target.get(field, "").strip() if isinstance(target.get(field, ""), str) else ""
+        for field in REQUIRED_TARGET_FIELDS
+    )
 
 
 def validate_document(document: Any) -> list[str]:
@@ -116,7 +129,7 @@ def main() -> int:
         return 1
     errors = validate_document(document)
     if errors:
-        print("\\n".join(errors))
+        print("\n".join(errors))
         return 1
     entries = document["entries"]
     print(f"Research manifest valid: {len(entries)} source-pinned entries; metadata only.")

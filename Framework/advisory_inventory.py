@@ -50,12 +50,21 @@ def validate(data: object) -> list[str]:
             errors.append(f"duplicate release source: {release}")
         else:
             by_release[release] = source
-        if source.get("extraction_status") not in ALLOWED_STATUSES:
+        extraction_status = source.get("extraction_status")
+        if not isinstance(extraction_status, str) or extraction_status not in ALLOWED_STATUSES:
             errors.append(f"sources[{i}].extraction_status is invalid")
         url = source.get("url")
         if url is not None:
-            parsed = urlparse(url) if isinstance(url, str) else None
-            if not parsed or parsed.scheme != "https" or parsed.hostname != "support.apple.com":
+            try:
+                parsed = urlparse(url) if isinstance(url, str) else None
+                valid_url = (
+                    parsed is not None and parsed.scheme == "https"
+                    and parsed.hostname == "support.apple.com"
+                    and not parsed.username and not parsed.password
+                )
+            except ValueError:
+                valid_url = False
+            if not valid_url:
                 errors.append(f"sources[{i}].url must be an HTTPS support.apple.com URL")
             elif url in source_urls:
                 errors.append(f"duplicate source URL: {url}")
@@ -90,14 +99,14 @@ def validate(data: object) -> list[str]:
         url = entry.get("advisory_url")
         if not isinstance(cve, str) or not CVE_RE.fullmatch(cve):
             errors.append(f"entries[{i}].cve_id is invalid")
-        if release not in by_release:
-            errors.append(f"entries[{i}] references unknown advisory_release: {release!r}")
-        elif url != by_release[release].get("url") or not url:
+        if not isinstance(release, str) or release not in by_release:
+            errors.append(f"entries[{i}] references unknown or invalid advisory_release: {release!r}")
+        elif url != by_release[release].get("url") or not isinstance(url, str) or not url:
             errors.append(f"entries[{i}] advisory_url does not match verified source URL")
         if entry.get("evidence_status") != "public_advisory_only":
             errors.append(f"entries[{i}].evidence_status must be public_advisory_only")
         assessment = entry.get("target_assessment")
-        if assessment not in ALLOWED_TARGET_ASSESSMENTS:
+        if not isinstance(assessment, str) or assessment not in ALLOWED_TARGET_ASSESSMENTS:
             errors.append(f"entries[{i}].target_assessment is invalid")
         if isinstance(target_os, str) and release == target_os and assessment != "fixed_in_target_release":
             errors.append(f"entries[{i}] is from the reported target release and must be assessed fixed_in_target_release")

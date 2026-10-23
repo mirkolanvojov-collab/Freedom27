@@ -40,8 +40,15 @@ def _valid_gate_evidence(record: object, target: dict) -> bool:
     ):
         return False
     source = record.get("source_url")
-    parsed = urlparse(source) if isinstance(source, str) else None
-    if not parsed or parsed.scheme != "https" or not parsed.netloc:
+    try:
+        parsed = urlparse(source) if isinstance(source, str) else None
+        valid_source = (
+            parsed is not None and parsed.scheme == "https"
+            and bool(parsed.hostname) and not parsed.username and not parsed.password
+        )
+    except ValueError:
+        valid_source = False
+    if not valid_source:
         return False
     revision = record.get("source_revision")
     if not isinstance(revision, str) or re.fullmatch(r"[0-9a-f]{40}", revision) is None:
@@ -55,6 +62,10 @@ def _valid_gate_evidence(record: object, target: dict) -> bool:
 
 def assess(target: dict, evidence: dict) -> dict:
     """Return a fail-closed report; bare booleans never satisfy evidence gates."""
+    if not isinstance(target, dict):
+        target = {}
+    if not isinstance(evidence, dict):
+        evidence = {}
     device = target.get("device_model", "")
     os_version = target.get("exact_os_version", "")
     build = target.get("build_number", "")

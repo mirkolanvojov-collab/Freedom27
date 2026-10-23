@@ -50,6 +50,11 @@ class ChainReadinessTests(unittest.TestCase):
         self.assertTrue(report["ready_for_implementation_claim"])
         self.assertEqual(report["missing_gate_count"], 0)
 
+    def test_malformed_roots_fail_closed(self):
+        report = assess([], [])
+        self.assertFalse(report["ready_for_implementation_claim"])
+        self.assertEqual(report["missing_gate_count"], len(REQUIRED_GATES))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -43,9 +43,17 @@ def validate_document(document: object) -> list[str]:
         errors.append("source must be an object")
     else:
         url = source.get("url", "")
-        parsed = urlparse(url) if isinstance(url, str) else None
-        if not parsed or parsed.scheme != "https" or not parsed.netloc:
-            errors.append("source.url must be HTTPS")
+        try:
+            parsed = urlparse(url) if isinstance(url, str) else None
+            valid_source_url = (
+                parsed is not None and parsed.scheme == "https"
+                and parsed.hostname == "support.apple.com"
+                and not parsed.username and not parsed.password
+            )
+        except ValueError:
+            valid_source_url = False
+        if not valid_source_url:
+            errors.append("source.url must be an HTTPS support.apple.com URL")
         for key in ("title", "published", "reviewed"):
             if not isinstance(source.get(key), str) or not source[key].strip():
                 errors.append(f"source.{key} must be non-empty")
@@ -74,9 +82,11 @@ def validate_document(document: object) -> list[str]:
             if candidate_id in seen:
                 errors.append(f"{prefix} duplicate id {candidate_id}")
             seen.add(candidate_id)
-        if item.get("target_applicability") not in ALLOWED_TARGET_STATUS:
+        target_applicability = item.get("target_applicability")
+        if not isinstance(target_applicability, str) or target_applicability not in ALLOWED_TARGET_STATUS:
             errors.append(f"{prefix}.target_applicability is not allowed")
-        if item.get("reproduction_status") not in ALLOWED_REPRODUCTION:
+        reproduction_status = item.get("reproduction_status")
+        if not isinstance(reproduction_status, str) or reproduction_status not in ALLOWED_REPRODUCTION:
             errors.append(f"{prefix}.reproduction_status is not allowed")
         if item.get("chain_status") != "not_established":
             errors.append(f"{prefix}.chain_status must remain not_established in advisory-only metadata")

@@ -111,6 +111,28 @@ class BlockerResolutionEngineTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_plan([])
 
+    def test_malformed_gate_status_fails_closed_without_crashing(self):
+        doc = {
+            "generated_for": TARGET,
+            "verified_complete_jailbreak": False,
+            "gates": [{"id": "entry", "status": ["verified"]}],
+        }
+        plan = build_plan(doc)
+        self.assertEqual(plan["assessment"], "blocked")
+        self.assertTrue(any(task["status"] == "invalid" for task in plan["tasks"]))
+
+    def test_malformed_evidence_target_and_url_fail_closed(self):
+        record = {
+            "target": [],
+            "source_url": "https://",
+            "source_revision": "a" * 40,
+            "status": ["verified"],
+        }
+        errors = validate_evidence_record(record, TARGET)
+        self.assertTrue(any("exactly match" in error for error in errors))
+        self.assertTrue(any("valid HTTPS URL" in error for error in errors))
+        self.assertTrue(any("status must be" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

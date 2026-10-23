@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Iterable
+from urllib.parse import urlparse
 
 VALID_STATUSES = {
     "not-investigated",
@@ -47,8 +48,16 @@ class CompatibilityClaim:
         if self.status not in VALID_STATUSES:
             errors.append(f"status must be one of: {', '.join(sorted(VALID_STATUSES))}")
         if self.status == "verified":
-            if not self.evidence_url.startswith("https://"):
-                errors.append("verified claims require an HTTPS evidence_url")
+            try:
+                parsed = urlparse(self.evidence_url)
+                valid_url = (
+                    parsed.scheme == "https" and bool(parsed.hostname)
+                    and not parsed.username and not parsed.password
+                )
+            except ValueError:
+                valid_url = False
+            if not valid_url:
+                errors.append("verified claims require a valid HTTPS evidence_url")
             if not self.notes:
                 errors.append("verified claims require review notes")
         if self.status == "not-supported" and not self.notes:
@@ -57,10 +66,13 @@ class CompatibilityClaim:
 
 
 def validate_claims(items: Iterable[dict[str, Any]]) -> list[str]:
-    """Validate claims and reject duplicate device/version/build tuples."""
+    """Validate claims and reject malformed or duplicate device/version/build tuples."""
     errors: list[str] = []
     seen: set[tuple[str, str, str, str]] = set()
     for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            errors.append(f"claim[{index}]: must be an object")
+            continue
         claim = CompatibilityClaim.from_mapping(item)
         errors.extend(f"claim[{index}]: {error}" for error in claim.validate())
         key = (claim.model_identifier, claim.os_version, claim.build, claim.status)

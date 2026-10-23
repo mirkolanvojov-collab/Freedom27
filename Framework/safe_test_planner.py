@@ -17,8 +17,14 @@ class TestStep:
 
 
 def valid_https_source(url: str) -> bool:
-    parsed = urlparse(url)
-    return parsed.scheme == "https" and bool(parsed.netloc) and not parsed.username and not parsed.password
+    try:
+        parsed = urlparse(url)
+        return (
+            parsed.scheme == "https" and bool(parsed.hostname)
+            and not parsed.username and not parsed.password
+        )
+    except (AttributeError, ValueError):
+        return False
 
 
 def build_test_plan(target: Target, hypothesis: Hypothesis) -> dict:

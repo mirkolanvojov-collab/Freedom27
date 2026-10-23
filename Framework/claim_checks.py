@@ -9,8 +9,14 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def _https(value: object) -> bool:
-    parsed = urlparse(value) if isinstance(value, str) else None
-    return bool(parsed and parsed.scheme == "https" and parsed.netloc)
+    try:
+        parsed = urlparse(value) if isinstance(value, str) else None
+        return bool(
+            parsed and parsed.scheme == "https" and parsed.hostname
+            and not parsed.username and not parsed.password
+        )
+    except ValueError:
+        return False
 
 
 def check_claim_evidence(root: Path = ROOT) -> list[str]:
@@ -70,7 +76,7 @@ def check_claim_evidence(root: Path = ROOT) -> list[str]:
 def main() -> int:
     errors = check_claim_evidence()
     if errors:
-        print("\\n".join(errors))
+        print("\n".join(errors))
         return 1
     print("Exact-target claim-evidence checks passed; no device was tested.")
     return 0

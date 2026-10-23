@@ -24,6 +24,11 @@ class IOSSecurityAuditTests(unittest.TestCase):
         sandbox = next(c for c in report["controls"] if c["control"] == "sandbox")
         self.assertEqual(sandbox["status"], "invalid_status")
 
+    def test_malformed_status_fails_closed_without_crashing(self):
+        report = build_audit(TARGET, {"sandbox": ["reviewed"]})
+        sandbox = next(c for c in report["controls"] if c["control"] == "sandbox")
+        self.assertEqual(sandbox["status"], "invalid_status")
+
     def test_invalid_input_rejected(self):
         with self.assertRaises(ValueError):
             build_audit([])

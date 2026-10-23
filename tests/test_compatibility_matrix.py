@@ -60,6 +60,10 @@ class CompatibilityMatrixTests(unittest.TestCase):
         errors = validate_claims([item, item])
         self.assertTrue(any("duplicate" in error for error in errors))
 
+    def test_non_object_claim_is_reported_without_crashing(self):
+        errors = validate_claims([None, {"device_family": "iPhone 14"}])
+        self.assertTrue(any("claim[0]: must be an object" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

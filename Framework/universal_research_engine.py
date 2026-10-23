@@ -42,30 +42,41 @@ def analyze_advisories(document: dict) -> dict:
         errors.append("source metadata must be an object")
         source_metadata = {}
 
-    seen_ids = set()
+    seen_ids: set[str] = set()
     scored = []
     for item in candidates:
         if not isinstance(item, dict):
             errors.append("candidate entry must be an object")
             continue
-        candidate_id = item.get("id", "<unknown>")
-        if candidate_id in seen_ids:
+        raw_candidate_id = item.get("id", "<unknown>")
+        candidate_id = raw_candidate_id if isinstance(raw_candidate_id, str) and raw_candidate_id.strip() else "<unknown>"
+        if candidate_id == "<unknown>":
+            errors.append("candidate entry has a missing or invalid ID")
+        elif candidate_id in seen_ids:
             errors.append(f"{candidate_id}: duplicate candidate ID")
         seen_ids.add(candidate_id)
         url = item.get("source_url") or source_metadata.get("url", "")
-        parsed = urlparse(url) if isinstance(url, str) else None
-        if not parsed or parsed.scheme != "https" or not parsed.netloc:
-            errors.append(f"{item.get('id', '<unknown>')}: source URL is not HTTPS")
+        try:
+            parsed = urlparse(url) if isinstance(url, str) else None
+            valid_url = (
+                parsed is not None and parsed.scheme == "https"
+                and bool(parsed.hostname) and not parsed.username and not parsed.password
+            )
+        except ValueError:
+            valid_url = False
+        if not valid_url:
+            errors.append(f"{candidate_id}: source URL is not a valid HTTPS URL")
         status = item.get("target_applicability", "not_established")
         repro = item.get("reproduction_status", "not_reproduced_by_Freedom27")
         # Scores rank review work only; they are not exploitability estimates.
-        score = {"high": 30, "medium": 20, "low": 10}.get(item.get("priority"), 0)
+        priority = item.get("priority")
+        score = {"high": 30, "medium": 20, "low": 10}.get(priority, 0) if isinstance(priority, str) else 0
         if status != "not_established":
             score += 0
         if repro != "not_reproduced_by_Freedom27":
             errors.append(f"{item.get('id', '<unknown>')}: advisory record overstates reproduction status")
         scored.append({
-            "id": item.get("id", "unknown"),
+            "id": candidate_id,
             "component": item.get("component", "unknown"),
             "review_priority_score": score,
             "published_impact": item.get("published_impact", ""),

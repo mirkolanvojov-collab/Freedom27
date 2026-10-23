@@ -1,6 +1,20 @@
 """Build-specific compatibility checks for the Freedom27 research scaffold."""
 
 from dataclasses import dataclass
+from urllib.parse import urlparse
+
+
+def _valid_https_url(value: str) -> bool:
+    try:
+        parsed = urlparse(value.strip())
+        return (
+            parsed.scheme == "https"
+            and bool(parsed.hostname)
+            and not parsed.username
+            and not parsed.password
+        )
+    except (AttributeError, ValueError):
+        return False
 
 
 @dataclass(frozen=True)
@@ -20,7 +34,14 @@ class CompatibilityClaim:
 
     @property
     def is_verified(self) -> bool:
-        return self.status.strip().lower() == "verified" and bool(self.source_url.strip())
+        return (
+            isinstance(self.status, str)
+            and self.status.strip().lower() == "verified"
+            and isinstance(self.source_url, str)
+            and _valid_https_url(self.source_url)
+            and isinstance(self.build_number, str)
+            and bool(self.build_number.strip())
+        )
 
 
 def validate_profile(profile: TargetProfile) -> list[str]:
@@ -28,14 +49,12 @@ def validate_profile(profile: TargetProfile) -> list[str]:
     return [
         f"{field} is required"
         for field in ("device_model", "os_version", "build_number")
-        if not getattr(profile, field).strip()
+        if not isinstance(getattr(profile, field), str) or not getattr(profile, field).strip()
     ]
 
 
 def claim_is_usable(claim: CompatibilityClaim, target_build: str = "") -> bool:
-    """Only trust sourced, verified claims; when a target build is supplied it must match."""
-    if not claim.is_verified:
+    """Only trust sourced, build-specific verified claims for an explicitly named target build."""
+    if not target_build or not claim.is_verified:
         return False
-    if target_build and claim.build_number != target_build:
-        return False
-    return True
+    return claim.build_number == target_build
