@@ -86,3 +86,13 @@ This is a more concrete public validation report than the upstream version-range
 | Full jailbreak / Cydia bootstrap | No supporting evidence found in these sources | Keep blocked until independently reproducible evidence exists |
 
 **Decision:** Keep `bad_query` as a research lead, but do not mark it target-verified or promote it to a full-jailbreak solution. The next research task is to inspect Veilpath's public diagnostics and compatibility notes for evidence that can be responsibly compared with the exact target. Do not install or run experimental private-API software on the daily-use iPhone based on this report alone.
+
+
+### Compatibility table detail checked in Veilpath README
+
+The README's compatibility table also reports physical-device testing on an **iPhone 17 Pro (`iPhone18,1`) running iOS 27 beta 3 (`24A5390f`)**. It lists iOS/iPadOS 26.x as a deployment-target/App Group compatibility path, not as full physical-device validation of every 26.x build. It explicitly says versions outside the documented tested range remain unsupported until physical-device testing confirms them.
+
+This improves confidence that the approach has been exercised on at least one physical iPhone model, but it still does not validate the different iPhone 16 Plus / iOS 26.6.1 / 23G83 target. The README describes a container-exploration/file-workspace app, not a full jailbreak, kernel privilege escalation, or Cydia bootstrap.
+
+- Compatibility source: https://github.com/everettjf/veilpath#compatibility
+- Build requirements include Xcode 27 beta and a physical device for sandbox-access testing; this is not a build path available on the user's iPhone alone.
