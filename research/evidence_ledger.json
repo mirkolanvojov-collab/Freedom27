@@ -117,6 +117,21 @@
         "TCC path-traversal advisory is not itself proof of kernel execution or a jailbreak chain; no link to reported demo established."
       ],
       "next_action": "Record advisory and patch scope only; do not treat as a current exploit path."
+    },
+    {
+      "id": "bad-query-ios26-sandbox-escape-poc",
+      "evidence_type": "upstream_project",
+      "patch_state": "unknown",
+      "target_applicability": "not_established",
+      "reproduction_status": "upstream_claim_only",
+      "exact_target_build": "",
+      "evidence_url": "https://github.com/forcequitOS/bad_query",
+      "limitations": [
+        "Upstream describes a sandbox escape proof of concept, not a full jailbreak.",
+        "No independent Freedom27 reproduction on iPhone 16 Plus / iOS 26.6.1 build 23G83.",
+        "Container access alone does not prove kernel control, system-wide privilege escalation, package-manager support, or persistence."
+      ],
+      "next_action": "Read upstream source and release notes for defensive compatibility assessment; require exact-target evidence before changing status."
     }
   ]
 }
