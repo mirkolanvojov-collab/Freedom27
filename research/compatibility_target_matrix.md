@@ -6,7 +6,8 @@ Freedom27 aims to investigate jailbreak feasibility across the iPhone 14 through
 
 ## Scope
 
-- Hardware families: iPhone 14, 15, 16, 17, and 18, including variants where technically applicable.
+- Hardware families: iPhone 14, 15, 16, 17, and 18, tracking **base, Plus, Pro, and Pro Max** as separate variants wherever that variant exists for the family.
+- Do not assume every family has every variant: model availability changes by generation. Confirm each exact model identifier before treating a row as a real target.
 - OS families: iOS 26 and iOS 27.
 - Compatibility must be tracked per exact model identifier, chip/platform, OS version, and build number.
 - Package-manager preference: Cydia, while keeping the design open to other maintained package managers if required by platform constraints.
@@ -36,7 +37,7 @@ Do not describe the project as an installable jailbreak until a compatible imple
 ## Next engineering gates
 
 1. Maintain a sourced registry of public research and exact compatibility claims.
-2. Build a model/build matrix with evidence links and explicit unknowns.
+2. Build a model/build matrix with evidence links and explicit unknowns. The JSON matrix now has separate variant rows for base, Plus, Pro, and Pro Max across iPhone 14–18; rows for combinations that may not exist are placeholders requiring verification.
 3. Add automated validation that prevents unsupported compatibility claims.
 4. Evaluate whether a practical iPhone-only build/install workflow is possible; record any external-host requirement honestly.
 5. Only then consider implementation work tied to a specific, documented vulnerability and exact supported build.
