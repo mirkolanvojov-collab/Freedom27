@@ -39,7 +39,7 @@ def validate_record(record: object) -> list[str]:
         if not valid_url:
             errors.append("source_url must be a valid HTTPS URL without embedded credentials")
     evidence_note = record.get("evidence_note", "")
-    if evidence_note is not None and not isinstance(evidence_note, str):
+    if "evidence_note" in record and not isinstance(evidence_note, str):
         errors.append("evidence_note must be a string when supplied")
     if record.get("result") == "reproduced_in_lab" and (
         not isinstance(evidence_note, str) or not evidence_note.strip()
