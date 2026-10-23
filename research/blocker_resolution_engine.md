@@ -14,16 +14,17 @@ The engine creates an ordered, fail-closed research plan for the exact Freedom27
 - Validates evidence records against the exact device, model identifier, OS version, and build.
 - Requires immutable source revisions; a claim marked `verified` also needs an evidence note, confirmed scope, and independent reproduction.
 - Fails closed: unknown or mismatched evidence remains unverified.
+- Computes effective verification transitively, so an unverified prerequisite prevents dependent gates from being counted as complete.
 
-## Run through GitHub Actions
+## Run
 
-The repository workflow runs Python unit tests. To generate a local plan in an environment where the repository is checked out:
+With the repository checked out in a Python environment:
 
 ```sh
 python -m Framework.blocker_resolution_engine
 ```
 
-The module's current CLI integration is intentionally not included; use the repository's existing blocker analyzer for JSON output until a workflow step explicitly invokes `build_plan`.
+The command prints a JSON plan to standard output. GitHub Actions also generates and validates `research/blocker_resolution_report.json` on pushes and pull requests.
 
 ## What it cannot do
 
