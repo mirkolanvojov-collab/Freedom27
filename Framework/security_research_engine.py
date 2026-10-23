@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Iterable
+from urllib.parse import urlparse
 
 
 class EvidenceLevel(str, Enum):
@@ -57,6 +58,8 @@ class Hypothesis:
             issues.append("falsifying observation is missing")
         if not self.source_urls:
             issues.append("no source URLs supplied")
+        elif any(not self._is_web_url(url) for url in self.source_urls):
+            issues.append("source URLs must be absolute HTTP(S) URLs")
         if not self.non_destructive and not self.recovery_plan.strip():
             issues.append("potentially destructive test lacks a recovery plan")
         if self.evidence_level is EvidenceLevel.EXACT_TARGET_VERIFIED:
@@ -70,6 +73,14 @@ class Hypothesis:
         ) and not self.observed_result.strip():
             issues.append("demonstration label lacks an observed result")
         return issues
+
+    @staticmethod
+    def _is_web_url(value: str) -> bool:
+        try:
+            parsed = urlparse(value.strip())
+            return parsed.scheme in ("http", "https") and bool(parsed.netloc)
+        except (AttributeError, ValueError):
+            return False
 
 
 def readiness_report(target: Target, hypotheses: Iterable[Hypothesis]) -> dict:
