@@ -43,7 +43,7 @@ def validate_manifest(items: Iterable[dict[str, Any]]) -> list[str]:
             errors.append(f"{prefix}: source_revision must be a full 40-character commit SHA")
 
         status = item.get("status")
-        if status not in STATUSES:
+        if not isinstance(status, str) or status not in STATUSES:
             errors.append(f"{prefix}: status must be one of {', '.join(sorted(STATUSES))}")
 
         target = item.get("target")
@@ -66,9 +66,12 @@ def validate_manifest(items: Iterable[dict[str, Any]]) -> list[str]:
     return errors
 
 
-def target_key(target: dict[str, str]) -> str:
-    """Stable human-readable exact-target key; does not imply compatibility."""
-    return "|".join(target.get(field, "").strip() for field in REQUIRED_TARGET_FIELDS)
+def target_key(target: dict[str, Any]) -> str:
+    """Stable human-readable exact-target key; malformed values become empty fields."""
+    return "|".join(
+        target.get(field, "").strip() if isinstance(target.get(field, ""), str) else ""
+        for field in REQUIRED_TARGET_FIELDS
+    )
 
 
 def validate_document(document: Any) -> list[str]:
