@@ -72,5 +72,5 @@ class TargetBuildCveAssessmentTests(unittest.TestCase):
         self.assertIn("No device", conclusion["safety"])
 
 
-if __ (name__) == "__main__":
+if __name__ == "__main__":
     unittest.main()
