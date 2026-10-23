@@ -93,6 +93,12 @@ class ResearchDocumentTests(unittest.TestCase):
         self.assertTrue(any("root must be an object" in e
                             for e in validate_document([])))
 
+    def test_document_reports_malformed_target_values_without_crashing(self):
+        document = self.make_document()
+        document["target"]["build"] = 23
+        errors = validate_document(document)
+        self.assertTrue(any("target.build must be a non-empty string" in e for e in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
