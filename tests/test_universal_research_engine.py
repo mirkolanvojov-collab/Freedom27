@@ -55,7 +55,8 @@ class UnifiedResearchEngineTests(unittest.TestCase):
         document["candidates"][0]["priority"] = ["high"]
         analysis = analyze_advisories(document)
         self.assertEqual(len(analysis["candidates_ranked_for_review"]), len(document["candidates"]))
-        self.assertTrue(any("missing or invalid ID" not in error for error in analysis["validation_errors"]) is False)
+        self.assertTrue(all(isinstance(item["review_priority_score"], int)
+                            for item in analysis["candidates_ranked_for_review"]))
 
     def test_review_priority_is_not_named_exploitability(self):
         report = build_report(self.document)
