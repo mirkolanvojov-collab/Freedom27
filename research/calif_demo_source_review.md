@@ -1,6 +1,6 @@
 # Calif iOS 27.0.1 demonstration — source review
 
-**Review date:** 2026-10-23  
+**Review date:** 2026-10-23 (updated after checking Apple’s security-content page)  
 **Project:** Freedom27  
 **Purpose:** Separate public evidence from assumptions before changing compatibility or exploit status.
 
@@ -18,10 +18,10 @@ The public record supports that Calif announced demonstrations at Hexacon on 202
    Dated 2026-10-16. Reports the iPhone 18 Pro / iOS 27.0.1 demonstration and root access after reboot, based on stage video and researcher Billy Ellis’s post. This is secondary reporting, not source code.
 3. **iClarified report** — https://www.iclarified.com/102876/untethered-ios-2701-jailbreak-demonstrated-on-iphone-18-pro-video  
    Dated 2026-10-17. Reports that the demo terminal identified hardware as `iPhone19,2`; this is a reported observation, not an independently reproduced Freedom27 result.
-4. **Apple security advisory lead for CVE-2026-28968** — https://support.apple.com/en-us/149036  
-   A security issue credited in part to Calif researchers is relevant context, but no reviewed source connects it to the Hexacon jailbreak chain.
-5. **Apple security advisory lead for CVE-2026-86886** — https://support.apple.com/en-us/149041  
-   Also relevant context only. No reviewed source establishes that this issue was used in the demo.
+4. **Apple security content for iOS 26.7 / iPadOS 26.7** — https://support.apple.com/en-us/149041  
+   Apple’s page includes CVE-2026-28968 (Kernel; potential system termination or kernel-memory corruption) and CVE-2026-86886 (TCC; an app may modify protected system files). The entries were updated/added on October 19 and credit Calif-affiliated researchers among contributors. These credits establish that Apple published those vulnerability findings; they do **not** establish that either was used in the Hexacon jailbreak demo.
+5. **Apple security updates index** — https://support.apple.com/de-at/100100  
+   The index lists iOS 27.0.1 as having no CVE entries published for that update. Do not infer from this that the demo is unpatched or patched: the demo chain has not been identified, and this index alone does not connect the demo to a particular fix.
 
 ## Evidence assessment
 
@@ -30,6 +30,7 @@ The public record supports that Calif announced demonstrations at Hexacon on 202
 | Calif announced iPhone security demos at Hexacon | Confirmed by Calif’s own post | Primary-source announcement exists |
 | An iPhone 18 Pro running iOS 27.0.1 was shown with root access returning after reboot | Reported by multiple outlets based on public video | External demo report; not reproduced by Freedom27 |
 | Exact model identifier `iPhone19,2` | Reported by iClarified from terminal output | Treat as reported metadata, not independently verified hardware identification |
+| Apple published Calif-linked credits for CVE-2026-28968 and CVE-2026-86886 on its security-content page | Confirmed as vulnerability-credit metadata | Record as related security context only |
 | The chain uses CVE-2026-28968 or CVE-2026-86886 | **Unconfirmed** | Keep both as unverified research leads; do not associate either with the chain |
 | Other iPhone 18 variants or older iPhones are supported | **Unknown** | No compatibility inference |
 | A public jailbreak download, source repository, install guide, or release date exists | **Not found in reviewed sources** | Do not direct users to unofficial downloads or claim it is installable |
@@ -37,7 +38,7 @@ The public record supports that Calif announced demonstrations at Hexacon on 202
 
 ## Important limitation on newer claims
 
-A third-party tracker surfaced during this review claims a later interview discusses disclosure after Apple patches and possible changes in a beta release. This review did not verify that interview against a directly accessible primary interview transcript or Calif technical publication, so those claims are **not adopted as project facts**. Re-check the original interview and Apple’s current release/security notes before updating patch status or recommending any firmware decision.
+Apple’s security-content page now lists the two CVEs above and shows an October 19 update/addition. This strengthens the evidence that Calif-affiliated researchers received credit for those vulnerabilities, but the public records reviewed still do not link either CVE to the Hexacon jailbreak chain. A third-party tracker also claims a later interview discusses disclosure after Apple patches and possible changes in a beta release; this review did not verify those interview claims against a directly accessible primary transcript or Calif technical publication, so they are **not adopted as project facts**.
 
 ## Evidence required before changing status
 
@@ -49,4 +50,4 @@ A third-party tracker surfaced during this review claims a later interview discu
 
 ## Next action
 
-Monitor Calif’s official post and Apple’s security advisories. Update the evidence ledger only when a new primary source changes a specific claim. Do not infer a tool release from “in due time,” infer broad compatibility from one demonstration, or treat related CVE credits as proof of exploit-chain membership.
+Monitor Calif’s official post and Apple’s security advisories. The October 19 Apple entries are now documented as related security context, not attribution of the demo chain. Update the evidence ledger only when a primary source changes a specific claim. Do not infer a tool release from “in due time,” infer broad compatibility from one demonstration, or treat related CVE credits as proof of exploit-chain membership.
