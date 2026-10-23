@@ -18,6 +18,25 @@ class EvidenceCheckTests(unittest.TestCase):
                 "evidence_url": "https://example.org/source"
             }]
         }), encoding="utf-8")
+        (research / "evidence_ledger.json").write_text(json.dumps({
+            "allowed_values": {
+                "evidence_type": ["official_advisory", "news_report"],
+                "patch_state": ["unknown", "patched_for_reported_scope"],
+                "target_applicability": ["not_established", "reported_single_device_build"],
+                "reproduction_status": ["not_reproduced_by_Freedom27", "reported_demo_not_independently_reproduced"]
+            },
+            "entries": [{
+                "id": entry.get("id", "example-lead"),
+                "evidence_type": "official_advisory",
+                "patch_state": "unknown",
+                "target_applicability": "not_established",
+                "reproduction_status": "not_reproduced_by_Freedom27",
+                "evidence_url": entry.get("source_url", "https://example.org/advisory"),
+                "next_action": "Review public evidence."
+            } for entry in (entries if entries is not None else [{
+                "id": "example-lead", "source_url": "https://example.org/advisory"
+            }])]
+        }), encoding="utf-8")
         (research / "vulnerability_registry.json").write_text(json.dumps({
             "entries": entries if entries is not None else [{
                 "id": "example-lead", "title": "Example lead",
@@ -80,3 +99,4 @@ class EvidenceCheckTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
