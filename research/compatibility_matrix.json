@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Evidence-tracking matrix expanded to track base, Plus, Pro, and Pro Max variants separately where applicable. A reported demo is not a Freedom27-compatible release; no row currently claims Freedom27 is installable.",
+  "description": "Evidence-tracking matrix for actual named variants across iPhone 14–18. Model lineup is based on Apple's current iPhone model-identification and compare pages; rows do not imply jailbreak compatibility. The reported iPhone 18 Pro demo is experimental only.",
   "allowed_statuses": [
     "not-investigated",
     "researching",
@@ -13,431 +13,409 @@
     {
       "device_family": "iPhone 14",
       "variant": "base",
-      "model_identifier": "",
+      "model_identifier": "iPhone14,7",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 14",
       "variant": "base",
-      "model_identifier": "",
+      "model_identifier": "iPhone14,7",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 14",
       "variant": "Plus",
-      "model_identifier": "",
+      "model_identifier": "iPhone14,8",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 14",
       "variant": "Plus",
-      "model_identifier": "",
+      "model_identifier": "iPhone14,8",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 14",
       "variant": "Pro",
-      "model_identifier": "",
+      "model_identifier": "iPhone15,2",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 14",
       "variant": "Pro",
-      "model_identifier": "",
+      "model_identifier": "iPhone15,2",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 14",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone15,3",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 14",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone15,3",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 15",
       "variant": "base",
-      "model_identifier": "",
+      "model_identifier": "iPhone15,4",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 15",
       "variant": "base",
-      "model_identifier": "",
+      "model_identifier": "iPhone15,4",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 15",
       "variant": "Plus",
-      "model_identifier": "",
+      "model_identifier": "iPhone15,5",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 15",
       "variant": "Plus",
-      "model_identifier": "",
+      "model_identifier": "iPhone15,5",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 15",
       "variant": "Pro",
-      "model_identifier": "",
+      "model_identifier": "iPhone16,1",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 15",
       "variant": "Pro",
-      "model_identifier": "",
+      "model_identifier": "iPhone16,1",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 15",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone16,2",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 15",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone16,2",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 16",
       "variant": "base",
-      "model_identifier": "",
+      "model_identifier": "iPhone17,3",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 16",
       "variant": "base",
-      "model_identifier": "",
+      "model_identifier": "iPhone17,3",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 16",
       "variant": "Plus",
-      "model_identifier": "",
+      "model_identifier": "iPhone17,4",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 16",
       "variant": "Plus",
-      "model_identifier": "",
+      "model_identifier": "iPhone17,4",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 16",
       "variant": "Pro",
-      "model_identifier": "",
+      "model_identifier": "iPhone17,1",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 16",
       "variant": "Pro",
-      "model_identifier": "",
+      "model_identifier": "iPhone17,1",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 16",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone17,2",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 16",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone17,2",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "16e",
+      "model_identifier": "iPhone17,5",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
+    },
+    {
+      "device_family": "iPhone 16",
+      "variant": "16e",
+      "model_identifier": "iPhone17,5",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 17",
       "variant": "base",
-      "model_identifier": "",
+      "model_identifier": "iPhone18,3",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 17",
       "variant": "base",
-      "model_identifier": "",
+      "model_identifier": "iPhone18,3",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
-    },
-    {
-      "device_family": "iPhone 17",
-      "variant": "Plus",
-      "model_identifier": "",
-      "os_family": "iOS 26",
-      "os_version": "",
-      "build": "",
-      "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
-    },
-    {
-      "device_family": "iPhone 17",
-      "variant": "Plus",
-      "model_identifier": "",
-      "os_family": "iOS 27",
-      "os_version": "",
-      "build": "",
-      "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 17",
       "variant": "Pro",
-      "model_identifier": "",
+      "model_identifier": "iPhone18,1",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 17",
       "variant": "Pro",
-      "model_identifier": "",
+      "model_identifier": "iPhone18,1",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 17",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone18,2",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 17",
       "variant": "Pro Max",
-      "model_identifier": "",
+      "model_identifier": "iPhone18,2",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
-      "device_family": "iPhone 18",
-      "variant": "base",
+      "device_family": "iPhone 17",
+      "variant": "Air",
+      "model_identifier": "iPhone18,4",
+      "os_family": "iOS 26",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "Air",
+      "model_identifier": "iPhone18,4",
+      "os_family": "iOS 27",
+      "os_version": "",
+      "build": "",
+      "status": "not-investigated",
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
+    },
+    {
+      "device_family": "iPhone 17",
+      "variant": "17e",
       "model_identifier": "",
       "os_family": "iOS 26",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
-      "device_family": "iPhone 18",
-      "variant": "base",
+      "device_family": "iPhone 17",
+      "variant": "17e",
       "model_identifier": "",
       "os_family": "iOS 27",
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
-    },
-    {
-      "device_family": "iPhone 18",
-      "variant": "Plus",
-      "model_identifier": "",
-      "os_family": "iOS 26",
-      "os_version": "",
-      "build": "",
-      "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
-    },
-    {
-      "device_family": "iPhone 18",
-      "variant": "Plus",
-      "model_identifier": "",
-      "os_family": "iOS 27",
-      "os_version": "",
-      "build": "",
-      "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
-    },
-    {
-      "device_family": "iPhone 18",
-      "variant": "Pro",
-      "model_identifier": "",
-      "os_family": "iOS 26",
-      "os_version": "",
-      "build": "",
-      "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
     },
     {
       "device_family": "iPhone 18",
       "variant": "Pro",
-      "model_identifier": "iPhone19,2 (reported iPhone 18 Pro)",
+      "model_identifier": "iPhone19,2",
       "os_family": "iOS 27",
       "os_version": "27.0.1",
       "build": "24A446",
       "status": "experimental",
       "evidence_url": "https://www.iclarified.com/102876/untethered-ios-2701-jailbreak-demonstrated-on-iphone-18-pro-video",
-      "notes": "Public reporting describes a demonstration on this exact device/build only. No public tool or Freedom27 port is established; independent reproduction and technical details remain outstanding."
-    },
-    {
-      "device_family": "iPhone 18",
-      "variant": "Pro Max",
-      "model_identifier": "",
-      "os_family": "iOS 26",
-      "os_version": "",
-      "build": "",
-      "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "notes": "Reported demonstration on this exact device/build only; no public tool or Freedom27 port established. Independent reproduction and technical details remain outstanding."
     },
     {
       "device_family": "iPhone 18",
@@ -447,8 +425,22 @@
       "os_version": "",
       "build": "",
       "status": "not-investigated",
-      "evidence_url": "",
-      "notes": "No exact model/build evidence recorded yet. Confirm this variant and OS/build combination exists before evaluating compatibility; do not infer support from another variant."
+      "evidence_url": "https://support.apple.com/de-de/108044",
+      "notes": "Device family/variant and identifier are based on Apple's model-identification reference where listed; exact supported OS/build combinations and jailbreak evidence remain to be researched. Confirm identifier and OS availability against primary technical sources before making compatibility claims."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Apple Support — Identify your iPhone model",
+      "url": "https://support.apple.com/de-de/108044"
+    },
+    {
+      "title": "Apple — Compare iPhone models",
+      "url": "https://www.apple.com/iphone/compare/"
+    },
+    {
+      "title": "iClarified — reported iPhone 18 Pro iOS 27.0.1 demo",
+      "url": "https://www.iclarified.com/102876/untethered-ios-2701-jailbreak-demonstrated-on-iphone-18-pro-video"
     }
   ]
 }
