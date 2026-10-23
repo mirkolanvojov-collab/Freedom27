@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "purpose": "Structured evidence ledger for research triage. Entries record public evidence and gaps; they are not exploit instructions or proof of device compatibility.",
+  "allowed_values": {
+    "evidence_type": [
+      "official_advisory",
+      "technical_writeup",
+      "upstream_project",
+      "news_report"
+    ],
+    "patch_state": [
+      "patched_for_reported_scope",
+      "historical_patched",
+      "unknown",
+      "not_applicable"
+    ],
+    "target_applicability": [
+      "not_applicable_to_target",
+      "not_established",
+      "reported_single_device_build",
+      "older_hardware_only"
+    ],
+    "reproduction_status": [
+      "not_reproduced_by_Freedom27",
+      "upstream_claim_only",
+      "reported_demo_not_independently_reproduced"
+    ]
+  },
+  "entries": [
+    {
+      "id": "darksword-public-report-2026",
+      "evidence_type": "technical_writeup",
+      "patch_state": "historical_patched",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "exact_target_build": "",
+      "evidence_url": "https://cloud.google.com/blog/topics/threat-intelligence/darksword-ios-exploit-chain",
+      "limitations": [
+        "Historical iOS 18 campaign; no evidence of compatibility with iOS 27 target devices."
+      ],
+      "next_action": "Use only for defensive architecture learning; do not port or infer current compatibility."
+    },
+    {
+      "id": "project-zero-ios-exploit-chain-2019",
+      "evidence_type": "technical_writeup",
+      "patch_state": "historical_patched",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "exact_target_build": "",
+      "evidence_url": "https://projectzero.google/2019/08/a-very-deep-dive-into-ios-exploit.html",
+      "limitations": [
+        "Historical iOS 10–12 campaign; not current target evidence."
+      ],
+      "next_action": "Keep as background reading; no compatibility claim."
+    },
+    {
+      "id": "liter8-public-ios27-a13",
+      "evidence_type": "upstream_project",
+      "patch_state": "unknown",
+      "target_applicability": "older_hardware_only",
+      "reproduction_status": "upstream_claim_only",
+      "exact_target_build": "",
+      "evidence_url": "https://github.com/Xplo8E/Liter8",
+      "limitations": [
+        "Upstream reports iPhone 11/A13 testing and tethered host-assisted workflow; not evidence for iPhone 14–18."
+      ],
+      "next_action": "Recheck upstream documentation only if its stated hardware scope changes; do not port assumptions to newer chips."
+    },
+    {
+      "id": "usbliter8-a12-a13-research",
+      "evidence_type": "upstream_project",
+      "patch_state": "unknown",
+      "target_applicability": "older_hardware_only",
+      "reproduction_status": "upstream_claim_only",
+      "exact_target_build": "",
+      "evidence_url": "https://github.com/Cyber-Scholar/usbliter8",
+      "limitations": [
+        "Claims concern older A12/A13 devices and require host tools; not evidence for iPhone 14–18."
+      ],
+      "next_action": "Retain as historical context; no target compatibility claim."
+    },
+    {
+      "id": "calif-iphone18pro-ios2701-demo-2026",
+      "evidence_type": "news_report",
+      "patch_state": "unknown",
+      "target_applicability": "reported_single_device_build",
+      "reproduction_status": "reported_demo_not_independently_reproduced",
+      "exact_target_build": "iPhone 18 Pro / iOS 27.0.1 / build 24A446",
+      "evidence_url": "https://www.iclarified.com/102876/untethered-ios-2701-jailbreak-demonstrated-on-iphone-18-pro-video",
+      "limitations": [
+        "Secondary reporting only; no public source/tool or independently reproduced technical chain in the cited report."
+      ],
+      "next_action": "Watch for primary technical disclosure or public source; require exact-build reproduction before upgrading status."
+    },
+    {
+      "id": "apple-cve-2026-28968-kernel-lead",
+      "evidence_type": "official_advisory",
+      "patch_state": "patched_for_reported_scope",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "exact_target_build": "",
+      "evidence_url": "https://support.apple.com/en-us/149036",
+      "limitations": [
+        "Security advisory describes a kernel memory issue; no evidence it forms a jailbreak chain or is linked to the reported demo."
+      ],
+      "next_action": "Record advisory and patch scope only; do not attempt exploitation or infer an exploit primitive."
+    },
+    {
+      "id": "apple-cve-2026-86886-tcc-lead",
+      "evidence_type": "official_advisory",
+      "patch_state": "patched_for_reported_scope",
+      "target_applicability": "not_established",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "exact_target_build": "",
+      "evidence_url": "https://support.apple.com/en-us/149041",
+      "limitations": [
+        "TCC path-traversal advisory is not itself proof of kernel execution or a jailbreak chain; no link to reported demo established."
+      ],
+      "next_action": "Record advisory and patch scope only; do not treat as a current exploit path."
+    }
+  ]
+}
