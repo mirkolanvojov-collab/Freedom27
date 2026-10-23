@@ -133,7 +133,7 @@ def build_plan(status_document: dict[str, Any], evidence_records: list[Any] | No
         deps = list(DEPENDENCIES[gate_id])
         unmet = [dep for dep in deps if dep not in verified_ids]
         # Do not let a "verified" label alone satisfy a gate if its prerequisites are unmet.
-        if status != "verified" or unmet:
+        if status != "verified" or gate_id not in verified_ids or unmet:
             tasks.append({
                 "gate": gate_id,
                 "status": status,
