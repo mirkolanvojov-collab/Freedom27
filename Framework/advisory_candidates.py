@@ -43,9 +43,17 @@ def validate_document(document: object) -> list[str]:
         errors.append("source must be an object")
     else:
         url = source.get("url", "")
-        parsed = urlparse(url) if isinstance(url, str) else None
-        if not parsed or parsed.scheme != "https" or not parsed.netloc:
-            errors.append("source.url must be HTTPS")
+        try:
+            parsed = urlparse(url) if isinstance(url, str) else None
+            valid_source_url = (
+                parsed is not None and parsed.scheme == "https"
+                and parsed.hostname == "support.apple.com"
+                and not parsed.username and not parsed.password
+            )
+        except ValueError:
+            valid_source_url = False
+        if not valid_source_url:
+            errors.append("source.url must be an HTTPS support.apple.com URL")
         for key in ("title", "published", "reviewed"):
             if not isinstance(source.get(key), str) or not source[key].strip():
                 errors.append(f"source.{key} must be non-empty")
