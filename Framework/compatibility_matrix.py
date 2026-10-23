@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Iterable
+from urllib.parse import urlparse
 
 VALID_STATUSES = {
     "not-investigated",
@@ -47,8 +48,16 @@ class CompatibilityClaim:
         if self.status not in VALID_STATUSES:
             errors.append(f"status must be one of: {', '.join(sorted(VALID_STATUSES))}")
         if self.status == "verified":
-            if not self.evidence_url.startswith("https://"):
-                errors.append("verified claims require an HTTPS evidence_url")
+            try:
+                parsed = urlparse(self.evidence_url)
+                valid_url = (
+                    parsed.scheme == "https" and bool(parsed.hostname)
+                    and not parsed.username and not parsed.password
+                )
+            except ValueError:
+                valid_url = False
+            if not valid_url:
+                errors.append("verified claims require a valid HTTPS evidence_url")
             if not self.notes:
                 errors.append("verified claims require review notes")
         if self.status == "not-supported" and not self.notes:
