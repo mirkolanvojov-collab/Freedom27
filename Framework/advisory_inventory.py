@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 CVE_RE = re.compile(r"^CVE-20\d{2}-\d{4,7}$")
 ALLOWED_STATUSES = {"partial", "complete", "url_unverified", "source_url_unverified"}
-ALLOWED_TARGET_ASSESSMENTS = {"not_assessed", "historical_fix", "candidate_for_review", "not_applicable"}
+ALLOWED_TARGET_ASSESSMENTS = {"not_assessed", "fixed_in_target_release", "candidate_for_review", "not_applicable"}
 REQUIRED_SOURCE_FIELDS = {"release", "url", "extraction_status", "cve_ids", "notes"}
 REQUIRED_ENTRY_FIELDS = {"cve_id", "advisory_release", "advisory_url", "evidence_status", "target_assessment"}
 
@@ -73,6 +73,8 @@ def validate(data: object) -> list[str]:
         if source.get("extraction_status") == "complete" and not url:
             errors.append(f"sources[{i}] cannot be complete without a verified URL")
 
+    target_context = data.get("target_context", {})
+    target_os = target_context.get("os_version_reported_by_user") if isinstance(target_context, dict) else None
     seen_entries: set[tuple[str, str]] = set()
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
@@ -93,8 +95,11 @@ def validate(data: object) -> list[str]:
             errors.append(f"entries[{i}] advisory_url does not match verified source URL")
         if entry.get("evidence_status") != "public_advisory_only":
             errors.append(f"entries[{i}].evidence_status must be public_advisory_only")
-        if entry.get("target_assessment") not in ALLOWED_TARGET_ASSESSMENTS:
+        assessment = entry.get("target_assessment")
+        if assessment not in ALLOWED_TARGET_ASSESSMENTS:
             errors.append(f"entries[{i}].target_assessment is invalid")
+        if isinstance(target_os, str) and release == target_os and assessment != "fixed_in_target_release":
+            errors.append(f"entries[{i}] is from the reported target release and must be assessed fixed_in_target_release")
         key = (str(release), str(cve))
         if key in seen_entries:
             errors.append(f"duplicate entry for {release}: {cve}")
