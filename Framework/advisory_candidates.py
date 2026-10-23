@@ -14,8 +14,10 @@ REQUIRED_CANDIDATE_FIELDS = (
     "id", "component", "published_impact", "fix_summary", "fixed_release",
     "target_applicability", "reproduction_status", "chain_status", "priority", "reason",
 )
-ALLOWED_TARGET_STATUS = {"not_established", "confirmed_by_primary_source"}
-ALLOWED_REPRODUCTION = {"not_reproduced_by_Freedom27", "reproduced_by_Freedom27"}
+# This file is advisory metadata only. Positive target/reproduction claims must
+# be supported in a separate evidence record, never asserted in this dataset.
+ALLOWED_TARGET_STATUS = {"not_established"}
+ALLOWED_REPRODUCTION = {"not_reproduced_by_Freedom27"}
 
 
 def validate_document(document: object) -> list[str]:
@@ -71,12 +73,8 @@ def validate_document(document: object) -> list[str]:
             errors.append(f"{prefix}.target_applicability is not allowed")
         if item.get("reproduction_status") not in ALLOWED_REPRODUCTION:
             errors.append(f"{prefix}.reproduction_status is not allowed")
-        if item.get("chain_status") == "verified_complete_jailbreak":
-            errors.append(f"{prefix} cannot claim a complete jailbreak from advisory metadata")
-        if item.get("target_applicability") == "confirmed_by_primary_source":
-            errors.append(f"{prefix} requires an independently reviewed target-specific evidence record")
-        if item.get("reproduction_status") == "reproduced_by_Freedom27":
-            errors.append(f"{prefix} cannot claim reproduction through advisory metadata alone")
+        if item.get("chain_status") != "not_established":
+            errors.append(f"{prefix}.chain_status must remain not_established in advisory-only metadata")
     required = document.get("required_evidence_for_upgrade")
     if not isinstance(required, list) or not required or not all(isinstance(x, str) and x.strip() for x in required):
         errors.append("required_evidence_for_upgrade must be a non-empty list of strings")
