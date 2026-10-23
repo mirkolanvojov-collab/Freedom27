@@ -35,16 +35,20 @@ def _verified_attestation(value: Any, target: dict[str, Any]) -> bool:
     if not isinstance(value, dict) or value.get("status") != "verified":
         return False
     url = value.get("evidence_url")
-    parsed = urlparse(url) if isinstance(url, str) else None
+    try:
+        parsed = urlparse(url) if isinstance(url, str) else None
+        valid_url = (
+            parsed is not None and parsed.scheme == "https"
+            and bool(parsed.hostname)
+            and not parsed.username and not parsed.password
+        )
+    except ValueError:
+        valid_url = False
     note = value.get("evidence_note")
     revision = value.get("source_revision")
     recorded_target = value.get("target")
     return (
-        parsed is not None
-        and parsed.scheme == "https"
-        and bool(parsed.hostname)
-        and not parsed.username
-        and not parsed.password
+        valid_url
         and isinstance(note, str)
         and bool(note.strip())
         and isinstance(revision, str)
