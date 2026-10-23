@@ -63,7 +63,7 @@ def audit_document(document: object, fetcher: Callable[[str], str]) -> dict:
             errors.append(f"candidate[{index}] must be an object")
             continue
         cve = item.get("id")
-        if not isinstance(cve, str) or not re.fullmatch(r"CVE-\\d{4}-\\d{4,}", cve):
+        if not isinstance(cve, str) or not re.fullmatch(r"CVE-\d{4}-\d{4,}", cve):
             errors.append(f"candidate[{index}] has invalid CVE identifier")
             continue
         url = item.get("source_url") or source.get("url")
