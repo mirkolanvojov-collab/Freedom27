@@ -115,3 +115,17 @@ To make progress without falsely clearing the full-jailbreak gate, split the goa
 2. **Full jailbreak track:** remain blocked until there is exact-target evidence for kernel privilege escalation, bootstrap/package manager, and independent reproduction.
 
 Do not label Erosion as Freedom27 or as a jailbreak. Do not claim iPhone-only installation is solved until its install/signing requirements are verified.
+
+
+## Installation-path check — 2026-10-23
+
+Reviewed the official Erosion repository and release listing, plus a third-party IPA installation guide. The official README confirms iOS 26.0–26.6.2 support with limited functionality and no MobileGestalt tweaks on iOS 26. The official release page lists v0.2.1, but the official project does not provide a verified one-tap, iPhone-only install path in the sources reviewed here. Third-party pages describe sideloading options, but their instructions are not sufficient evidence that a method works safely or reliably on this exact iPhone/iOS build.
+
+**Practical result:** the partial-customization path is technically plausible by OS version, but installation remains unverified. For a legitimate iPhone-only installation, the required missing piece is a trusted signing/install service that explicitly supports this app and device, or an official developer-provided install link. Do not install unknown enterprise profiles, share Apple Account credentials with unofficial signing services, or treat a downloaded IPA as safe merely because its filename/version matches. Verify the IPA against the official release asset and published digest before considering installation; a matching digest confirms file integrity, not that the app is safe or works on the target.
+
+This review did not create or execute a security bypass, exploit payload, or jailbreak. The full-jailbreak gates remain blocked: no exact-target kernel primitive, privilege escalation, bootstrap/package manager, or independent reproduction is evidenced. Building a new security-breaking tool would require a real, reproducible vulnerability and exact-build research evidence; none of the sources reviewed supplies that evidence, so fabricating an exploit or marking the gate passed would be misleading and risky.
+
+Sources:
+- Official Erosion README: https://github.com/jailbreakdotparty/Erosion
+- Official releases: https://github.com/jailbreakdotparty/Erosion/releases
+- Erosion v0.2.1: https://github.com/jailbreakdotparty/Erosion/releases/tag/0.2.1
