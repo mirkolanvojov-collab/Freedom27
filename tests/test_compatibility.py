@@ -44,6 +44,19 @@ class CompatibilityTests(unittest.TestCase):
             target_build="21A000",
         ))
 
+    def test_verified_claim_requires_valid_https_source_and_exact_target_build(self):
+        invalid = CompatibilityClaim(
+            component="example", status="verified",
+            source_url="https://", build_number="21A000"
+        )
+        valid = CompatibilityClaim(
+            component="example", status="verified",
+            source_url="https://example.org/advisory", build_number="21A000"
+        )
+        self.assertFalse(claim_is_usable(invalid, target_build="21A000"))
+        self.assertFalse(claim_is_usable(valid))
+        self.assertTrue(claim_is_usable(valid, target_build="21A000"))
+
 
 if __name__ == "__main__":
     unittest.main()
