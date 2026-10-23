@@ -21,7 +21,8 @@ def validate_record(record: object) -> list[str]:
     for field in ("id", "hypothesis", "safe_test", "expected_observation", "result"):
         if not isinstance(record.get(field), str) or not record[field].strip():
             errors.append(f"missing required non-empty field: {field}")
-    if record.get("result") not in ALLOWED_RESULTS:
+    result = record.get("result")
+    if not isinstance(result, str) or result not in ALLOWED_RESULTS:
         errors.append("result must be one of: " + ", ".join(sorted(ALLOWED_RESULTS)))
     for field in ("source_url", "device", "os_version", "build"):
         if field in record and not isinstance(record[field], str):
@@ -41,7 +42,7 @@ def validate_record(record: object) -> list[str]:
     evidence_note = record.get("evidence_note", "")
     if "evidence_note" in record and not isinstance(evidence_note, str):
         errors.append("evidence_note must be a string when supplied")
-    if record.get("result") == "reproduced_in_lab" and (
+    if result == "reproduced_in_lab" and (
         not isinstance(evidence_note, str) or not evidence_note.strip()
     ):
         errors.append("reproduced_in_lab requires an evidence_note")
