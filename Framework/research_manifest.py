@@ -69,3 +69,60 @@ def validate_manifest(items: Iterable[dict[str, Any]]) -> list[str]:
 def target_key(target: dict[str, str]) -> str:
     """Stable human-readable exact-target key; does not imply compatibility."""
     return "|".join(target.get(field, "").strip() for field in REQUIRED_TARGET_FIELDS)
+
+
+def validate_document(document: Any) -> list[str]:
+    """Validate the manifest envelope and ensure entries share its exact target."""
+    errors: list[str] = []
+    if not isinstance(document, dict):
+        return ["document: root must be an object"]
+    if document.get("schema_version") != 1:
+        errors.append("document: schema_version must be 1")
+    target = document.get("target")
+    if not isinstance(target, dict):
+        errors.append("document: target must be an object")
+        target = {}
+    else:
+        for field in REQUIRED_TARGET_FIELDS:
+            value = target.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"document: target.{field} must be a non-empty string")
+    entries = document.get("entries")
+    if not isinstance(entries, list):
+        errors.append("document: entries must be a list")
+        return errors
+    errors.extend(validate_manifest(entries))
+    expected = target_key(target) if isinstance(target, dict) else ""
+    for index, item in enumerate(entries):
+        if isinstance(item, dict) and isinstance(item.get("target"), dict):
+            if target_key(item["target"]) != expected:
+                errors.append(f"item[{index}]: target does not match document target")
+    warning = document.get("warning")
+    if not isinstance(warning, str) or not warning.strip():
+        errors.append("document: warning must clearly state the manifest's limitations")
+    return errors
+
+
+def main() -> int:
+    """Validate the checked-in source-pinned manifest; metadata only."""
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parent.parent / "research" / "source_pinned_manifest.json"
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Research manifest could not be loaded: {exc}")
+        return 1
+    errors = validate_document(document)
+    if errors:
+        print("\\n".join(errors))
+        return 1
+    entries = document["entries"]
+    print(f"Research manifest valid: {len(entries)} source-pinned entries; metadata only.")
+    print(f"Exact-target reproductions recorded: {sum(item.get('status') == 'reproduced_in_lab' for item in entries)}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
