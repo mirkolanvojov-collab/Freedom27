@@ -9,73 +9,71 @@ from Framework.security_research_engine import (
 
 
 TARGET = Target("iPhone 16 Plus", "iPhone17,4", "iOS 26.6.1", "23G83")
+URL = ("https://example.com/research",)
 
 
 class SecurityResearchEngineTests(unittest.TestCase):
-    def test_hypothesis_requires_falsifiable_claim_and_sources(self):
-        h = Hypothesis(
-            hypothesis_id="H-001",
+    def make_hypothesis(self, **overrides):
+        values = dict(
+            hypothesis_id="H-BASE",
             boundary="app sandbox",
             claim="A documented operation exposes data outside the intended container",
             expected_observation="The test reads a harmless marker file in the test fixture",
             falsifying_observation="The marker remains inaccessible",
-            source_urls=("https://example.com/research",),
+            source_urls=URL,
         )
-        self.assertEqual(h.validate(TARGET), [])
+        values.update(overrides)
+        return Hypothesis(**values)
+
+    def test_hypothesis_requires_falsifiable_claim_and_sources(self):
+        self.assertEqual(self.make_hypothesis().validate(TARGET), [])
 
     def test_invalid_or_non_http_source_url_fails_closed(self):
         for url in ("not-a-url", "file:///tmp/research", "https:///missing-host"):
             with self.subTest(url=url):
-                h = Hypothesis(
-                    hypothesis_id="H-URL",
-                    boundary="app sandbox",
-                    claim="Example claim",
-                    expected_observation="Expected output",
-                    falsifying_observation="No output",
-                    source_urls=(url,),
-                )
-                self.assertIn(
-                    "source URLs must be absolute HTTP(S) URLs",
-                    h.validate(TARGET),
-                )
+                h = self.make_hypothesis(source_urls=(url,))
+                self.assertIn("source URLs must be absolute HTTP(S) URLs", h.validate(TARGET))
+
+    def test_exact_target_requires_target_result_artifact_and_timestamp(self):
+        h = self.make_hypothesis(
+            evidence_level=EvidenceLevel.EXACT_TARGET_VERIFIED,
+            tested_target=TARGET,
+            observed_result="Marker read succeeded",
+        )
+        issues = h.validate(TARGET)
+        self.assertIn("exact-target label lacks a test artifact reference", issues)
+        self.assertIn("exact-target label lacks a test timestamp", issues)
+
+    def test_independent_reproduction_requires_reviewer_and_artifact(self):
+        h = self.make_hypothesis(
+            evidence_level=EvidenceLevel.INDEPENDENTLY_REPRODUCED,
+            observed_result="Marker read succeeded",
+        )
+        issues = h.validate(TARGET)
+        self.assertIn("independent reproduction lacks reviewer attribution", issues)
+        self.assertIn("independent reproduction lacks a test artifact reference", issues)
+        self.assertIn("independent reproduction lacks a test timestamp", issues)
 
     def test_exact_target_label_fails_closed_for_wrong_device(self):
         other = Target("Other phone", "other1,1", "iOS 26.6.1", "23G83")
-        h = Hypothesis(
-            hypothesis_id="H-002",
-            boundary="kernel privilege",
-            claim="Example claim",
-            expected_observation="Expected output",
-            falsifying_observation="No output",
-            source_urls=("https://example.com/research",),
+        h = self.make_hypothesis(
             evidence_level=EvidenceLevel.EXACT_TARGET_VERIFIED,
             tested_target=other,
             observed_result="Example output",
+            test_artifact="artifact.txt",
+            test_timestamp_utc="2026-10-23T12:00:00Z",
         )
-        self.assertIn(
-            "exact-target label does not match the configured target",
-            h.validate(TARGET),
-        )
+        self.assertIn("exact-target label does not match the configured target", h.validate(TARGET))
 
     def test_destructive_test_needs_recovery_plan(self):
-        h = Hypothesis(
-            hypothesis_id="H-003",
-            boundary="runtime",
-            claim="Example",
-            expected_observation="Expected",
-            falsifying_observation="Not expected",
-            source_urls=("https://example.com/research",),
-            non_destructive=False,
-        )
+        h = self.make_hypothesis(non_destructive=False, recovery_plan="")
         self.assertIn("potentially destructive test lacks a recovery plan", h.validate(TARGET))
 
     def test_report_never_calls_incomplete_record_verified(self):
-        h = Hypothesis(
+        h = self.make_hypothesis(
             hypothesis_id="H-004",
             boundary="kernel privilege",
             claim="Unverified idea",
-            expected_observation="Expected",
-            falsifying_observation="Not expected",
             evidence_level=EvidenceLevel.EXACT_TARGET_VERIFIED,
         )
         report = readiness_report(TARGET, [h])
