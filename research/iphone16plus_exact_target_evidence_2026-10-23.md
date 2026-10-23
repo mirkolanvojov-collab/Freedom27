@@ -64,3 +64,25 @@ No exploit was run, no payload was installed, and no device state was changed du
 A public upstream pull request remains open and unmerged: [bad_query hardening PR #1](https://github.com/forcequitOS/bad_query/pull/1). It proposes a NULL guard, a bound on an inode parameter, and cleanup of a security-scoped resource handle. Its own checklist marks Xcode compilation and the listed regression checks as not yet completed in the PR description.
 
 This is additional evidence that the public project still has unresolved engineering/testing work; it is **not** proof the core approach fails. It also provides no exact-target result for iPhone17,4 / build 23G83. Keep the exact-target gate blocked and do not use an unreviewed build on the daily-use phone.
+
+
+## Follow-up lead review — Veilpath — 2026-10-23
+
+A newer downstream project, [everettjf/veilpath](https://github.com/everettjf/veilpath), describes itself as a native iPhone/iPad container explorer built around `bad_query`. Its README states that the complete access path was validated on a physical iPad Air running iPadOS 27 beta 3 (build `24A5380l`), and explicitly warns that the upstream PoC's additional claimed versions have not all been validated in Veilpath.
+
+This is a more concrete public validation report than the upstream version-range claim, but it is **not** validation for the target iPhone 16 Plus / iOS 26.6.1 / build 23G83. The hardware and OS build differ. The downstream app also describes itself as experimental and dependent on private APIs. Treat it as a lead for further source/evidence review, not as a ready-to-install jailbreak or proof of kernel privilege escalation.
+
+- Project: https://github.com/everettjf/veilpath
+- Public description reviewed: README and repository metadata
+- Repository last updated (API metadata): 2026-10-06T19:27:04Z
+- No build, install, or device test was performed by Freedom27 during this review.
+
+### Updated lead assessment
+
+| Lead | Evidence strength for the exact target | Next check |
+|---|---|---|
+| `bad_query` upstream PoC | OS-range claim only; exact target unverified | Review implementation and validation caveats |
+| Veilpath downstream app | Physical iPad Air / iPadOS 27 beta 3 validation reported; not the target | Inspect diagnostics and compatibility claims; do not extrapolate across device/build |
+| Full jailbreak / Cydia bootstrap | No supporting evidence found in these sources | Keep blocked until independently reproducible evidence exists |
+
+**Decision:** Keep `bad_query` as a research lead, but do not mark it target-verified or promote it to a full-jailbreak solution. The next research task is to inspect Veilpath's public diagnostics and compatibility notes for evidence that can be responsibly compared with the exact target. Do not install or run experimental private-API software on the daily-use iPhone based on this report alone.
