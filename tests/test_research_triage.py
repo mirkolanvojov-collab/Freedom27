@@ -32,6 +32,16 @@ class ResearchTriageTests(unittest.TestCase):
         self.assertEqual(report["summary"]["reproduced_by_freedom27"], 0)
         self.assertIn("Metadata triage only", report["warning"])
 
+    def test_verified_claim_without_exact_target_reproduction_is_flagged(self):
+        report = triage(
+            self.target,
+            {"entries": [{"id": "overstated", "title": "Unsubstantiated claim", "status": "verified", "source_url": "https://example.com/source"}]},
+            {"entries": [{"id": "overstated", "target_applicability": "not_established", "patch_state": "unknown", "reproduction_status": "upstream_claim_only", "exact_target_build": ""}]}
+        )
+        row = report["results"][0]
+        self.assertEqual(row["category"], "verified-claim-evidence-gap")
+        self.assertIn("Downgrade", row["next_action"])
+
     def test_flags_unmatched_records(self):
         report = triage(self.target, {"entries": [{"id": "only-registry"}]},
                         {"entries": [{"id": "only-ledger"}]})
