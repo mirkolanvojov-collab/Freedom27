@@ -1,0 +1,9 @@
+{
+  "project": "Freedom27",
+  "target_os": "iOS 27 (planned; not verified)",
+  "package_manager_preference": "Cydia (goal; integration unverified)",
+  "priority": "customization",
+  "project_status": "research-scaffold",
+  "working_jailbreak": false,
+  "untethered_persistence_verified": false
+}
