@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import Any
 import json
 from pathlib import Path
+from urllib.parse import urlparse
 
 REQUIRED_GATES = (
     "entry",
@@ -47,10 +48,13 @@ SAFE_ACTIONS = {
 
 def _target_matches(record: dict[str, Any], target: dict[str, Any]) -> bool:
     keys = ("device_model", "model_identifier", "exact_os_version", "build_number")
+    recorded_target = record.get("target")
+    if not isinstance(recorded_target, dict):
+        return False
     return all(
         isinstance(target.get(key), str)
-        and target.get(key)
-        and record.get("target", {}).get(key) == target.get(key)
+        and bool(target.get(key))
+        and recorded_target.get(key) == target.get(key)
         for key in keys
     )
 
@@ -69,11 +73,20 @@ def validate_evidence_record(record: Any, target: dict[str, Any]) -> list[str]:
     source = record.get("source_url")
     revision = record.get("source_revision")
     status = record.get("status")
-    if not isinstance(source, str) or not source.startswith("https://"):
-        problems.append("source_url must be an HTTPS URL")
+    try:
+        parsed_source = urlparse(source) if isinstance(source, str) else None
+        valid_source = (
+            parsed_source is not None and parsed_source.scheme == "https"
+            and bool(parsed_source.hostname)
+            and not parsed_source.username and not parsed_source.password
+        )
+    except ValueError:
+        valid_source = False
+    if not valid_source:
+        problems.append("source_url must be a valid HTTPS URL without embedded credentials")
     if not isinstance(revision, str) or len(revision) != 40 or any(c not in "0123456789abcdef" for c in revision):
         problems.append("source_revision must be a full 40-character lowercase Git commit SHA")
-    if status not in {"lead", "reviewed", "evidence-recorded", "verified"}:
+    if not isinstance(status, str) or status not in {"lead", "reviewed", "evidence-recorded", "verified"}:
         problems.append("status must be lead, reviewed, evidence-recorded, or verified")
 
     if status == "verified":
