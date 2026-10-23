@@ -1,0 +1,31 @@
+{
+  "report_version": 1,
+  "generated_for": {
+    "project": "Freedom27",
+    "device_model": "iPhone 16 Plus",
+    "model_identifier": "iPhone17,4",
+    "exact_os_version": "iOS 26.6.1",
+    "build_number": "23G83"
+  },
+  "assessment_type": "repository evidence review; not a device test",
+  "status": "blocked",
+  "verified_complete_jailbreak": false,
+  "gates": [
+    {"id":"entry","status":"missing","note":"No reproducible entry-point result for this exact device/build is recorded."},
+    {"id":"sandbox_escape","status":"missing","note":"Public sandbox/container-access research is not recorded as independently reproduced on this exact target."},
+    {"id":"kernel_primitive","status":"missing","note":"No exact-target kernel-level primitive is evidenced."},
+    {"id":"privilege_escalation","status":"missing","note":"No exact-target privilege-escalation result is evidenced."},
+    {"id":"platform_mitigations","status":"missing","note":"No complete, evidenced account of relevant mitigations and their handling is recorded."},
+    {"id":"persistence_or_bootstrap","status":"missing","note":"No validated bootstrap or persistence behavior is recorded."},
+    {"id":"package_manager","status":"missing","note":"Cydia or another compatible package-management workflow has not been demonstrated."},
+    {"id":"independent_reproduction","status":"missing","note":"No independent reproduction on the exact device/build is recorded."}
+  ],
+  "repository_checks": {
+    "research_engine_unit_tests": "previously passed in GitHub Actions",
+    "safe_test_planner_unit_tests": "previously passed in GitHub Actions",
+    "exact_target_compatibility_gate": "passed in GitHub Actions",
+    "interpretation": "These checks validate repository tooling and metadata only; they do not test iOS security boundaries or the physical iPhone."
+  },
+  "next_gate": "Review a single, specific public research claim against immutable source revisions and identify whether any source provides exact-build reproducible evidence. Do not promote an upstream version-range claim to exact-target verified without such evidence.",
+  "safety_note": "Do not restore, downgrade, install unknown profiles, or run unreviewed payloads on the daily-use phone as a substitute for evidence."
+}
