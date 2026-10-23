@@ -49,3 +49,34 @@ For each candidate, search only public vendor/research references for a bug iden
 - No device accessed or modified.
 - Exact build applicability and exploitability remain unverified.
 - NVD raw-response artifact: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40029354991/artifacts/12534521313
+
+
+## Follow-up: public patch-detail and invariant check — 2026-10-24
+
+### Evidence located
+
+- NVD's record for CVE-2026-84607 gives the public description “A race condition was addressed with improved state management,” identifies CWE-362, and links to Apple's security-content bulletin. It does not disclose a public source diff, precise state invariant, race window, or reproducible trigger. Source: https://nvd.nist.gov/vuln/detail/cve-2026-84607
+- NVD's iOS 26.7 candidate listing includes CVE-2026-86876 and describes an out-of-bounds write fixed with improved bounds checking; its stated outcome is that a sandboxed process may circumvent sandbox restrictions. Source: https://nvd.nist.gov/vuln/search?cpeFilterMode=cpe&cpeName=cpe%3A2.3%3Ao%3Aapple%3Aiphone_os%3A18.1.1%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A%3A%2A&resultType=records
+- NVD documents that CVE records can be awaiting enrichment or enriched, and that NVD's enrichment includes reference links, CWE, and CPE applicability data; lack of further detail on a page should not be interpreted as proof the bug lacks technical detail elsewhere. Source: https://nvd.nist.gov/vuln/vulnerability-status
+
+### Result
+
+The current public vendor/NVD summaries support only high-level remediation categories (state management, bounds checking, input validation, memory management, and permissions restrictions). They do not expose enough implementation detail to write a grounded patch-invariant test or verify the exact iPhone build. No patch diff or independent technical write-up was found in this pass for the 12-candidate set. This is an evidence gap, not a claim that no such source exists.
+
+### Missing pieces appended to the existing ledger
+
+For each candidate, future research should add one or more of:
+1. Public upstream source/patch diff or Apple security research note identifying the corrected invariant.
+2. Independent technical write-up tying the same bug identifier to a specific affected component and OS branch.
+3. Build provenance for the user's exact reported build `23G83` and a vendor-supported mapping to iOS 26.6.1.
+4. A safe, non-exploitative regression test of the documented invariant, where source code and a legitimate test harness are available.
+
+### Candidate priority adjustment
+
+- **Highest research priority (public impact suggests kernel privilege / kernel memory relevance):** CVE-2026-84607, CVE-2026-43689, CVE-2026-84523, CVE-2026-84566, CVE-2026-43684, CVE-2026-28968. This is prioritization for further public-source evidence only, not an exploitability ranking.
+- **Separate sandbox/file-protection outcomes:** CVE-2026-86876 and CVE-2026-86886. Do not assume these provide kernel privilege escalation.
+- **Prerequisite/utility concerns:** CVE-2026-43687 and CVE-2026-43686 require a malicious NFS server in the published summary; CVE-2026-84622's stated read requires root privileges; CVE-2026-65405 is an information-disclosure candidate. These are not established as standalone initial entry points.
+
+### Status
+
+No missing source diff, invariant, exact-build confirmation, or regression test was fabricated. The next step is to attach actual public patch evidence if found; until then, the candidates remain advisory-level rather than technically validated.
