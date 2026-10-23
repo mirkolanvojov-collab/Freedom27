@@ -13,7 +13,7 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import urlparse
 
-CVE_RE = re.compile(r"^CVE-20\\d{2}-\\d{4,7}$")
+CVE_RE = re.compile(r"^CVE-20\d{2}-\d{4,7}$")
 ALLOWED_STATUSES = {"partial", "complete", "url_unverified", "source_url_unverified"}
 ALLOWED_TARGET_ASSESSMENTS = {"not_assessed", "historical_fix", "candidate_for_review", "not_applicable"}
 REQUIRED_SOURCE_FIELDS = {"release", "url", "extraction_status", "cve_ids", "notes"}
