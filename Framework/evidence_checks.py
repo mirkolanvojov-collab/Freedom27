@@ -79,6 +79,9 @@ def check_evidence(root: Path = ROOT) -> list[str]:
         errors.append("evidence ledger entries must be a list")
         ledger_entries = []
     allowed_values = ledger.get("allowed_values", {})
+    if not isinstance(allowed_values, dict):
+        errors.append("evidence ledger allowed_values must be an object")
+        allowed_values = {}
     ledger_required = ("id", "evidence_type", "patch_state", "target_applicability",
                        "reproduction_status", "evidence_url", "next_action")
     ledger_ids: set[str] = set()
@@ -99,17 +102,20 @@ def check_evidence(root: Path = ROOT) -> list[str]:
             errors.append(f"{prefix} evidence_url must be HTTPS")
         for field in ("evidence_type", "patch_state", "target_applicability", "reproduction_status"):
             choices = allowed_values.get(field, [])
-            if item.get(field) not in choices:
+            if not isinstance(choices, list) or item.get(field) not in choices:
                 errors.append(f"{prefix} has disallowed {field} {item.get(field)!r}")
         if item.get("reproduction_status") == "reported_demo_not_independently_reproduced" and item.get("target_applicability") != "reported_single_device_build":
             errors.append(f"{prefix} reported demo must be scoped to a single reported device/build")
-    registry_ids = {entry.get("id") for entry in registry.get("entries", []) if isinstance(entry, dict)}
-    if ledger_ids != registry_ids:
-        errors.append("evidence ledger IDs must match vulnerability registry IDs exactly")
-
     if not isinstance(registry, dict):
         errors.append("vulnerability registry root must be an object")
-        return errors
+        registry = {}
+    registry_entries_for_ids = registry.get("entries", [])
+    if not isinstance(registry_entries_for_ids, list):
+        errors.append("vulnerability registry entries must be a list")
+        registry_entries_for_ids = []
+    registry_ids = {entry.get("id") for entry in registry_entries_for_ids if isinstance(entry, dict)}
+    if ledger_ids != registry_ids:
+        errors.append("evidence ledger IDs must match vulnerability registry IDs exactly")
     entries = registry.get("entries")
     if not isinstance(entries, list):
         errors.append("vulnerability registry entries must be a list")
