@@ -39,7 +39,13 @@ class ResearchManifestTests(unittest.TestCase):
 
     def test_non_https_source_is_rejected(self):
         item = {**VALID, "source_url": "http://example.org"}
-        self.assertTrue(any("must use HTTPS" in e for e in validate_manifest([item])))
+        self.assertTrue(any("valid HTTPS URL" in e for e in validate_manifest([item])))
+
+    def test_https_without_host_or_with_credentials_is_rejected(self):
+        for source in ("https://", "https://user:pass@example.org/research"):
+            with self.subTest(source=source):
+                item = {**VALID, "source_url": source}
+                self.assertTrue(any("valid HTTPS URL" in e for e in validate_manifest([item])))
 
     def test_reproduction_claim_requires_evidence_and_independent_replication(self):
         item = {**VALID, "status": "reproduced_in_lab"}
