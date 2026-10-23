@@ -57,10 +57,13 @@ class CompatibilityClaim:
 
 
 def validate_claims(items: Iterable[dict[str, Any]]) -> list[str]:
-    """Validate claims and reject duplicate device/version/build tuples."""
+    """Validate claims and reject malformed or duplicate device/version/build tuples."""
     errors: list[str] = []
     seen: set[tuple[str, str, str, str]] = set()
     for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            errors.append(f"claim[{index}]: must be an object")
+            continue
         claim = CompatibilityClaim.from_mapping(item)
         errors.extend(f"claim[{index}]: {error}" for error in claim.validate())
         key = (claim.model_identifier, claim.os_version, claim.build, claim.status)
