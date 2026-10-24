@@ -93,6 +93,16 @@ class CompatibilityStatusTests(unittest.TestCase):
         report = assess_target(root)
         self.assertEqual(report["status"], "unknown")
         self.assertTrue(any("HTTPS evidence URL" in error for error in report["errors"]))
+    def test_malformed_https_port_is_rejected(self):
+        temp, root = self.make_root()
+        self.addCleanup(temp.cleanup)
+        path = root / "research" / "target_status.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["claims"][0]["evidence_url"] = "https://example.org:bad/evidence"
+        path.write_text(json.dumps(data), encoding="utf-8")
+        report = assess_target(root)
+        self.assertEqual(report["status"], "unknown")
+        self.assertTrue(any("HTTPS evidence URL" in error for error in report["errors"]))
     def test_null_target_fields_are_reported_as_missing(self):
         temp, root = self.make_root()
         self.addCleanup(temp.cleanup)
