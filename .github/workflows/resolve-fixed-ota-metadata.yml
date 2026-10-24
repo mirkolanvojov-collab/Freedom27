@@ -15,17 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.25.x"
       - name: Query Apple's live OTA metadata
         shell: bash
         run: |
           set -euo pipefail
-          go install github.com/blacktop/ipsw/cmd/ipsw@latest
-          export PATH="$(go env GOPATH)/bin:$PATH"
-          ipsw download ota --platform ios --device iPhone17,4 --build 23H30 --urls | tee ota-urls.txt
+          docker run --rm blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H30 --urls | tee ota-urls.txt
           python - <<'PY'
           from pathlib import Path
           from urllib.parse import urlparse
