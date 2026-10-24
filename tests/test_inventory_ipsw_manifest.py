@@ -32,6 +32,7 @@ def make_ipsw(path: Path) -> bytes:
     with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("BuildManifest.plist", plistlib.dumps(manifest))
         archive.writestr("unrelated.bin", b"not extracted")
+        archive.writestr("kernelcache.release", b"synthetic kernelcache bytes")
     return path.read_bytes()
 
 
@@ -64,6 +65,14 @@ class InventoryIpswManifestTests(unittest.TestCase):
         self.assertTrue(identity["components"][1]["trusted"])
         self.assertFalse(result["device_modified"])
         self.assertFalse(result["exploit_executed"])
+
+    def test_selected_component_member_is_hashed_without_extraction(self):
+        import hashlib
+        result = inventory_ipsw(self.path, self.sha, self.size, "iPhone17,4", "D48AP", ["KernelCache"])
+        component = next(c for c in result["build_identities"][0]["components"] if c["name"] == "KernelCache")
+        self.assertEqual(component["member_sha256"], hashlib.sha256(b"synthetic kernelcache bytes").hexdigest())
+        self.assertEqual(component["member_size_bytes"], len(b"synthetic kernelcache bytes"))
+        self.assertEqual(component["member_hash_algorithm"], "sha256")
 
     def test_hash_mismatch_fails_before_manifest_read(self):
         with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
