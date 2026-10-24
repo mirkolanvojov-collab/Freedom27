@@ -24,6 +24,8 @@ class CoreGraphicsBoundsModelTests(unittest.TestCase):
     def test_coordinate_conversion_clamps_both_extremes(self):
         self.assertEqual(safe_fixed_coordinate(1e100), SAFE_LIMIT)
         self.assertEqual(safe_fixed_coordinate(-1e100), -SAFE_LIMIT)
+        self.assertEqual(safe_fixed_coordinate(1e308), SAFE_LIMIT)
+        self.assertEqual(safe_fixed_coordinate(-1e308), -SAFE_LIMIT)
 
     def test_normal_coordinates_convert_to_fixed_point(self):
         self.assertEqual(safe_fixed_coordinate(0.0), 0)
