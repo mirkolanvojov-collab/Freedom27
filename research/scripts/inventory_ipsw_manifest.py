@@ -16,12 +16,20 @@ from pathlib import Path
 from typing import Any
 
 
-def _hex(value: Any) -> str | None:
+def _digest_metadata(value: Any) -> tuple[str | None, str | None]:
+    """Return the manifest digest as hex plus a length-based algorithm label."""
     if isinstance(value, bytes):
-        return value.hex()
-    if isinstance(value, str):
-        return value.lower()
-    return None
+        raw = value
+    elif isinstance(value, str):
+        text = value.strip().lower()
+        if len(text) % 2 or any(char not in "0123456789abcdef" for char in text):
+            return None, None
+        raw = bytes.fromhex(text)
+    else:
+        return None, None
+
+    algorithms_by_bytes = {20: "sha1", 32: "sha256", 48: "sha384"}
+    return raw.hex(), algorithms_by_bytes.get(len(raw), f"unknown-length-{len(raw)}-bytes")
 
 
 def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
@@ -89,11 +97,15 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         for name, component in sorted(component_map.items()):
             if not isinstance(component, dict):
                 continue
+            digest_hex, digest_algorithm = _digest_metadata(component.get("Digest"))
+            partial_digest_hex, partial_digest_algorithm = _digest_metadata(component.get("PartialDigest"))
             components.append({
                 "name": str(name),
                 "path": component.get("Path"),
-                "digest_sha1": _hex(component.get("Digest")),
-                "partial_digest_sha1": _hex(component.get("PartialDigest")),
+                "digest_hex": digest_hex,
+                "digest_algorithm": digest_algorithm,
+                "partial_digest_hex": partial_digest_hex,
+                "partial_digest_algorithm": partial_digest_algorithm,
                 "is_encrypted": component.get("IsEncrypted"),
                 "trusted": component.get("Trusted"),
                 "personalized": component.get("Personalized"),
