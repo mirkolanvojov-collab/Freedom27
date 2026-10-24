@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "report_date": "2026-10-24",
-  "observed_at_utc": "2026-10-24T00:07:00Z",
+  "observed_at_utc": "2026-10-24T00:12:00Z",
   "target": {
     "device": "iPhone 16 Plus",
     "model_identifier": "iPhone17,4",
@@ -14,7 +14,8 @@
     "authoritative_patch_diffs_found": 0,
     "exact_build_confirmations": 0,
     "freedom27_reproductions": 0,
-    "full_jailbreak_chain_verified": false
+    "full_jailbreak_chain_verified": false,
+    "third_party_binary_analysis_reports_found": 1
   },
   "records": [
     {
@@ -36,21 +37,32 @@
       ],
       "public_leads": [
         {
-          "kind": "repository",
+          "kind": "third_party_static_binary_analysis_report",
           "url": "https://github.com/Ping-2o/ios.CVE-2026-84616-84607",
-          "discovery_source": "GitHub PoC catalogue index",
-          "catalogue_url": "https://github.com/nomi-sec/PoC-in-GitHub/blob/f4d2ec57715ec1b2e01248b8f384db5e415ea4eb/2026/CVE-2026-84616.json",
-          "indexed_description": "research on finding the bug and fix of CVE-2026-84616 and CVE-2026-84607",
-          "catalogue_updated": "2026-10-20",
-          "verification_status": "unverified_repository_lead",
+          "repository_api_url": "https://api.github.com/repos/Ping-2o/ios.CVE-2026-84616-84607",
+          "report_url": "https://github.com/Ping-2o/ios.CVE-2026-84616-84607/blob/main/REPORT_AVE_84607.md",
+          "readme_url": "https://github.com/Ping-2o/ios.CVE-2026-84616-84607/blob/main/README.md",
+          "repository_created_at": "2026-09-16T11:00:38Z",
+          "repository_updated_at": "2026-10-20T16:49:42Z",
+          "latest_observed_commit": "e30d5cfcd04e905860543b6693129d89c569fdc0",
+          "latest_observed_commit_date": "2026-09-16T11:26:50Z",
+          "report_claim": "A per-frame state-consistency guard in AppleAVE2 is proposed as the CVE-2026-84607 fix, based on static comparison of iOS 27.0 beta and GM binaries.",
+          "source_authorship": "Report explicitly describes itself as AI-generated and not line-by-line human reviewed.",
+          "stated_limitations": [
+            "Apple does not publish an explicit CVE-to-code mapping; attribution is an inference.",
+            "The report withdraws its method for proving code-level absence in the earlier beta.",
+            "The userspace AVEVideoEncoder components were not diffed across the relevant versions."
+          ],
+          "target_mismatch": "The report studies iOS 27.0 beta/GM binaries, not iOS 26.6.1 build 23G83.",
+          "verification_status": "unverified_third_party_binary_analysis_hypothesis",
           "code_fetched": false,
           "code_executed": false
         }
       ],
-      "patch_diff_status": "not_found_in_reviewed_sources",
+      "patch_diff_status": "third_party_binary_analysis_hypothesis_only_authoritative_source_diff_not_found",
       "exact_build_applicability": "not_independently_verified",
       "exploitability": "not_established",
-      "confidence": "high for vendor summary; low for repository contents and applicability"
+      "confidence": "high for vendor summary; low-to-moderate that the third-party report presents a checkable hypothesis; low for CVE attribution and no exact-target applicability"
     },
     {
       "cve_id": "CVE-2026-43689",
@@ -77,13 +89,13 @@
         {
           "kind": "secondary_report",
           "url": "https://github.com/alan-turing-institute/cyber-threat-observatory/blob/3be96b8d69360acbfed4ebe7abeac0c0298533c8/reports/2026-09-14/TIER_3_CVE-2026-43689.md",
-          "assessment": "secondary summary; not independent reproduction"
+          "assessment": "secondary summary; no independently reproduced technical finding or patch-level diff established"
         }
       ],
       "patch_diff_status": "not_found_in_reviewed_sources",
       "exact_build_applicability": "not_independently_verified",
       "exploitability": "not_established",
-      "confidence": "high for vendor summary; low for secondary technical detail"
+      "confidence": "high for vendor summary; low for secondary technical detail and exact-target applicability"
     }
   ],
   "method_limits": [
@@ -91,6 +103,8 @@
     "Search snippets and catalogue metadata are leads, not verification",
     "No exploit code retrieved or executed",
     "No exact-build device testing",
-    "No claim that the public-source search is exhaustive"
+    "No claim that the public-source search is exhaustive",
+    "Read-only inspection of the public repository README/report metadata; no exploit code was executed.",
+    "Third-party binary-analysis conclusions are treated as hypotheses because the report is AI-generated, not independently reviewed, and acknowledges unresolved verification gaps."
   ]
 }

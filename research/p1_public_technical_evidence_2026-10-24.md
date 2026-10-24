@@ -1,67 +1,58 @@
-# P1 public technical-evidence sweep — 2026-10-24
+# P1 public technical-evidence review — 2026-10-24 (follow-up)
 
-## Summary
+## Outcome
 
-This read-only review found a **new public-source lead for CVE-2026-84607** that the prior sweep did not capture: a GitHub repository is indexed by GitHub's PoC collection as describing research on finding the bug and fix for CVE-2026-84616 and CVE-2026-84607. This changes the earlier blanket statement that no public PoC reference had been found. It does **not** establish that the repository contains a working iOS PoC, that it is trustworthy, or that it applies to iOS 26.6.1/build 23G83. Repository code was not retrieved, executed, or analyzed for exploit mechanics.
+The CVE-2026-84607 public lead has now been inspected at the repository-metadata and report-summary level. It is **more than a bare catalogue listing**: the public repository contains a detailed, AI-generated static-binary-analysis report proposing that a new state-consistency check in Apple's `AppleAVE2` driver is the fix associated with CVE-2026-84607.
 
-For CVE-2026-43689, the reviewed primary and secondary sources still provide only a high-level impact/fix summary. A GitHub-hosted cyber-threat-observatory report exists, but its indexed summary cites Apple and NVD and does not establish a patch diff or independent reproduction. It should be treated as secondary analysis, not vendor patch evidence.
+That does **not** solve exact-build applicability or prove the CVE-to-code attribution. The report itself says it is AI-generated and not line-by-line human reviewed, acknowledges that Apple does not publish a per-CVE code mapping, withdraws one method used to argue that the check was absent pre-fix, and says the userspace AVEVideoEncoder components were not diffed. Its examined binaries are from the iOS 27.0 beta/GM cycle, not the target iOS 26.6.1 build `23G83`.
 
-## Target context
+## CVE-2026-84607 — refined evidence status
 
-- Recorded target: iPhone 16 Plus (`iPhone17,4`), iOS 26.6.1, build `23G83`.
-- Apple lists both CVEs in its iOS 26.7/iPadOS 26.7 security advisory, which is the primary vendor source.
-- The published version range includes versions below 26.7. This is a version-range match only; no public source reviewed pins vulnerable code to build 23G83.
-- No Freedom27 reproduction, device test, or complete jailbreak chain is established.
+### Public report inspected
 
-## Evidence ledger
+- Repository: https://github.com/Ping-2o/ios.CVE-2026-84616-84607
+- README: https://github.com/Ping-2o/ios.CVE-2026-84616-84607/blob/main/README.md
+- Full report: https://github.com/Ping-2o/ios.CVE-2026-84616-84607/blob/main/REPORT_AVE_84607.md
+- Repository API metadata: https://api.github.com/repos/Ping-2o/ios.CVE-2026-84616-84607
+- Latest observed commit: `e30d5cfcd04e905860543b6693129d89c569fdc0`, dated 2026-09-16T11:26:50Z. Repository metadata shows updated 2026-10-20T16:49:42Z, but the latest observed content commit is earlier; the update timestamp alone is not evidence of new technical content.
 
-### CVE-2026-84607 — AVEVideoEncoder race condition
+### What the report claims, at a non-operational level
 
-**Primary evidence**
-- Apple iOS 26.7 security advisory: https://support.apple.com/en-us/149041
-- NVD record: https://nvd.nist.gov/vuln/detail/cve-2026-84607
-- NVD lists the fix in iOS/iPadOS 26.7 and states that a sandboxed app may execute arbitrary code with kernel privileges. Its record reports publication on 2026-09-14 and last modification on 2026-09-16.
-- Apple describes the fix as improved state management for a race condition. No vulnerable function, state invariant, or source-level diff is disclosed in the reviewed advisory.
+The report proposes that a state-consistency guard in the AppleAVE2 driver is associated with the race-condition fix, based on static comparison across iOS 27.0 beta and GM binaries. This is a **third-party binary-analysis hypothesis**, not an Apple-published patch mapping and not an independently reproduced finding.
 
-**New public-source lead (unverified)**
-- GitHub repository indexed by a PoC catalogue: https://github.com/Ping-2o/ios.CVE-2026-84616-84607
-- Catalogue index entry: https://github.com/nomi-sec/PoC-in-GitHub/blob/f4d2ec57715ec1b2e01248b8f384db5e415ea4eb/2026/CVE-2026-84616.json
-- The indexed repository description says it concerns research on finding the bug and fix for CVE-2026-84616 and CVE-2026-84607, and the catalogue metadata shows an update on 2026-10-20.
-- Assessment: **public technical lead found; contents, correctness, and applicability not verified**. Do not label this as a confirmed working PoC based on index metadata alone. No exploit code was fetched or run.
+### Credibility and applicability limits
 
-### CVE-2026-43689 — Kernel permissions issue
+1. The report labels itself AI-generated and says it did not receive line-by-line human review.
+2. The author acknowledges Apple does not disclose a direct CVE-to-code mapping; attribution is inferential.
+3. The report withdraws a prior method for establishing that the relevant check was absent in the earlier beta.
+4. The report says userspace AVEVideoEncoder components were not compared across the fix window.
+5. The analyzed versions are iOS 27.0 beta/GM, not iOS 26.6.1 build `23G83`.
+6. No authoritative source diff, independent peer review, reproduction, or exact-target confirmation was found in this pass.
 
-**Primary evidence**
-- Apple iOS 26.7 security advisory: https://support.apple.com/en-us/149041
-- NVD record: https://nvd.nist.gov/vuln/detail/cve-2026-43689
-- GitHub Advisory Database mirror: https://github.com/advisories/GHSA-4jgx-p7cx-g39r
-- Apple says additional restrictions address a permissions issue and that a malicious app may gain root privileges. NVD records publication on 2026-09-14 and last modification on 2026-09-15.
-- The reviewed records do not identify the affected kernel function, the authorization check that changed, or a source-level patch diff.
+**Updated conclusion:** there is a concrete public technical hypothesis for CVE-2026-84607, but the root-cause attribution and relevance to the target build remain unverified. This is not a verified exploit and does not establish that the vulnerability is reachable on the target.
 
-**Secondary report**
-- GitHub-hosted report: https://github.com/alan-turing-institute/cyber-threat-observatory/blob/3be96b8d69360acbfed4ebe7abeac0c0298533c8/reports/2026-09-14/TIER_3_CVE-2026-43689.md
-- The indexed summary characterizes it as local privilege escalation and lists Apple/NVD as sources. That supports awareness of secondary analysis, but not independent reproduction or exact-build applicability. Its conclusions should not be treated as patch-level proof without validating its underlying evidence.
+## CVE-2026-43689 — unresolved evidence gap
 
-## Change from previous report
+- Apple advisory: https://support.apple.com/en-us/149041
+- NVD: https://nvd.nist.gov/vuln/detail/cve-2026-43689
+- GitHub Advisory mirror: https://github.com/advisories/GHSA-4jgx-p7cx-g39r
+- Secondary report: https://github.com/alan-turing-institute/cyber-threat-observatory/blob/3be96b8d69360acbfed4ebe7abeac0c0298533c8/reports/2026-09-14/TIER_3_CVE-2026-43689.md
 
-The previous report stated that the focused search did not surface a public PoC reference for these P1 candidates. The new search found a PoC-catalogue index entry linking to a repository whose description mentions CVE-2026-84607. Therefore:
-- **84607:** upgrade status from “no public PoC reference surfaced in the prior sweep” to “public repository lead indexed; unverified.”
-- **43689:** no authoritative patch diff or independently validated reproduction found in the reviewed source set.
-- **Both:** exact build 23G83 applicability remains unverified; version-range matching is not proof of reachability or exploitability.
+The available material confirms Apple's high-level description that additional restrictions address a permissions issue, with potential root-privilege impact. This review did not find a primary patch diff or a secondary report with independently checkable implementation-level proof. The specific authorization change and exact-build behavior remain unresolved.
 
-## Metadata and retrieval method
+## Target and project status
 
-- Observation date: 2026-10-24 (UTC).
-- Source timestamps are preserved as the dates exposed by NVD/GitHub search metadata; they are not asserted as exact retrieval times.
-- Source classes are separated into vendor/CVE records, catalogue metadata, and secondary commentary.
-- Search-index snippets are leads only; they can be stale, incomplete, or misleading.
-- This is not an exhaustive proof that no additional public or private material exists.
+- Target recorded in the project: iPhone 16 Plus, `iPhone17,4`, iOS 26.6.1, build `23G83`.
+- Exact-build confirmations: **0**.
+- Freedom27 reproductions: **0**.
+- Full jailbreak chain verified: **no**.
+- Authoritative patch diffs found in this review: **0**.
 
-## Safe next steps
+## Next evidence needed
 
-1. Monitor the Apple advisory and CVE/NVD record history for changes.
-2. Re-check the linked repository's public metadata and provenance without executing its code.
-3. Seek vendor-published patch-level details or a reputable write-up with verifiable sources.
-4. Keep exact-build reachability and Freedom27 exploitability explicitly unverified until there is independent, safe evidence.
+1. Independent human-reviewed validation of the CVE-2026-84607 binary-analysis hypothesis.
+2. A trustworthy comparison of the relevant vulnerable/fixed implementation on versions that bracket the target, with symbol/version provenance and reproducible metadata.
+3. For CVE-2026-43689, primary patch-level evidence identifying the permission check or restriction that changed.
+4. Evidence linking the affected implementation to build `23G83`; advisory version ranges alone do not prove runtime reachability.
 
-No exploit was executed. No device was accessed, installed on, downgraded, restored, or modified.
+No exploit was run. No device was accessed, installed on, downgraded, restored, or modified. This report records what public evidence supports and does not claim the remaining technical uncertainties are solved.
