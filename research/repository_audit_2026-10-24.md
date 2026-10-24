@@ -8,14 +8,14 @@ This is a repository/tooling audit. It is not a binary audit of Apple firmware a
 
 ## Issues fixed
 
-1. **Stream range parser and response-boundary checks.** Tightened resumed streaming to validate HTTP `Content-Range` start/total/bounds, constrain reads to the declared range, validate `Content-Length` when present, reject excess bytes, and reject invalid size/retry arguments. Added regression tests for wrong range totals, mismatched lengths, overlong responses, and interrupted reads. An intermediate regression from incorrectly escaped regex text was caught by CI, corrected, and the full test workflow subsequently passed.
+1. **Stream range parser and response-boundary checks.** Tightened resumed streaming to validate HTTP `Content-Range` start/total/bounds, constrain reads to the declared range, validate numeric `Content-Length` when present, reject excess bytes, and reject invalid size/retry arguments. Added regression tests for wrong range totals, malformed/mismatched lengths, overlong responses, and interrupted reads. An intermediate regression from incorrectly escaped regex text was caught by CI, corrected, and the full test workflow subsequently passed.
 2. **Pinned fixed-build size.** The iOS 27.0 comparison IPSW now has its observed expected byte count pinned at 12,313,212,859 bytes, so the workflow no longer relies on a HEAD response to determine the expected size.
 3. **Fail-closed inventory comparison.** The comparison loader now rejects malformed JSON roots, invalid SHA-256 values, missing device class, malformed identity/component structures, and ambiguous duplicate variant/component entries rather than silently overwriting a record.
 4. **Stale research report.** Updated the 23G83 vs 24A437 manifest comparison report to reflect that both builds' raw AVE and KernelCache member hashes are now available. Raw-byte differences are documented without attributing them to a specific CVE.
 
 ## Validation
 
-- Full GitHub Actions test workflow passed after the stream-verifier fixes: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40049362690
+- Full GitHub Actions test workflow passed after the final stream-verifier changes: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40049498513
 - Full GitHub Actions test workflow passed after the fail-closed inventory-comparison changes: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40049362690
 - The workflow compiles Python files, runs the unit-test suite, validates advisory/source metadata, checks exact-target claims and project metadata, verifies safety preflight fails closed, and validates generated research reports.
 - Static scans found no use of dynamic `eval/exec`, `shell=True`, `os.system`, unsafe temporary-name generation, or pickle loading in the reviewed Python source/tests. The one broad exception in the advisory source audit is used to record failed external-source fetches as audit errors, not to continue a security-sensitive operation.
