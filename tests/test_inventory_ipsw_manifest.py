@@ -90,6 +90,26 @@ class InventoryIpswManifestTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "no BuildIdentity matched"):
             inventory_ipsw(self.path, self.sha, self.size, "iPhone17,4", "D99AP")
 
+    def test_invalid_argument_types_are_rejected_cleanly(self):
+        with self.assertRaisesRegex(ValueError, "expected_sha256 must be a string"):
+            inventory_ipsw(self.path, None, self.size, "iPhone17,4", "D48AP")
+        with self.assertRaisesRegex(ValueError, "expected_size must be a positive integer"):
+            inventory_ipsw(self.path, self.sha, True, "iPhone17,4", "D48AP")
+        with self.assertRaisesRegex(ValueError, "product_type is required"):
+            inventory_ipsw(self.path, self.sha, self.size, None, "D48AP")
+        with self.assertRaisesRegex(ValueError, "hash_components must be a list"):
+            inventory_ipsw(self.path, self.sha, self.size, "iPhone17,4", "D48AP", "KernelCache")
+
+    def test_non_dictionary_build_manifest_fails_closed(self):
+        bad_path = Path(self.temp.name) / "bad-manifest.ipsw"
+        with zipfile.ZipFile(bad_path, "w") as archive:
+            archive.writestr("BuildManifest.plist", plistlib.dumps([]))
+        raw = bad_path.read_bytes()
+        with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+            inventory_ipsw(bad_path, self.sha, len(raw), "iPhone17,4", "D48AP")
+        digest = hashlib.sha256(raw).hexdigest()
+        with self.assertRaisesRegex(ValueError, "BuildManifest.plist root must be a dictionary"):
+            inventory_ipsw(bad_path, digest, len(raw), "iPhone17,4", "D48AP")
     def test_invalid_pinned_digest_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "64 hexadecimal"):
             inventory_ipsw(self.path, "not-a-hash", self.size, "iPhone17,4", "D48AP")
