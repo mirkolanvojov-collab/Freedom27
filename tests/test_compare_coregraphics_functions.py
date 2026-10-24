@@ -43,6 +43,29 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "no parseable instructions"):
                 disassemble(Path("CoreGraphics"), "_aa_render", 600)
 
+    def test_main_fails_closed_on_partial_comparison(self):
+        import tempfile
+        import sys
+        from research.scripts import compare_coregraphics_functions as module
+
+        report = {
+            "common_aa_symbol_count": 28,
+            "successfully_compared_symbol_count": 27,
+            "changed_symbol_count": 2,
+            "changed_symbols": ["_aa_one", "_aa_two"],
+            "disassembly_failures": [{"symbol": "_aa_failed", "error": "tool error"}],
+            "symbols": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "report.json"
+            with patch.object(module, "compare", return_value=report), patch.object(
+                sys, "argv",
+                ["compare_coregraphics_functions.py", "--target-binary", "target",
+                 "--fixed-binary", "fixed", "--output", str(output)],
+            ):
+                self.assertEqual(module.main(), 4)
+            self.assertTrue(output.is_file())
+
     def test_digest_is_stable_and_order_sensitive(self):
         self.assertEqual(
             digest_instructions(["cmp x0, #1", "ret"]),
