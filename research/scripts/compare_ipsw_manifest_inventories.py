@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-FIELDS = ("path", "digest_sha1", "partial_digest_sha1", "is_encrypted", "trusted", "personalized")
+FIELDS = ("path", "digest_sha1", "partial_digest_sha1", "is_encrypted", "trusted", "personalized", "member_sha256", "member_size_bytes", "member_hash_algorithm")
 
 
 def load_inventory(path: str | Path) -> dict[str, Any]:
