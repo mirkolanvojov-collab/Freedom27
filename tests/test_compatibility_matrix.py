@@ -60,6 +60,18 @@ class CompatibilityMatrixTests(unittest.TestCase):
         errors = validate_claims([item, item])
         self.assertTrue(any("duplicate" in error for error in errors))
 
+    def test_null_fields_are_not_stringified_into_valid_metadata(self):
+        errors = validate_claims([{
+            "device_family": None,
+            "model_identifier": "example-model",
+            "os_version": "iOS 27.0.1",
+            "build": "24A446",
+            "status": "verified",
+            "evidence_url": "https://example.org/evidence",
+            "notes": None,
+        }])
+        self.assertTrue(any("device_family must not be empty" in error for error in errors))
+        self.assertTrue(any("review notes" in error for error in errors))
     def test_non_object_claim_is_reported_without_crashing(self):
         errors = validate_claims([None, {"device_family": "iPhone 14"}])
         self.assertTrue(any("claim[0]: must be an object" in error for error in errors))
