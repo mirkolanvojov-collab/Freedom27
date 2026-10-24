@@ -33,20 +33,20 @@ jobs:
               print(url)
           Path("fixed-ota-url.txt").write_text(valid[0] + "\n")
           PY
-      - name: Download OTA and verify exact size plus SHA-256
+      - name: Download OTA with ipsw client and verify exact size plus SHA-256
         shell: bash
         timeout-minutes: 50
         run: |
           set -euo pipefail
-          url="$(cat fixed-ota-url.txt)"
-          curl --fail --location --retry 3 --retry-all-errors --output fixed-ota.aea "$url"
-          actual_size="$(stat -c '%s' fixed-ota.aea)"
+          docker run --rm -v "$PWD:/data" -w /data blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H30 --confirm --output /data
+          package="$(find . -type f -name '*.aea' -size +8G -print -quit)"
+          test -n "$package"
+          actual_size="$(stat -c '%s' "$package")"
           expected_size=8724152320
           test "$actual_size" -eq "$expected_size"
-          actual_sha256="$(sha256sum fixed-ota.aea | cut -d ' ' -f 1)"
-          printf 'url=%s\nsize_bytes=%s\nsha256=%s\n' "$url" "$actual_size" "$actual_sha256" | tee fixed-ota-verification.txt
-          # Keep only the small verification record; the 8.7 GB package is not uploaded as an artifact.
-          rm -f fixed-ota.aea
+          actual_sha256="$(sha256sum "$package" | cut -d ' ' -f 1)"
+          printf 'url=%s\\nsize_bytes=%s\\nsha256=%s\\n' "$(cat fixed-ota-url.txt)" "$actual_size" "$actual_sha256" | tee fixed-ota-verification.txt
+          rm -f "$package"
       - name: Upload OTA verification record
         uses: actions/upload-artifact@v4
         with:
