@@ -102,6 +102,6 @@
       }
     }
   },
-  "next_gate": "Compare same-named raw AVE and KernelCache member SHA-256 values and sizes across 23G83 and 24A437; document byte-level deltas only. CVE attribution, exact-build reachability, exploitability, and complete jailbreak remain unverified.",
+  "next_gate": "Assess whether public, non-invasive static analysis can map the observed AVE or KernelCache byte deltas to a specific Apple advisory claim. If the raw firmware format is encrypted or cannot be mapped defensibly, record that evidence boundary. Exact-build reachability, exploitability, and complete jailbreak remain unverified.",
   "safety_note": "Do not restore, downgrade, install unknown profiles, or run unreviewed payloads on the daily-use phone as a substitute for evidence."
 }
