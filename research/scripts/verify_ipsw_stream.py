@@ -7,6 +7,7 @@ read-only CI job; it never installs or modifies a device.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import urllib.error
 import urllib.request
@@ -56,7 +57,7 @@ def main() -> int:
         with urllib.request.urlopen(request, timeout=90) as response:
             result = verify_stream(response)
             result["http_status"] = response.status
-    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+    except (urllib.error.URLError, http.client.HTTPException, TimeoutError, OSError) as exc:
         print(json.dumps({
             "source_url": URL,
             "verified": False,
