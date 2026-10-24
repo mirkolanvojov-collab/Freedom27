@@ -85,11 +85,14 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
                 if total == 0 and last_status == 200:
                     # A full response is allowed only at offset zero.
                     declared_length = response.headers.get("Content-Length")
-                    if declared_length is not None and int(declared_length) != expected_size:
-                        raise RuntimeError(
-                            f"Content-Length does not match pinned size: "
-                            f"{declared_length!r} vs {expected_size}"
-                        )
+                    if declared_length is not None:
+                        if re.fullmatch(r"\\d+", declared_length.strip()) is None:
+                            raise RuntimeError(f"Invalid Content-Length header: {declared_length!r}")
+                        if int(declared_length) != expected_size:
+                            raise RuntimeError(
+                                f"Content-Length does not match pinned size: "
+                                f"{declared_length!r} vs {expected_size}"
+                            )
                 elif last_status == 206:
                     content_range = response.headers.get("Content-Range", "")
                     match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+|\*)", content_range)
@@ -107,11 +110,14 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
                         )
                     response_limit = int(match.group(2)) + 1
                     declared_length = response.headers.get("Content-Length")
-                    if declared_length is not None and int(declared_length) != response_limit - total:
-                        raise RuntimeError(
-                            f"Content-Length does not match Content-Range: "
-                            f"{declared_length!r} vs {response_limit - total}"
-                        )
+                    if declared_length is not None:
+                        if re.fullmatch(r"\\d+", declared_length.strip()) is None:
+                            raise RuntimeError(f"Invalid Content-Length header: {declared_length!r}")
+                        if int(declared_length) != response_limit - total:
+                            raise RuntimeError(
+                                f"Content-Length does not match Content-Range: "
+                                f"{declared_length!r} vs {response_limit - total}"
+                            )
                 else:
                     raise RuntimeError(f"Unexpected HTTP status {last_status} at offset {total}")
 
