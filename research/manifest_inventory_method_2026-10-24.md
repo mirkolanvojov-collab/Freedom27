@@ -19,7 +19,7 @@ The 26.7 advisory is the closest named fixed release for the tracked CVEs, but a
 1. Hashes the complete local IPSW in 1 MiB chunks.
 2. Requires a pinned SHA-256 and exact byte count before opening the ZIP.
 3. Reads only root `BuildManifest.plist`, with a 64 MiB manifest-size ceiling.
-4. Requires the root `SupportedProductTypes` array to contain `iPhone17,4`, then selects BuildIdentity entries by `Info.DeviceClass` (board config `d48ap`, case-insensitive). The product type and board config are distinct fields; the script records both separately.
+4. Requires root `SupportedProductTypes` to include `iPhone17,4`, then selects BuildIdentity entries whose `Info.DeviceClass` matches board configuration `D48AP`. Product type and board configuration are distinct identifiers.
 5. Writes the component names, paths, manifest-provided digests, encryption/trust flags, and build metadata to JSON.
 6. Does not extract component payloads, decrypt binaries, contact a device, or execute code.
 
@@ -29,7 +29,8 @@ Example for the already verified target image:
 python research/scripts/inventory_ipsw_manifest.py /path/to/iPhone17,4_26.6.1_23G83_Restore.ipsw \
   --sha256 101aed9c3d5513b598a2b22da7bda5843a051adbe0430f23faed546c1613bd0f \
   --size 11225458130 \
-  --product-type iPhone17,4 --device-class d48ap \
+  --product-type iPhone17,4 \\
+  --device-class D48AP \\
   --output target-23G83-manifest.json
 ```
 
