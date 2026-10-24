@@ -13,7 +13,7 @@ permissions:
 jobs:
   resolve:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - name: Query Apple's live OTA metadata
         shell: bash
@@ -31,7 +31,7 @@ jobs:
           print("Validated Apple CDN URL(s):")
           for url in valid:
               print(url)
-          Path("fixed-ota-url.txt").write_text(valid[0] + "\\n")
+          Path("fixed-ota-url.txt").write_text(valid[0] + "\n")
           PY
       - name: Download OTA and verify exact size plus SHA-256
         shell: bash
@@ -44,7 +44,7 @@ jobs:
           expected_size=8724152320
           test "$actual_size" -eq "$expected_size"
           actual_sha256="$(sha256sum fixed-ota.aea | cut -d ' ' -f 1)"
-          printf 'url=%s\\nsize_bytes=%s\\nsha256=%s\\n' "$url" "$actual_size" "$actual_sha256" | tee fixed-ota-verification.txt
+          printf 'url=%s\nsize_bytes=%s\nsha256=%s\n' "$url" "$actual_size" "$actual_sha256" | tee fixed-ota-verification.txt
           # Keep only the small verification record; the 8.7 GB package is not uploaded as an artifact.
           rm -f fixed-ota.aea
       - name: Upload OTA verification record
