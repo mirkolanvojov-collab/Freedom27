@@ -1,0 +1,22 @@
+name: Verify exact-target IPSW integrity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: target-ipsw-integrity-verification
+  cancel-in-progress: false
+
+jobs:
+  stream-and-hash:
+    name: Stream official Apple IPSW and verify digest
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Stream Apple CDN image without saving it
+        run: python research/scripts/verify_ipsw_stream.py
