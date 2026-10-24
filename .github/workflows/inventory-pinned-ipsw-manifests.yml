@@ -76,6 +76,7 @@ jobs:
             --sha256 "$PINNED_SHA256" \
             --size "$actual_size" \
             --product-type iPhone17,4 \
+            --device-class D48AP \
             --output "$RUNNER_TEMP/inventory/$IPSW_NAME.json"
           python - "$RUNNER_TEMP/inventory/$IPSW_NAME.json" "$IPSW_NAME" "${{ matrix.url }}" <<'PY'
           import json, pathlib, sys
