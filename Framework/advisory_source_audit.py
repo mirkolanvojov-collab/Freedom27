@@ -21,13 +21,25 @@ CVE_PATTERN = re.compile(r"CVE-\d{4}-\d{4,}")
 def fetch_text(url: str, timeout: int = DEFAULT_TIMEOUT) -> str:
     """Fetch a public primary-source page over HTTPS with a bounded timeout."""
     parsed = urlparse(url)
-    if parsed.scheme != "https" or parsed.hostname != "support.apple.com":
+    if (
+        parsed.scheme != "https" or parsed.hostname != "support.apple.com"
+        or parsed.username or parsed.password
+    ):
         raise ValueError(f"refusing non-Apple or non-HTTPS source: {url}")
     request = urllib.request.Request(
         url,
         headers={"User-Agent": "Freedom27-AdvisorySourceAudit/1.1"},
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
+        # urllib follows redirects by default. Re-check the final URL so an
+        # Apple URL cannot silently redirect this source audit to another host.
+        final_url = urlparse(response.geturl())
+        if (
+            final_url.scheme != "https"
+            or final_url.hostname != "support.apple.com"
+            or final_url.username or final_url.password
+        ):
+            raise ValueError("refusing redirect outside the HTTPS Apple Support host")
         charset = response.headers.get_content_charset() or "utf-8"
         return response.read().decode(charset, errors="replace")
 
