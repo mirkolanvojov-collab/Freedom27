@@ -34,6 +34,7 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         self.assertEqual(result, ["ret"])
         args = mocked.call_args.args[0]
         self.assertIn("--count", args)
+        self.assertIn("--force", args)
         self.assertNotIn("--instrs", args)
 
     def test_disassembler_fails_closed_on_empty_output(self):
