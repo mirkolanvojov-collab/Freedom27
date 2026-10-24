@@ -96,6 +96,42 @@ class VerifyIpswStreamTests(unittest.TestCase):
                 sleep=lambda _: None, max_retries=1,
             )
 
+    def test_rejects_extra_bytes_after_pinned_full_response(self):
+        responses = [FakeResponse(b"abcdefX", 200)]
+
+        def opener(request, timeout):
+            return responses.pop(0)
+
+        with self.assertRaisesRegex(RuntimeError, "exceeded pinned size"):
+            stream_url_sha256(
+                "https://example.invalid/test", 6, opener=opener,
+                sleep=lambda _: None, max_retries=1,
+            )
+
+    def test_rejects_content_length_inconsistent_with_content_range(self):
+        responses = [
+            FakeResponse(b"abc", 200),
+            FakeResponse(
+                b"defx", 206,
+                {"Content-Range": "bytes 3-5/6", "Content-Length": "4"},
+            ),
+        ]
+
+        def opener(request, timeout):
+            return responses.pop(0)
+
+        with self.assertRaisesRegex(RuntimeError, "Content-Length does not match"):
+            stream_url_sha256(
+                "https://example.invalid/test", 6, opener=opener,
+                sleep=lambda _: None, max_retries=1,
+            )
+
+    def test_rejects_invalid_expected_size_and_retry_count(self):
+        with self.assertRaises(ValueError):
+            stream_url_sha256("https://example.invalid/test", 0)
+        with self.assertRaises(ValueError):
+            stream_url_sha256("https://example.invalid/test", 6, max_retries=-1)
+
     def test_interrupted_read_resumes_from_bytes_already_hashed(self):
         class InterruptedResponse(FakeResponse):
             def __init__(self):
