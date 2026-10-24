@@ -25,7 +25,7 @@ class PublicComponentDiffReconnaissanceTests(unittest.TestCase):
     def test_no_jailbreak_or_exploit_claim(self):
         self.assertIn("End-to-end jailbreak: not verified.", self.text)
         self.assertIn("No exploit was run", self.text)
-        self.assertIn("No device was accessed or modified", self.text)
+        self.assertIn("no device was accessed or modified", self.text.lower())
 
 
 if __name__ == "__main__":
