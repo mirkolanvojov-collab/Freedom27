@@ -20,6 +20,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Explicitly trust the upstream tap formula dependency required by ipsw.
+          brew trust --formula blacktop/tap/ipsw-frida
           brew install blacktop/tap/ipsw
           ipsw version
 
