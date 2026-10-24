@@ -16,6 +16,11 @@ class CoreGraphicsBoundsModelTests(unittest.TestCase):
         self.assertEqual(safe_fixed_coordinate(float("inf")), 0)
         self.assertEqual(safe_fixed_coordinate(float("-inf")), 0)
 
+    def test_coordinate_conversion_rejects_boolean_and_nonnumeric_inputs(self):
+        with self.assertRaises(TypeError):
+            safe_fixed_coordinate(True)
+        with self.assertRaises(TypeError):
+            safe_fixed_coordinate("1.0")
     def test_coordinate_conversion_clamps_both_extremes(self):
         self.assertEqual(safe_fixed_coordinate(1e100), SAFE_LIMIT)
         self.assertEqual(safe_fixed_coordinate(-1e100), -SAFE_LIMIT)
