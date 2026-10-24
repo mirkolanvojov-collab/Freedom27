@@ -1,7 +1,10 @@
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from research.scripts.compare_coregraphics_functions import (
     digest_instructions,
+    disassemble,
     normalize_disassembly,
 )
 
@@ -22,6 +25,16 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         first = normalize_disassembly("0x1000: bl #0x1010\n0x1004: ret")
         second = normalize_disassembly("0x2000: bl #0x2020\n0x2004: ret")
         self.assertEqual(first, second)
+
+
+    def test_disassembler_uses_supported_count_flag(self):
+        from research.scripts import compare_coregraphics_functions as module
+        with patch.object(module, "run", return_value="0x1000: ret") as mocked:
+            result = disassemble(Path("CoreGraphics"), "_aa_render", 600)
+        self.assertEqual(result, ["ret"])
+        args = mocked.call_args.args[0]
+        self.assertIn("--count", args)
+        self.assertNotIn("--instrs", args)
 
     def test_digest_is_stable_and_order_sensitive(self):
         self.assertEqual(
