@@ -2,9 +2,6 @@ name: Verify exact-target IPSW integrity
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - research/ipsw-stream-runner
 
 permissions:
   contents: read
