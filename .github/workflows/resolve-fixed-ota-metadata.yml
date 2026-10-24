@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: fixed-ota-metadata-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   resolve:
     runs-on: ubuntu-latest
