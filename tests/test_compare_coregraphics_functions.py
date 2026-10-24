@@ -124,6 +124,28 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
                 self.assertEqual(module.main(), 4)
             self.assertTrue(output.is_file())
 
+    def test_main_fails_closed_when_no_shared_symbols_exist(self):
+        import tempfile
+        import sys
+        from research.scripts import compare_coregraphics_functions as module
+
+        report = {
+            "common_aa_symbol_count": 0,
+            "successfully_compared_symbol_count": 0,
+            "changed_symbol_count": 0,
+            "changed_symbols": [],
+            "disassembly_failures": [],
+            "symbols": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "report.json"
+            with patch.object(module, "compare", return_value=report), patch.object(
+                sys, "argv",
+                ["compare_coregraphics_functions.py", "--target-binary", "target",
+                 "--fixed-binary", "fixed", "--output", str(output)],
+            ):
+                self.assertEqual(module.main(), 3)
+            self.assertTrue(output.is_file())
     def test_digest_is_stable_and_order_sensitive(self):
         self.assertEqual(
             digest_instructions(["cmp x0, #1", "ret"]),
