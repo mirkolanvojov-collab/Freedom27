@@ -89,14 +89,17 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         for name, component in sorted(component_map.items()):
             if not isinstance(component, dict):
                 continue
+            component_info = component.get("Info", {})
+            if not isinstance(component_info, dict):
+                component_info = {}
             components.append({
                 "name": str(name),
-                "path": component.get("Path"),
-                "digest_sha1": _hex(component.get("Digest")),
-                "partial_digest_sha1": _hex(component.get("PartialDigest")),
-                "is_encrypted": component.get("IsEncrypted"),
-                "trusted": component.get("Trusted"),
-                "personalized": component.get("Personalized"),
+                "path": component.get("Path", component_info.get("Path")),
+                "digest_hex": _hex(component.get("Digest", component_info.get("Digest"))),
+                "partial_digest_hex": _hex(component.get("PartialDigest", component_info.get("PartialDigest"))),
+                "is_encrypted": component.get("IsEncrypted", component_info.get("IsEncrypted")),
+                "trusted": component.get("Trusted", component_info.get("Trusted")),
+                "personalized": component.get("Personalized", component_info.get("Personalized")),
             })
         selected.append({
             "identity_index": index,
@@ -110,7 +113,7 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         })
 
     if not selected:
-        raise ValueError(f"no BuildIdentity matched product type {product_type!r}")
+        raise ValueError(f"no BuildIdentity matched device class {device_class!r}")
 
     return {
         "schema_version": 1,
