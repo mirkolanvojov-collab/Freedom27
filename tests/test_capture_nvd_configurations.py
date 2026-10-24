@@ -55,15 +55,31 @@ class NvdCaptureTests(unittest.TestCase):
             self.assertEqual(summary["successful_cpe_match_records"], 0)
             self.assertEqual(summary["failed_record_count"], 1)
 
-    def test_invalid_identifier_is_rejected(self):
+    def test_invalid_identifier_is_rejected_before_filesystem_writes(self):
         with tempfile.TemporaryDirectory() as temp:
+            out = Path(temp) / "capture"
             with self.assertRaises(ValueError):
                 MODULE.capture_records(
-                    cve_ids=["not-a-cve"],
-                    output_dir=Path(temp),
+                    cve_ids=["CVE-../../outside"],
+                    output_dir=out,
                     request_json=lambda _url, _key: (200, {}, None),
                     sleep=lambda _seconds: None,
                 )
+            self.assertFalse(out.exists())
+
+    def test_empty_and_duplicate_identifier_lists_are_rejected_before_writes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            for identifiers in ([], ["CVE-2026-12345", "CVE-2026-12345"]):
+                out = Path(temp) / ("empty" if not identifiers else "duplicate")
+                with self.subTest(identifiers=identifiers):
+                    with self.assertRaises(ValueError):
+                        MODULE.capture_records(
+                            cve_ids=identifiers,
+                            output_dir=out,
+                            request_json=lambda _url, _key: (200, {}, None),
+                            sleep=lambda _seconds: None,
+                        )
+                    self.assertFalse(out.exists())
 
 
 if __name__ == "__main__":
