@@ -41,7 +41,7 @@ def discover_symbols(binary: Path) -> list[str]:
     # that ipsw cannot resolve as a disassembly start address.
     found: set[str] = set()
     for line in output.splitlines():
-        row = re.match(r"^\\s*(0x[0-9a-fA-F]+):", line)
+        row = re.match(r"^\s*(0x[0-9a-fA-F]+):", line)
         if not row or int(row.group(1), 16) == 0:
             continue
         found.update(match.group(0) for match in SYMBOL_RE.finditer(line))
