@@ -64,8 +64,8 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
             raise ValueError("BuildManifest.plist exceeds 64 MiB safety limit")
         manifest = plistlib.loads(archive.read(info))
 
-    supported = manifest.get("SupportedProductTypes")
-    if not isinstance(supported, list) or product_type not in supported:
+    supported_products = manifest.get("SupportedProductTypes", [])
+    if product_type not in supported_products:
         raise ValueError(f"product type {product_type!r} is not listed in SupportedProductTypes")
 
     identities = manifest.get("BuildIdentities")
@@ -73,15 +73,14 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         raise ValueError("BuildManifest.plist has no BuildIdentities array")
 
     selected = []
-    wanted_class = device_class.casefold()
     for index, identity in enumerate(identities):
         if not isinstance(identity, dict):
             continue
         identity_info = identity.get("Info", {})
         if not isinstance(identity_info, dict):
             continue
-        actual_class = identity_info.get("DeviceClass")
-        if not isinstance(actual_class, str) or actual_class.casefold() != wanted_class:
+        identity_device_class = identity_info.get("DeviceClass")
+        if not isinstance(identity_device_class, str) or identity_device_class.lower() != device_class.lower():
             continue
         components = []
         component_map = identity.get("Manifest", {})
@@ -90,32 +89,28 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         for name, component in sorted(component_map.items()):
             if not isinstance(component, dict):
                 continue
-            component_info = component.get("Info", {})
-            if not isinstance(component_info, dict):
-                component_info = {}
             components.append({
                 "name": str(name),
-                "path": component.get("Path") or component_info.get("Path"),
+                "path": component.get("Path"),
                 "digest_sha1": _hex(component.get("Digest")),
                 "partial_digest_sha1": _hex(component.get("PartialDigest")),
-                "is_encrypted": component.get("IsEncrypted") or component_info.get("IsEncrypted"),
-                "trusted": component.get("Trusted") or component_info.get("Trusted"),
-                "personalized": component.get("Personalized") or component_info.get("Personalized"),
+                "is_encrypted": component.get("IsEncrypted"),
+                "trusted": component.get("Trusted"),
+                "personalized": component.get("Personalized"),
             })
         selected.append({
             "identity_index": index,
-            "device_class": actual_class,
+            "device_class": identity_info.get("DeviceClass"),
             "product_type": product_type,
             "variant": identity_info.get("Variant"),
             "build_train": identity_info.get("BuildTrain") or manifest.get("BuildTrain"),
-            "build_version": identity_info.get("BuildNumber") or manifest.get("ProductBuildVersion"),
-            "product_version": manifest.get("ProductVersion"),
+            "build_version": identity_info.get("BuildVersion") or identity_info.get("BuildNumber"),
             "restore_behavior": identity_info.get("RestoreBehavior"),
             "components": components,
         })
 
     if not selected:
-        raise ValueError(f"no BuildIdentity matched device class {device_class!r}")
+        raise ValueError(f"no BuildIdentity matched product type {product_type!r}")
 
     return {
         "schema_version": 1,
@@ -125,9 +120,6 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         "integrity_verified_against_pinned_values": True,
         "product_type": product_type,
         "device_class": device_class,
-        "supported_product_types": supported,
-        "product_version": manifest.get("ProductVersion"),
-        "product_build_version": manifest.get("ProductBuildVersion"),
         "build_manifest_entry": "BuildManifest.plist",
         "build_identities": selected,
         "method_limits": [
@@ -146,8 +138,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("ipsw", help="path to a locally available IPSW")
     parser.add_argument("--sha256", required=True, help="pinned whole-file SHA-256")
     parser.add_argument("--size", required=True, type=int, help="pinned whole-file byte count")
-    parser.add_argument("--product-type", required=True, help="e.g. iPhone17,4")
-    parser.add_argument("--device-class", required=True, help="BuildManifest Info.DeviceClass / board config, e.g. d48ap")
+    parser.add_argument("--product-type", required=True, help="e.g. iPhone17,4; checked against SupportedProductTypes")
+    parser.add_argument("--device-class", required=True, help="board config from authoritative device metadata, e.g. D48AP")
     parser.add_argument("--output", help="optional JSON output path; stdout if omitted")
     args = parser.parse_args(argv)
     try:
