@@ -37,6 +37,15 @@ The selected-component workflow completed successfully for both builds in run ht
 
 The fixed build's raw AVE and KernelCache member hashes and sizes are now available for direct comparison.
 
+## Direct raw-member comparison
+
+| Component | 23G83 size | 24A437 size | Size delta | Raw SHA-256 comparison |
+|---|---:|---:|---:|---|
+| AVE | 2,711,801 bytes | 2,748,385 bytes | +36,584 bytes | Different |
+| KernelCache | 22,077,586 bytes | 23,406,137 bytes | +1,328,551 bytes | Different |
+
+These are confirmed byte-level differences in the named raw archive members. They do **not** identify which code or data changed, show that a particular CVE fix caused the change, or establish that the target build is exploitable.
+
 ## Interpretation
 
 - Whole IPSW integrity is checked against a pinned SHA-256 and exact size before manifest processing.
