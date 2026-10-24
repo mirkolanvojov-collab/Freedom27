@@ -19,6 +19,23 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Query Apple's live OTA metadata for the fixed reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H30 --urls | tee /tmp/fixed-ota-urls.txt
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse
+          lines = [x.strip() for x in Path('/tmp/fixed-ota-urls.txt').read_text().splitlines() if x.strip()]
+          urls = [x for x in lines if x.startswith('https://')]
+          valid = [u for u in urls if urlparse(u).hostname == 'updates.cdn-apple.com']
+          if not valid:
+              raise SystemExit("Apple live OTA metadata returned no direct Apple CDN URL for iPhone17,4 build 23H30; do not guess one.")
+          print("Validated Apple CDN URL(s):")
+          for url in valid:
+              print(url)
+          PY
       - name: Compile all Python source and test files
         run: python -m compileall -q Framework tests research/scripts
 
