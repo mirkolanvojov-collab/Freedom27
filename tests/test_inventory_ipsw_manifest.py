@@ -13,7 +13,8 @@ def make_ipsw(path: Path) -> bytes:
     manifest = {
         "BuildIdentities": [
             {
-                "Info": {"DeviceClass": "iPhone17,4", "Variant": "Customer Erase Install",
+                "ProductType": "iPhone17,4",
+                "Info": {"DeviceClass": "d83ap", "Variant": "Customer Erase Install",
                          "BuildTrain": "Example", "BuildVersion": "23G83"},
                 "Manifest": {
                     "KernelCache": {"Path": "kernelcache.release", "Digest": bytes.fromhex("ab" * 20),
@@ -23,7 +24,8 @@ def make_ipsw(path: Path) -> bytes:
                 },
             },
             {
-                "Info": {"DeviceClass": "iPhone17,3", "Variant": "Other"},
+                "ProductType": "iPhone17,3",
+                "Info": {"DeviceClass": "d83", "Variant": "Other"},
                 "Manifest": {"KernelCache": {"Path": "other-kernel"}},
             },
         ]
@@ -50,7 +52,8 @@ class InventoryIpswManifestTests(unittest.TestCase):
         self.assertEqual(result["source_size_bytes"], self.size)
         self.assertEqual(len(result["build_identities"]), 1)
         identity = result["build_identities"][0]
-        self.assertEqual(identity["device_class"], "iPhone17,4")
+        self.assertEqual(identity["device_class"], "d83ap")
+        self.assertEqual(identity["product_type"], "iPhone17,4")
         self.assertEqual(identity["build_version"], "23G83")
         self.assertEqual([c["name"] for c in identity["components"]], ["KernelCache", "RestoreRamDisk"])
         self.assertEqual(identity["components"][0]["digest_sha1"], "ab" * 20)
