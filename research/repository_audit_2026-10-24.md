@@ -61,3 +61,10 @@ A further pass over the compatibility claim helpers found two edge cases that co
 2. **Whitespace-normalized status leakage:** the exact-target status reader validated a trimmed status but returned the original untrimmed value, allowing padded status text to leak into output and conflict handling. Validated claims now store the normalized status; a regression test covers it.
 
 Validation: GitHub Actions test run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40119295737 passed on commit `84ee2e969ccd2662297316a980073f12b19347c4`, including compilation, unit tests, advisory-source checks, evidence metadata checks, fail-closed safety preflight, and generated report validation. This follow-up did not test or modify a device and does not change the project's unverified jailbreak status.
+
+
+## Follow-up audit — URL validation edge cases (2026-10-24)
+
+The source URL validators in the test planner, registry, and hypothesis engine were inconsistent about malformed port syntax. The planner and registry now force port parsing (so malformed ports fail closed); the hypothesis engine now also rejects embedded URL credentials and malformed ports. Regression cases were added to each relevant test module.
+
+Validation: GitHub Actions unit-test job https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40119423047 completed successfully on code commit `89c6bde2707a6d7ed535147085bec8a7957dd849`. Compilation, unit tests, live primary-source metadata checks, evidence checks, safety preflight, and generated research-report validation all passed. The separate CoreGraphics comparison is static analysis only and is not needed to validate these URL-validator changes.
