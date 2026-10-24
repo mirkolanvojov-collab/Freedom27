@@ -19,6 +19,7 @@ class CompatibilityStatusTests(unittest.TestCase):
             "build_number": "23G83",
         }
         claim = {
+            "device_model": "iPhone 16 Plus",
             "model_identifier": "iPhone17,4" if matching else "iPhone17,3",
             "os_version": "iOS 26.6.1",
             "build_number": "23G83",
@@ -71,6 +72,27 @@ class CompatibilityStatusTests(unittest.TestCase):
         path.write_text(json.dumps(data), encoding="utf-8")
         self.assertTrue(assess_target(root)["errors"])
 
+    def test_different_device_name_does_not_match_even_if_identifier_matches(self):
+        temp, root = self.make_root()
+        self.addCleanup(temp.cleanup)
+        path = root / "research" / "target_status.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["claims"][0]["device_model"] = "iPhone 16"
+        path.write_text(json.dumps(data), encoding="utf-8")
+        report = assess_target(root)
+        self.assertEqual(report["status"], "unknown")
+        self.assertEqual(len(report["matching_claims"]), 0)
+
+    def test_malformed_https_evidence_url_is_rejected(self):
+        temp, root = self.make_root()
+        self.addCleanup(temp.cleanup)
+        path = root / "research" / "target_status.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["claims"][0]["evidence_url"] = "https://user:pass@example.com/evidence"
+        path.write_text(json.dumps(data), encoding="utf-8")
+        report = assess_target(root)
+        self.assertEqual(report["status"], "unknown")
+        self.assertTrue(any("HTTPS evidence URL" in error for error in report["errors"]))
     def test_malformed_status_claims_fail_closed(self):
         temp, root = self.make_root()
         self.addCleanup(temp.cleanup)
