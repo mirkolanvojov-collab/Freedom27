@@ -62,8 +62,8 @@
     "primary_advisory_reconciliation": "all 12 candidate IDs matched directly to Apple's iOS 26.7 security bulletin; version-range match is not exact-build reachability evidence",
     "target_manifest_inventory": "passed against full pinned target IPSW in ephemeral GitHub Actions; manifest-only artifact produced; whole-file SHA-256 and exact size rechecked",
     "fixed_build_manifest_inventory": "passed against pinned iOS 27.0 build 24A437 IPSW in ephemeral GitHub Actions; manifest-only artifact produced; whole-file SHA-256 rechecked",
-    "component_member_hashing": "tool and tests merged; CI run with independent SHA-256 of AVE and KernelCache raw ZIP members in progress"
+    "component_member_hashing": "target 23G83 AVE and KernelCache raw IPSW member SHA-256 hashes completed in CI; fixed 24A437 comparison member hashes still running"
   },
-  "next_gate": "Complete selected raw-member hashes for AVE and KernelCache on target/fixed images, record exact byte-hash comparison, then assess whether any public evidence supports CVE patch attribution. Exact-build reachability, privilege escalation, bootstrap, and a complete jailbreak remain unverified.",
+  "next_gate": "Complete fixed-build AVE and KernelCache member hashes and compare raw member SHA-256 values. This only identifies byte-level changes; exact code-level patch attribution, target reachability, exploitability, and a complete jailbreak remain unverified.",
   "safety_note": "Do not restore, downgrade, install unknown profiles, or run unreviewed payloads on the daily-use phone as a substitute for evidence."
 }
