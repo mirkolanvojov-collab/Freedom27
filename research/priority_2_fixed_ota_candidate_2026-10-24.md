@@ -29,7 +29,7 @@ The 64-hex filename identifier differs from the whole-file SHA-256, so it must n
 
 1. **Completed:** resolve the exact Apple CDN URL through Apple's live OTA metadata; URL host checked in CI run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40053023805.
 2. **Completed:** download from that Apple CDN URL; validate exact length and compute SHA-256 in CI run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40053079976.
-3. Next: validate package internals and device/build identity, then determine whether CoreGraphics can be extracted and compared with target 23G83. Treat the published extraction key as untrusted until cross-checked against an independent firmware metadata source.
+3. **Completed:** extracted the fixed OTA's dyld shared cache and CoreGraphics in CI, then compared it with target 23G83. The package key and metadata were exercised by the successful extraction workflow; the binary comparison remains static evidence only.
 4. If the package can be lawfully and reproducibly extracted, identify the CoreGraphics binary and record its cryptographic hash, architecture, UUID/build metadata, and provenance.
 5. Compare only corresponding code with the target 23G83 component. If target or fixed binary is encrypted, incomparable, or lacks sufficient symbols/metadata, record that limitation rather than inferring a patch.
 6. Use static, read-only comparison and synthetic defensive-model tests only. Do not run the published exploit/PoC, craft a trigger file, modify a device, or claim exploitability from a version-range match alone.
@@ -40,7 +40,7 @@ The 64-hex filename identifier differs from the whole-file SHA-256, so it must n
 - CVE-2026-86950: Apple says fixed in iOS 26.7.1 and describes an out-of-bounds write addressed by improved bounds checking.
 - Public patch analysis: reports changes in CoreGraphics anti-aliased path-rasterization coordinate conversion.
 - Exact target vulnerable code path: not established.
-- Same-device fixed OTA: downloaded from the resolved Apple CDN; exact byte count and computed SHA-256 recorded by CI; internal extraction and component comparison remain outstanding.
+- Same-device fixed OTA: downloaded from the resolved Apple CDN; exact byte count and SHA-256 checked in CI; dyld-cache extraction and CoreGraphics function-level comparison completed. Twenty-five shared executable `aa_*` symbols were compared, with 15 normalized streams differing and seven functions showing guard patterns consistent with the public patch analysis.
 - Reproduction and jailbreak chain: not established.
 
 This is a research evidence update, not a claim that the blocker is fully cleared or that a jailbreak works.
