@@ -62,7 +62,7 @@ def normalize_disassembly(output: str) -> list[str]:
     return instructions
 
 
-def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
+def disassemble(binary: Path, symbol: str) -> list[str]:
     # ipsw's symbol listing can omit Mach-O's leading C-symbol underscore for
     # an individual entry. Retry that one documented naming variant only when
     # ipsw explicitly reports that the original spelling is absent.
@@ -75,8 +75,10 @@ def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
     for candidate in candidates:
         try:
             output = run([
+                # Do not pass --count: ipsw then uses Mach-O function boundaries
+                # instead of reading a fixed number of instructions past the start.
                 "ipsw", "macho", "disass", "--force", "--symbol", candidate,
-                "--count", str(instruction_limit), str(binary),
+                str(binary),
             ])
         except RuntimeError as exc:
             last_error = exc
@@ -84,14 +86,6 @@ def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
                 continue
             raise
         instructions = normalize_disassembly(output)
-        if len(instructions) >= instruction_limit:
-            # ipsw --count caps output without guaranteeing that the function
-            # ended naturally. Fail closed rather than treating a capped
-            # prefix as a complete instruction stream.
-            raise RuntimeError(
-                f"disassembly reached instruction limit ({instruction_limit}) "
-                f"for {candidate} in {binary}; completeness cannot be established"
-            )
         if instructions:
             return instructions
         last_error = RuntimeError(
@@ -107,7 +101,7 @@ def digest_instructions(instructions: list[str]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def compare(target_binary: Path, fixed_binary: Path, instruction_limit: int = 600) -> dict[str, Any]:
+def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
     if not target_binary.is_file() or not fixed_binary.is_file():
         raise FileNotFoundError("both CoreGraphics Mach-O paths must exist")
     target_symbols = discover_symbols(target_binary)
@@ -118,8 +112,8 @@ def compare(target_binary: Path, fixed_binary: Path, instruction_limit: int = 60
 
     for symbol in common:
         try:
-            target_ins = disassemble(target_binary, symbol, instruction_limit)
-            fixed_ins = disassemble(fixed_binary, symbol, instruction_limit)
+            target_ins = disassemble(target_binary, symbol)
+            fixed_ins = disassemble(fixed_binary, symbol)
         except RuntimeError as exc:
             failures.append({"symbol": symbol, "error": str(exc)})
             continue
@@ -143,7 +137,7 @@ def compare(target_binary: Path, fixed_binary: Path, instruction_limit: int = 60
         "mode": "read_only_symbol_scoped_disassembly_comparison",
         "target_binary": str(target_binary),
         "fixed_reference_binary": str(fixed_binary),
-        "instruction_limit_per_symbol": instruction_limit,
+        "function_boundary_mode": "ipsw Mach-O function metadata; no fixed instruction count",
         "target_aa_symbol_count": len(target_symbols),
         "fixed_aa_symbol_count": len(fixed_symbols),
         "common_aa_symbol_count": len(common),
@@ -159,7 +153,7 @@ def compare(target_binary: Path, fixed_binary: Path, instruction_limit: int = 60
         ),
         "limitations": [
             "Only symbols discoverable through ipsw's Mach-O symbol listing are compared.",
-            "Disassemblies reaching the configured instruction limit are rejected as potentially truncated.",
+            "Function boundaries depend on Mach-O function metadata; symbols without reliable boundaries may fail closed.",
             "Compiler/build changes may alter instructions for reasons unrelated to the CVE.",
             "This static comparison does not establish runtime reachability or exploitability.",
             "No binary was executed; no crafted input or device was used.",
@@ -172,12 +166,9 @@ def main() -> int:
     parser.add_argument("--target-binary", type=Path, required=True)
     parser.add_argument("--fixed-binary", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=Path("coregraphics-function-diff.json"))
-    parser.add_argument("--instruction-limit", type=int, default=600)
     args = parser.parse_args()
-    if args.instruction_limit < 1 or args.instruction_limit > 5000:
-        parser.error("--instruction-limit must be between 1 and 5000")
     try:
-        report = compare(args.target_binary, args.fixed_binary, args.instruction_limit)
+        report = compare(args.target_binary, args.fixed_binary)
     except (OSError, RuntimeError) as exc:
         print(f"function comparison failed: {exc}", file=sys.stderr)
         return 2
