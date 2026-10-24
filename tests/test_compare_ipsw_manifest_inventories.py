@@ -9,7 +9,7 @@ def inventory(build, components, product="iPhone17,4", verified=True):
         "integrity_verified_against_pinned_values": verified,
         "product_type": product,
         "source_file_name": f"build-{build}.ipsw",
-        "source_sha256": build * 64 if len(build) == 1 else "a" * 64,
+        "source_sha256": ("a" if build == "23G83" else "b") * 64,
         "source_size_bytes": 100,
         "build_identities": [{
             "build_version": build,
