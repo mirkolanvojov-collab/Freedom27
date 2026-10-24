@@ -30,3 +30,20 @@ This is a repository/tooling audit. It is not a binary audit of Apple firmware a
 ## Follow-up
 
 Continue with non-invasive evidence review and tests only. Before any future device-testing phase, require a source-pinned implementation review, a dedicated recoverable test device, independently checked backup/recovery procedure, and a narrowly scoped test plan. Do not run an unverified payload on the daily-use phone.
+
+## Follow-up audit — research branch (2026-10-24)
+
+Rechecked the current branch against `main` after the CoreGraphics comparison work. The branch contains 184 tracked files: 73 Python files, 86 Markdown files, 19 JSON files, and 6 GitHub Actions workflow files. All 19 JSON files were parsed successfully and their fetched blob SHAs matched the Git tree. The new CoreGraphics scripts, synthetic bounds model, related tests, workflow definitions, changed evidence-gate code, and changed verification scripts received focused review.
+
+Additional issues fixed in this follow-up:
+
+1. **Chain evidence scope:** `Framework/chain_readiness.py` now requires `scope_confirmed=true` in addition to a source-pinned exact-target record and independent reproduction. Regression tests cover missing scope confirmation.
+2. **Exact-target identity and malformed fields:** `Framework/compatibility_status.py` now matches the device marketing name as well as identifier/version/build, rejects malformed or credentialed HTTPS evidence URLs, and treats JSON `null` as missing rather than converting it to the string `None`. The compatibility matrix mapper has the same null-handling fix.
+3. **Firmware stream source validation:** `research/scripts/verify_ipsw_stream.py` now rejects non-HTTPS URLs, embedded credentials, and malformed ports before opening a connection; regression tests verify the opener is not called.
+4. **NVD capture input validation:** `research/scripts/capture_nvd_configurations.py` now validates the complete CVE identifier format instead of accepting any string with a `CVE-` prefix.
+5. **Fixed OTA digest enforcement:** `.github/workflows/resolve-fixed-ota-metadata.yml` now compares the downloaded OTA SHA-256 with the pinned expected digest, rather than merely printing the computed digest after checking the size.
+6. **Research-document consistency:** updated the CoreGraphics evidence assessment and Priority 2 reports to reflect the completed 25-symbol static comparison and seven-function patch-pattern correlation, while keeping runtime reachability and jailbreak status unverified.
+
+Validation after the code fixes: GitHub Actions test run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40116170843 completed successfully on commit `a6936f3aefa9b147d39e5096d0f1832e648277b5`. The fixed-OTA metadata workflow also passed on that commit. Documentation-only updates followed; the newest branch-head workflow results must be checked before treating the entire latest revision as validated.
+
+Remaining audit boundary: repository-level static review and tests do not prove Apple firmware behavior, exact-build exploitability, or a working jailbreak. The CoreGraphics comparison remains static, relocation-sensitive references are not fully resolved, and runtime reachability, privilege escalation, persistence, and independent reproduction remain open.
