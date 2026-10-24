@@ -19,6 +19,33 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Resolve fixed-build OTA URL from firmware metadata API
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 3 --retry-all-errors 'https://ipsw.info/api/v1/ota/iPhone17%2C4/23H30' -o /tmp/fixed-ota.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.parse import urlparse
+          data = json.loads(Path('/tmp/fixed-ota.json').read_text())
+          if isinstance(data, list):
+              matches = [x for x in data if x.get('identifier') == 'iPhone17,4' and x.get('buildid') == '23H30']
+              if len(matches) != 1:
+                  raise SystemExit(f'Expected one exact OTA match; got {len(matches)}')
+              item = matches[0]
+          elif isinstance(data, dict):
+              item = data
+          else:
+              raise SystemExit('Unexpected OTA API response type')
+          assert item.get('identifier') == 'iPhone17,4', 'Device mismatch'
+          assert item.get('version') == '26.7.1', 'Version mismatch'
+          assert item.get('buildid') == '23H30', 'Build mismatch'
+          assert item.get('filesize') == 8724152320, 'Size differs from published catalogue'
+          parsed = urlparse(item.get('url') or '')
+          assert parsed.scheme == 'https' and parsed.hostname == 'updates.cdn-apple.com', 'URL is not on Apple CDN'
+          print(json.dumps({k: item.get(k) for k in ('identifier', 'version', 'buildid', 'filesize', 'url', 'signed', 'sha1', 'sha256', 'encryption')}, indent=2))
+          PY
       - name: Compile all Python source and test files
         run: python -m compileall -q Framework tests research/scripts
 
