@@ -50,7 +50,7 @@ In both customer install variants, the `AVE` manifest entry points to `Firmware/
 
 The `KernelCache` manifest-declared digest also changes while the path remains `kernelcache.release.iphone17`.
 
-**Interpretation:** this is a concrete, reproducible metadata delta on the exact product type and board configuration, and it prioritizes the AVE firmware component for further static analysis. It is **not** proof that the change fixes CVE-2026-84607. The advisory describes an AVEVideoEncoder race condition; the `AVE` entry here is a firmware component, not a source-level mapping to the vulnerable driver or function. The metadata comparison run did not independently hash component payloads. A separate later CI run now records SHA-256 of the target build's raw AVE and KernelCache ZIP members (see `research/ipsw_manifest_component_evidence_2026-10-24.md`); the matching raw-member hashes for build `24A437` remain pending. Neither workflow decrypts or inspects the kernel extension inside the system volume, identifies a patch hunk, or demonstrates vulnerable-code reachability on build `23G83`.
+**Interpretation:** this is a concrete, reproducible metadata delta on the exact product type and board configuration, and it prioritizes the AVE firmware component for further static analysis. It is **not** proof that the change fixes CVE-2026-84607. The advisory describes an AVEVideoEncoder race condition; the `AVE` entry here is a firmware component, not a source-level mapping to the vulnerable driver or function. The initial metadata comparison did not hash component payloads. A later selected-component CI run completed raw ZIP-member SHA-256 hashing for both builds (see `research/raw_component_hash_evidence_2026-10-24.md`). The AVE member grew by 36,584 bytes and the KernelCache member by 1,328,551 bytes; both raw hashes differ. These results establish byte-level differences only. Neither workflow decrypts or inspects the kernel extension inside the system volume, identifies a patch hunk, or demonstrates vulnerable-code reachability on build `23G83`.
 
 The broad change count is expected when comparing iOS 26.6.1 with iOS 27.0. This is a fixed-release baseline with a larger version gap, not a minimal patch diff. No individual metadata difference should be attributed to one CVE without additional evidence.
 
@@ -63,7 +63,7 @@ Resolved:
 - Identified the AVE firmware manifest digest delta as a concrete next static-analysis lead.
 
 Still unresolved:
-- No decrypted or extracted component payload hashes. The target AVE and KernelCache raw ZIP member hashes are now independently recorded, but fixed-build raw-member hashes are still pending in the separate component-hashing workflow.
+- Raw AVE and KernelCache ZIP-member hashes and sizes are recorded for both builds. These are hashes of uncompressed archive-member bytes, not decrypted executable-code hashes.
 - No source-level or binary patch diff tying the AVE firmware or kernel code changes to CVE-2026-84607.
 - No exact-build vulnerable-code reachability proof for `23G83`.
 - No candidate CVE reproduced by Freedom27 and no verified end-to-end jailbreak.
