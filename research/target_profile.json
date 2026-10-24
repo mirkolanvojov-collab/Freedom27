@@ -1,6 +1,6 @@
 {
   "target_name": "Freedom27",
-  "target_os": "iOS 27",
+  "target_os": "iOS 26.6.1",
   "target_status": "research-only; no public jailbreak verified for this exact device/build",
   "required_fields_for_validation": [
     "device_model",
@@ -8,7 +8,7 @@
     "build_number",
     "available_public_research_sources"
   ],
-  "notes": "User-reported model and iOS version. Public firmware references identify iPhone 16 Plus as iPhone17,4 and iOS 26.6.1 as build 23G83. Current public status trackers report no public jailbreak for iPhone 16/A18 devices on iOS 26.6.1. Do not downgrade, restore, install profiles, or run unofficial online jailbreak pages based on this status. Recheck official sources before any future decision.",
+  "notes": "The exact research target is the user-reported iPhone 16 Plus (iPhone17,4), iOS 26.6.1, build 23G83. iOS 27 remains a planned research goal, not the current device target. Public firmware references identify iPhone 16 Plus as iPhone17,4 and iOS 26.6.1 as build 23G83. Current public status trackers report no public jailbreak for iPhone 16/A18 devices on iOS 26.6.1. Do not downgrade, restore, install profiles, or run unofficial online jailbreak pages based on this status. Recheck official sources before any future decision.",
   "device_model": "iPhone 16 Plus",
   "model_identifier": "iPhone17,4",
   "exact_os_version": "iOS 26.6.1",
