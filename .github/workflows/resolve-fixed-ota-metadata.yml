@@ -38,14 +38,14 @@ jobs:
         timeout-minutes: 50
         run: |
           set -euo pipefail
-          docker run --rm -v "$PWD:/data" -w /data blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H30 --confirm --output /data
-          package="$(find . -type f -name '*.aea' -size +8G -print -quit)"
-          test -n "$package"
+          package="$PWD/fixed-ota.aea"
+          curl --fail --location --retry 3 --retry-all-errors --connect-timeout 30 --max-time 3000 \
+            --output "$package" "$(cat fixed-ota-url.txt)"
           actual_size="$(stat -c '%s' "$package")"
           expected_size=8724152320
           test "$actual_size" -eq "$expected_size"
           actual_sha256="$(sha256sum "$package" | cut -d ' ' -f 1)"
-          printf 'url=%s\\nsize_bytes=%s\\nsha256=%s\\n' "$(cat fixed-ota-url.txt)" "$actual_size" "$actual_sha256" | tee fixed-ota-verification.txt
+          printf 'url=%s\nsize_bytes=%s\nsha256=%s\n' "$(cat fixed-ota-url.txt)" "$actual_size" "$actual_sha256" | tee fixed-ota-verification.txt
           rm -f "$package"
       - name: Upload OTA verification record
         uses: actions/upload-artifact@v4
