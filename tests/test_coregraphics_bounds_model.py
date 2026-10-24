@@ -40,6 +40,15 @@ class CoreGraphicsBoundsModelTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             checked_span(INT32_MIN - 1, 0)
 
+    def test_checked_span_rejects_booleans_and_invalid_max_extent(self):
+        with self.assertRaises(TypeError):
+            checked_span(True, 1)
+        with self.assertRaises(TypeError):
+            checked_span(1, False)
+        with self.assertRaises(ValueError):
+            checked_span(1, 1, max_extent=-1)
+        with self.assertRaises(ValueError):
+            checked_span(1, 1, max_extent=True)
     def test_checked_span_rejects_non_integer_inputs(self):
         with self.assertRaises(TypeError):
             checked_span(1.5, 2)
