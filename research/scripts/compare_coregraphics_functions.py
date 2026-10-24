@@ -67,7 +67,12 @@ def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
         "ipsw", "macho", "disass", "--symbol", symbol,
         "--count", str(instruction_limit), str(binary),
     ])
-    return normalize_disassembly(output)
+    instructions = normalize_disassembly(output)
+    if not instructions:
+        raise RuntimeError(
+            f"disassembler returned no parseable instructions for {symbol} in {binary}"
+        )
+    return instructions
 
 
 def digest_instructions(instructions: list[str]) -> str:
