@@ -53,13 +53,16 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
     if not isinstance(claims, list):
         input_errors.append("target status claims must be a list")
         claims = []
+    def nonempty_string(value: object) -> str:
+        return value.strip() if isinstance(value, str) else ""
+
     identity = {
-        "device_model": str(profile.get("device_model", "")),
-        "model_identifier": str(profile.get("model_identifier", "")),
-        "os_version": str(profile.get("exact_os_version", "")),
-        "build_number": str(profile.get("build_number", "")),
+        "device_model": nonempty_string(profile.get("device_model", "")),
+        "model_identifier": nonempty_string(profile.get("model_identifier", "")),
+        "os_version": nonempty_string(profile.get("exact_os_version", "")),
+        "build_number": nonempty_string(profile.get("build_number", "")),
     }
-    errors = input_errors + [f"{key} is missing" for key, value in identity.items() if not value]
+    errors = input_errors + [f"{key} is missing or invalid" for key, value in identity.items() if not value]
     matches = []
     for item in claims:
         if not isinstance(item, dict):
