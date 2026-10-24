@@ -12,7 +12,7 @@ class CoreGraphicsComparisonToolTests(unittest.TestCase):
             path.write_bytes(b"test-binary")
             self.assertEqual(
                 sha256_file(path),
-                "f5a6f6f4e6b3e3c9f8b5b4a4e6a9c9e8b8d9b6c8f4e7f5d8b7f6a6d4b0b2a4e1",
+                "6f850b10b66ff0af26a1151306cbc59427ae2572330935d95ab5febdef8763bf",
             )
 
     def test_find_coregraphics_requires_one_match(self):
