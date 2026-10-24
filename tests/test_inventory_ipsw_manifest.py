@@ -11,10 +11,10 @@ from research.scripts.inventory_ipsw_manifest import inventory_ipsw
 
 def make_ipsw(path: Path) -> bytes:
     manifest = {
+        "SupportedProductTypes": ["iPhone17,4", "iPhone17,3"],
         "BuildIdentities": [
             {
-                "ProductType": "iPhone17,4",
-                "Info": {"DeviceClass": "d83ap", "Variant": "Customer Erase Install",
+                "Info": {"DeviceClass": "D48AP", "Variant": "Customer Erase Install",
                          "BuildTrain": "Example", "BuildVersion": "23G83"},
                 "Manifest": {
                     "KernelCache": {"Path": "kernelcache.release", "Digest": bytes.fromhex("ab" * 20),
@@ -46,7 +46,7 @@ class InventoryIpswManifestTests(unittest.TestCase):
         self.size = len(self.bytes)
 
     def test_inventories_only_matching_device_identity(self):
-        result = inventory_ipsw(self.path, self.sha, self.size, "iPhone17,4")
+        result = inventory_ipsw(self.path, self.sha, self.size, "iPhone17,4", "D48AP")
         self.assertTrue(result["integrity_verified_against_pinned_values"])
         self.assertEqual(result["source_sha256"], self.sha)
         self.assertEqual(result["source_size_bytes"], self.size)
@@ -55,6 +55,8 @@ class InventoryIpswManifestTests(unittest.TestCase):
         self.assertEqual(identity["device_class"], "d83ap")
         self.assertEqual(identity["product_type"], "iPhone17,4")
         self.assertEqual(identity["build_version"], "23G83")
+        self.assertEqual(result["product_type"], "iPhone17,4")
+        self.assertEqual(result["device_class"], "D48AP")
         self.assertEqual([c["name"] for c in identity["components"]], ["KernelCache", "RestoreRamDisk"])
         self.assertEqual(identity["components"][0]["digest_sha1"], "ab" * 20)
         self.assertFalse(result["device_modified"])
@@ -62,19 +64,19 @@ class InventoryIpswManifestTests(unittest.TestCase):
 
     def test_hash_mismatch_fails_before_manifest_read(self):
         with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
-            inventory_ipsw(self.path, "0" * 64, self.size, "iPhone17,4")
+            inventory_ipsw(self.path, "0" * 64, self.size, "iPhone17,4", "D48AP")
 
     def test_size_mismatch_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "size mismatch"):
-            inventory_ipsw(self.path, self.sha, self.size + 1, "iPhone17,4")
+            inventory_ipsw(self.path, self.sha, self.size + 1, "iPhone17,4", "D48AP")
 
     def test_wrong_product_type_fails_closed(self):
-        with self.assertRaisesRegex(ValueError, "no BuildIdentity matched"):
-            inventory_ipsw(self.path, self.sha, self.size, "iPhone99,9")
+        with self.assertRaisesRegex(ValueError, "not listed in SupportedProductTypes"):
+            inventory_ipsw(self.path, self.sha, self.size, "iPhone99,9", "D48AP")
 
     def test_invalid_pinned_digest_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "64 hexadecimal"):
-            inventory_ipsw(self.path, "not-a-hash", self.size, "iPhone17,4")
+            inventory_ipsw(self.path, "not-a-hash", self.size, "iPhone17,4", "D48AP")
 
 
 if __name__ == "__main__":
