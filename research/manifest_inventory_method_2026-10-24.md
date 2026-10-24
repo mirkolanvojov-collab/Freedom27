@@ -29,7 +29,7 @@ Example for the already verified target image:
 python research/scripts/inventory_ipsw_manifest.py /path/to/iPhone17,4_26.6.1_23G83_Restore.ipsw \
   --sha256 101aed9c3d5513b598a2b22da7bda5843a051adbe0430f23faed546c1613bd0f \
   --size 11225458130 \
-  --product-type iPhone17,4 \
+  --product-type iPhone17,4 --device-class d48ap \
   --output target-23G83-manifest.json
 ```
 
