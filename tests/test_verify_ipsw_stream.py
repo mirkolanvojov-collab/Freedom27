@@ -96,6 +96,18 @@ class VerifyIpswStreamTests(unittest.TestCase):
                 sleep=lambda _: None, max_retries=1,
             )
 
+    def test_rejects_full_response_with_wrong_content_length(self):
+        responses = [FakeResponse(b"abcdef", 200, {"Content-Length": "7"})]
+
+        def opener(request, timeout):
+            return responses.pop(0)
+
+        with self.assertRaisesRegex(RuntimeError, "Content-Length does not match pinned size"):
+            stream_url_sha256(
+                "https://example.invalid/test", 6, opener=opener,
+                sleep=lambda _: None, max_retries=1,
+            )
+
     def test_rejects_extra_bytes_after_pinned_full_response(self):
         responses = [FakeResponse(b"abcdefX", 200)]
 
