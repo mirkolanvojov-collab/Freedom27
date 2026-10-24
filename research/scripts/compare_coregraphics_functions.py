@@ -36,15 +36,18 @@ def run(args: list[str]) -> str:
 
 def discover_symbols(binary: Path) -> list[str]:
     output = run(["ipsw", "macho", "info", "--symbols", str(binary)])
-    # Only accept names on addressed symbol-table rows. A plain text regex over
-    # the whole report can accidentally collect undefined/imported references
-    # that ipsw cannot resolve as a disassembly start address.
+    # Disassemble only symbols explicitly located in executable __TEXT,__text.
+    # The previous whole-line regex also matched data labels in __TEXT,__const
+    # and suffixes such as aa_path_iterator_create.callbacks, then treated them
+    # as function entry points. That caused false failures and misleading counts.
     found: set[str] = set()
     for line in output.splitlines():
-        row = re.match(r"^\s*(0x[0-9a-fA-F]+):", line)
+        row = re.match(r"^\s*(0x[0-9a-fA-F]+):\s+\(([^,]+),([^)]+)\)\s+.*?\s(_?aa_[A-Za-z0-9_$]+)\s*$", line)
         if not row or int(row.group(1), 16) == 0:
             continue
-        found.update(match.group(0) for match in SYMBOL_RE.finditer(line))
+        segment, section, symbol = row.group(2), row.group(3), row.group(4)
+        if segment == "__TEXT" and section == "__text":
+            found.add(symbol)
     return sorted(found)
 
 
