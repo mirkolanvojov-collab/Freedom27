@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-"""Compare two verified IPSW BuildManifest inventories and selected raw member hashes.
-
-This compares manifest metadata plus SHA-256 hashes of selected uncompressed ZIP
-members. It does not decrypt components or attribute changes to vulnerabilities.
-"""
+"""Compare verified IPSW BuildManifest inventories without overclaiming binary diffs."""
 from __future__ import annotations
 
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -21,19 +18,26 @@ def load_inventory(path: str | Path) -> dict[str, Any]:
         raise ValueError(f"{path}: inventory is not hash-verified")
     if not data.get("product_type"):
         raise ValueError(f"{path}: missing product_type")
+    if not isinstance(data.get("source_sha256"), str) or len(data["source_sha256"]) != 64:
+        raise ValueError(f"{path}: missing or invalid source SHA-256")
+    if not isinstance(data.get("source_size_bytes"), int) or data["source_size_bytes"] <= 0:
+        raise ValueError(f"{path}: missing or invalid source size")
     identities = data.get("build_identities")
     if not isinstance(identities, list) or not identities:
         raise ValueError(f"{path}: missing build identities")
     return data
 
 
-def _components(inventory: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    found: dict[str, dict[str, Any]] = {}
+def _components(inventory: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    found: dict[tuple[str, str], dict[str, Any]] = {}
     for identity in inventory["build_identities"]:
+        variant = identity.get("variant") or "<unspecified-variant>"
         for component in identity.get("components", []):
             name = component.get("name")
             if isinstance(name, str):
-                found[name] = component
+                record = dict(component)
+                record["variant"] = variant
+                found[(variant, name)] = record
     return found
 
 
@@ -43,6 +47,7 @@ def _build_metadata(inventory: dict[str, Any]) -> dict[str, Any]:
         "source_file_name": inventory.get("source_file_name"),
         "build_versions": sorted({str(item.get("build_version")) for item in identities if item.get("build_version")}),
         "build_trains": sorted({str(item.get("build_train")) for item in identities if item.get("build_train")}),
+        "device_class": inventory.get("device_class"),
         "sha256": inventory.get("source_sha256"),
         "size_bytes": inventory.get("source_size_bytes"),
     }
@@ -54,22 +59,29 @@ def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[s
             raise ValueError(f"{label} inventory is not hash-verified")
     if before.get("product_type") != after.get("product_type"):
         raise ValueError("product_type mismatch: cross-device comparison is not allowed")
+    if before.get("device_class") != after.get("device_class"):
+        raise ValueError("device_class mismatch: cross-board comparison is not allowed")
 
     left = _components(before)
     right = _components(after)
+    shared = left.keys() & right.keys()
     changes = []
-    for name in sorted(left.keys() | right.keys()):
-        old = left.get(name)
-        new = right.get(name)
+    field_counts: Counter[str] = Counter()
+    for variant, name in sorted(left.keys() | right.keys()):
+        key = (variant, name)
+        old = left.get(key)
+        new = right.get(key)
         if old is None:
-            changes.append({"name": name, "status": "added_in_after", "before": None, "after": new})
+            changes.append({"variant": variant, "name": name, "status": "added_in_after", "before": None, "after": new})
             continue
         if new is None:
-            changes.append({"name": name, "status": "absent_in_after", "before": old, "after": None})
+            changes.append({"variant": variant, "name": name, "status": "absent_in_after", "before": old, "after": None})
             continue
         changed_fields = [field for field in FIELDS if old.get(field) != new.get(field)]
         if changed_fields:
+            field_counts.update(changed_fields)
             changes.append({
+                "variant": variant,
                 "name": name,
                 "status": "metadata_changed",
                 "changed_fields": changed_fields,
@@ -77,25 +89,31 @@ def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[s
                 "after": new,
             })
 
+    status_counts = Counter(item["status"] for item in changes)
     raw_member_hash_comparison_names = sorted(
-        name for name in (left.keys() & right.keys())
-        if left[name].get("member_sha256") and right[name].get("member_sha256")
+        name for variant, name in shared
+        if left[(variant, name)].get("member_sha256") and right[(variant, name)].get("member_sha256")
     )
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "product_type": before["product_type"],
         "before_build": _build_metadata(before),
         "after_build": _build_metadata(after),
-        "component_names_before": len(left),
-        "component_names_after": len(right),
-        "metadata_change_count": len(changes),
+        "component_entries_before": len(left),
+        "component_entries_after": len(right),
+        "shared_entry_count": len(shared),
+        "metadata_changed_entry_count": status_counts["metadata_changed"],
+        "added_entry_count": status_counts["added_in_after"],
+        "absent_entry_count": status_counts["absent_in_after"],
+        "change_record_count": len(changes),
+        "field_change_counts": dict(sorted(field_counts.items())),
         "changes": changes,
         "interpretation": {
             "component_payload_bytes_compared": bool(raw_member_hash_comparison_names),
             "raw_member_hash_comparison_names": raw_member_hash_comparison_names,
             "cve_attribution_performed": False,
             "exact_build_vulnerability_confirmed": False,
-            "note": "Only selected raw ZIP member byte hashes are compared; they are not decrypted code hashes. Manifest differences do not establish patch attribution, vulnerable-code reachability, or exploitability.",
+            "note": "Selected raw ZIP member SHA-256 values compare exact uncompressed member bytes, not decrypted code. Manifest and raw-member differences do not establish patch attribution, vulnerable-code reachability, or exploitability.",
         },
     }
 
