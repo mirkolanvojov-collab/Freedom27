@@ -19,7 +19,7 @@ The 26.7 advisory is the closest named fixed release for the tracked CVEs, but a
 1. Hashes the complete local IPSW in 1 MiB chunks.
 2. Requires a pinned SHA-256 and exact byte count before opening the ZIP.
 3. Reads only root `BuildManifest.plist`, with a 64 MiB manifest-size ceiling.
-4. Selects BuildIdentity entries whose `Info.DeviceClass` equals `iPhone17,4`.
+4. Selects BuildIdentity entries whose `ProductType` (top-level, with a compatibility fallback to `Info.ProductType`) equals `iPhone17,4`; `Info.DeviceClass` is retained separately because it is a board/device-class identifier, not the product type.
 5. Writes the component names, paths, manifest-provided digests, encryption/trust flags, and build metadata to JSON.
 6. Does not extract component payloads, decrypt binaries, contact a device, or execute code.
 

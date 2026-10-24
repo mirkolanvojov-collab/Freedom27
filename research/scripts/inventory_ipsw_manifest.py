@@ -73,7 +73,8 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         identity_info = identity.get("Info", {})
         if not isinstance(identity_info, dict):
             continue
-        if identity_info.get("DeviceClass") != product_type:
+        identity_product_type = identity.get("ProductType") or identity_info.get("ProductType")
+        if identity_product_type != product_type:
             continue
         components = []
         component_map = identity.get("Manifest", {})
@@ -94,9 +95,10 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         selected.append({
             "identity_index": index,
             "device_class": identity_info.get("DeviceClass"),
+            "product_type": identity_product_type,
             "variant": identity_info.get("Variant"),
-            "build_train": identity_info.get("BuildTrain"),
-            "build_version": identity_info.get("BuildVersion"),
+            "build_train": identity_info.get("BuildTrain") or manifest.get("BuildTrain"),
+            "build_version": identity_info.get("BuildVersion") or identity_info.get("BuildNumber"),
             "restore_behavior": identity_info.get("RestoreBehavior"),
             "components": components,
         })
