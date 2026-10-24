@@ -16,13 +16,20 @@ The earlier blocker was phrased too narrowly as “no iPhone17,4 iOS 26.7.1 rest
 
 The exact download URL was subsequently resolved from Apple's live OTA metadata using the open-source `ipsw` utility in GitHub Actions (run 40053023805): https://updates.cdn-apple.com/2026FallFCS/5ef51a7b-0f58-4585-8cdf-14afa18e9622/com_apple_MobileAsset_SoftwareUpdate/818080afd3f2204f9cf3c8da075752ee6e05c420554a0b076e7c9f5d2378d203.aea
 
-The CI step verified that the returned URL's hostname is exactly `updates.cdn-apple.com`. This resolves URL discovery, but **does not yet verify the downloaded bytes**. The filename's 64-hex identifier is not treated as a checksum until independently compared with the downloaded package hash.
+The CI step verified that the returned URL's hostname is exactly `updates.cdn-apple.com`. The package was then downloaded from that URL in CI run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40053079976. The job verified the exact 8,724,152,320-byte size and computed SHA-256:
+
+```
+SHA-256: 0078dc02b647fbc5c6efb8fd4e3fe0fc79d02af5f798f2e7981e069bd6987d92
+Size:    8724152320 bytes
+```
+
+The 64-hex filename identifier differs from the whole-file SHA-256, so it must not be treated as the file digest. The workflow removed the 8.7 GB package after hashing and uploaded a small verification-record artifact. This establishes a reproducible digest for the downloaded package and exact size; it is not an Apple-published checksum or cryptographic signature by itself.
 
 ## Safe validation sequence
 
 1. **Completed:** resolve the exact Apple CDN URL through Apple's live OTA metadata; URL host checked in CI run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40053023805.
-2. Download only from that resolved Apple CDN endpoint; validate HTTP response, exact length (8,724,152,320 bytes if the catalogue remains accurate), and compute SHA-256 in CI.
-3. Validate OTA metadata and device/build identity before extraction. Treat the published extraction key as untrusted until cross-checked against an independent firmware metadata source.
+2. **Completed:** download from that Apple CDN URL; validate exact length and compute SHA-256 in CI run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40053079976.
+3. Next: validate package internals and device/build identity, then determine whether CoreGraphics can be extracted and compared with target 23G83. Treat the published extraction key as untrusted until cross-checked against an independent firmware metadata source.
 4. If the package can be lawfully and reproducibly extracted, identify the CoreGraphics binary and record its cryptographic hash, architecture, UUID/build metadata, and provenance.
 5. Compare only corresponding code with the target 23G83 component. If target or fixed binary is encrypted, incomparable, or lacks sufficient symbols/metadata, record that limitation rather than inferring a patch.
 6. Use static, read-only comparison and synthetic defensive-model tests only. Do not run the published exploit/PoC, craft a trigger file, modify a device, or claim exploitability from a version-range match alone.
@@ -33,7 +40,7 @@ The CI step verified that the returned URL's hostname is exactly `updates.cdn-ap
 - CVE-2026-86950: Apple says fixed in iOS 26.7.1 and describes an out-of-bounds write addressed by improved bounds checking.
 - Public patch analysis: reports changes in CoreGraphics anti-aliased path-rasterization coordinate conversion.
 - Exact target vulnerable code path: not established.
-- Same-device fixed OTA: catalogue-listed candidate found; package integrity and extraction not yet verified.
+- Same-device fixed OTA: downloaded from the resolved Apple CDN; exact byte count and computed SHA-256 recorded by CI; internal extraction and component comparison remain outstanding.
 - Reproduction and jailbreak chain: not established.
 
 This is a research evidence update, not a claim that the blocker is fully cleared or that a jailbreak works.
