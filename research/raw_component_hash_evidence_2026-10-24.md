@@ -26,9 +26,16 @@ A separately successful hash-gated inventory for iOS 27.0 build `24A437` recorde
 
 These manifest digest values differ from the target's corresponding manifest values. This establishes a metadata-level delta only; the values are not raw member SHA-256 values and must not be compared as if they used the same hash algorithm or data representation.
 
-## Fixed-build raw member hash status
+## Fixed-build raw member hashes
 
-A later run of the selected-component workflow has the fixed-build job still downloading iOS 27.0 at last check: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40048409001. The older fixed-build artifact does not contain raw member hashes. Therefore the raw byte-for-byte AVE and KernelCache comparison is **pending**, not completed.
+The selected-component workflow completed successfully for both builds in run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40048801314. The fixed-build artifact was retrieved and inspected. Its whole IPSW SHA-256 matched the pinned value `a8bed747c08709a63e5b9d55fa87bfca2839245f91a82082a8c30b8833fae149`; the verified size was 12,313,212,859 bytes.
+
+| Component | Archive member path | Raw member size | Raw member SHA-256 |
+|---|---|---:|---|
+| AVE | `Firmware/ave/AppleAVE2FW_H17.im4p` | 2,748,385 bytes | `0f054362656bb9e00298692b711f1f007569628cd376ce861a06fa9be275f7a3` |
+| KernelCache | `kernelcache.release.iphone17` | 23,406,137 bytes | `a1844ca958421bb8b878ed38c4f3033293baef6302c7bc4cf7b88266e5d7e5af` |
+
+The fixed build's raw AVE and KernelCache member hashes and sizes are now available for direct comparison.
 
 ## Interpretation
 
@@ -40,6 +47,6 @@ A later run of the selected-component workflow has the fixed-build job still dow
 
 ## Next evidence gate
 
-Complete the fixed-build raw member hashes, compare raw SHA-256 and member sizes, then determine whether public, non-invasive static analysis can map a specific changed code region to an Apple advisory claim. If the payload is encrypted or otherwise not inspectable without unavailable keys, record that as a hard evidence boundary rather than infer a patch. No exploit or device test is authorized by this research record.
+Compare the completed raw SHA-256 values and member sizes across both builds, then determine whether public, non-invasive static analysis can map a specific changed code region to an Apple advisory claim. If the payload is encrypted or otherwise not inspectable without unavailable keys, record that as a hard evidence boundary rather than infer a patch. No exploit or device test is authorized by this research record.
 
 No device was accessed, modified, restored, or downgraded. No exploit code or payload was executed.
