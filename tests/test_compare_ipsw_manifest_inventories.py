@@ -86,6 +86,24 @@ class CompareIpswManifestInventoriesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "ambiguous duplicate component"):
             compare_inventories(before, after)
 
+    def test_rejects_missing_source_hash_even_when_flag_is_true(self):
+        before = inventory("23G83", [])
+        before["source_sha256"] = "not-a-sha256"
+        with self.assertRaisesRegex(ValueError, "source SHA-256"):
+            compare_inventories(before, inventory("24A437", []))
+
+    def test_rejects_invalid_source_size_even_when_flag_is_true(self):
+        before = inventory("23G83", [])
+        before["source_size_bytes"] = True
+        with self.assertRaisesRegex(ValueError, "source size"):
+            compare_inventories(before, inventory("24A437", []))
+
+    def test_rejects_malformed_build_identity_in_direct_call(self):
+        before = inventory("23G83", [])
+        before["build_identities"] = [{"components": None}]
+        with self.assertRaisesRegex(ValueError, "components must be a list of objects"):
+            compare_inventories(before, inventory("24A437", []))
+
     def test_rejects_unverified_input(self):
         with self.assertRaisesRegex(ValueError, "before inventory is not hash-verified"):
             compare_inventories(inventory("23G83", [], verified=False), inventory("24A437", []))
