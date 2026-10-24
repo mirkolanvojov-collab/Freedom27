@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -22,6 +23,7 @@ CVE_IDS = [
     "CVE-2026-43687", "CVE-2026-43684", "CVE-2026-43686",
     "CVE-2026-65405", "CVE-2026-84622", "CVE-2026-28968",
 ]
+CVE_ID_RE = re.compile(r"^CVE-\d{4}-\d{4,}$")
 BASE = "https://services.nvd.nist.gov/rest/json"
 DEFAULT_OUT = Path("research/nvd_api_capture")
 DEFAULT_TIMEOUT = 45
@@ -35,6 +37,9 @@ def get_json(url: str, api_key: str = "", timeout: int = DEFAULT_TIMEOUT) -> tup
     req = urllib.request.Request(url, headers=headers, method="GET")
     try:
         with urllib.request.urlopen(req, timeout=timeout) as response:
+            final_url = urllib.parse.urlparse(response.geturl())
+            if final_url.scheme != "https" or final_url.hostname != "services.nvd.nist.gov":
+                return response.status, None, "refusing response redirected outside the HTTPS NVD API host"
             raw = response.read()
             payload = json.loads(raw)
             if not isinstance(payload, dict):
@@ -60,6 +65,17 @@ def capture_records(
     sleep: Callable[[float], None] = time.sleep,
 ) -> dict:
     """Capture requested records. Inject request/sleep functions for offline tests."""
+    if not isinstance(cve_ids, (list, tuple)) or not cve_ids:
+        raise ValueError("cve_ids must be a non-empty list or tuple")
+    invalid_ids = [
+        value for value in cve_ids
+        if not isinstance(value, str) or CVE_ID_RE.fullmatch(value) is None
+    ]
+    if invalid_ids:
+        raise ValueError(f"invalid CVE identifier(s): {invalid_ids!r}")
+    if len(set(cve_ids)) != len(cve_ids):
+        raise ValueError("cve_ids must not contain duplicates")
+
     key = os.environ.get("NVD_API_KEY", "").strip() if api_key is None else api_key.strip()
     requester = request_json or (lambda url, secret: get_json(url, secret))
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -74,8 +90,6 @@ def capture_records(
     save_json(summary_path, summary)
 
     for index, cve_id in enumerate(cve_ids):
-        if not isinstance(cve_id, str) or not cve_id.startswith("CVE-"):
-            raise ValueError(f"invalid CVE identifier: {cve_id!r}")
         print(f"[{index + 1}/{len(cve_ids)}] Capturing {cve_id}", flush=True)
         encoded_id = urllib.parse.quote(cve_id, safe="-")
         cve_url = f"{BASE}/cves/2.0?cveId={encoded_id}"

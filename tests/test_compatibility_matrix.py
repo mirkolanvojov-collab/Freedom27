@@ -64,6 +64,18 @@ class CompatibilityMatrixTests(unittest.TestCase):
         errors = validate_claims([None, {"device_family": "iPhone 14"}])
         self.assertTrue(any("claim[0]: must be an object" in error for error in errors))
 
+    def test_non_string_required_fields_are_not_coerced_into_valid_claims(self):
+        errors = validate_claims([{
+            "device_family": None,
+            "model_identifier": 123,
+            "os_version": "iOS 26",
+            "build": True,
+            "status": "researching",
+        }])
+        self.assertTrue(any("device_family must not be empty" in error for error in errors))
+        self.assertTrue(any("model_identifier must not be empty" in error for error in errors))
+        self.assertTrue(any("build must not be empty" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

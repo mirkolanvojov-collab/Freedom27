@@ -9,9 +9,21 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 ALLOWED = {"not-investigated", "researching", "theoretical", "experimental", "verified", "not-supported"}
+
+
+def _valid_https_url(value: object) -> bool:
+    try:
+        parsed = urlparse(value) if isinstance(value, str) else None
+        return bool(
+            parsed and parsed.scheme == "https" and parsed.hostname
+            and not parsed.username and not parsed.password
+        )
+    except ValueError:
+        return False
 
 
 def _read(path: Path) -> Any:
@@ -41,13 +53,16 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
     if not isinstance(claims, list):
         input_errors.append("target status claims must be a list")
         claims = []
+    def nonempty_string(value: object) -> str:
+        return value.strip() if isinstance(value, str) else ""
+
     identity = {
-        "device_model": str(profile.get("device_model", "")),
-        "model_identifier": str(profile.get("model_identifier", "")),
-        "os_version": str(profile.get("exact_os_version", "")),
-        "build_number": str(profile.get("build_number", "")),
+        "device_model": nonempty_string(profile.get("device_model", "")),
+        "model_identifier": nonempty_string(profile.get("model_identifier", "")),
+        "os_version": nonempty_string(profile.get("exact_os_version", "")),
+        "build_number": nonempty_string(profile.get("build_number", "")),
     }
-    errors = input_errors + [f"{key} is missing" for key, value in identity.items() if not value]
+    errors = input_errors + [f"{key} is missing or invalid" for key, value in identity.items() if not value]
     matches = []
     for item in claims:
         if not isinstance(item, dict):
@@ -63,8 +78,8 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
         if status not in ALLOWED:
             errors.append(f"matching claim has invalid status: {status}")
             continue
-        if status in {"verified", "not-supported"} and (not url.startswith("https://") or not notes):
-            errors.append(f"{status} claim requires an HTTPS evidence URL and review notes")
+        if status in {"verified", "not-supported"} and (not _valid_https_url(url) or not notes.strip()):
+            errors.append(f"{status} claim requires a valid HTTPS evidence URL and review notes")
             continue
         valid.append(item)
 

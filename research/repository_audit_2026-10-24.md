@@ -30,3 +30,18 @@ This is a repository/tooling audit. It is not a binary audit of Apple firmware a
 ## Follow-up
 
 Continue with non-invasive evidence review and tests only. Before any future device-testing phase, require a source-pinned implementation review, a dedicated recoverable test device, independently checked backup/recovery procedure, and a narrowly scoped test plan. Do not run an unverified payload on the daily-use phone.
+
+## Follow-up validation audit — 2026-10-24
+
+A follow-up pass against the 184-file research branch snapshot found and corrected additional fail-closed validation gaps:
+
+1. The NVD capture helper previously accepted any identifier beginning with `CVE-` and created its output directory before validating the entire input. A path-like identifier could influence output filenames, and an empty/duplicate set could produce misleading capture results. It now validates the full CVE pattern, rejects empty and duplicate sets, and does so before filesystem writes.
+2. The Apple advisory source checker now rejects URLs containing embedded credentials and checks the final URL after redirects, preventing an Apple-looking source URL from silently resolving to a different host.
+3. The compatibility status checker previously accepted any string beginning with `https://` as a verified evidence URL and stringified malformed target fields. It now parses URLs structurally and rejects missing/non-string target identity values.
+4. The compatibility matrix mapper previously coerced non-string fields such as `None`, numbers, and booleans into strings. It now rejects those malformed values rather than treating them as usable claim data.
+5. The synthetic coordinate-bounds model now rejects booleans (which Python treats as integers) and invalid `max_extent` values.
+6. The CoreGraphics target assessment was reconciled with its completed static patch-correlation section; an accidentally literal `\\n\\n` sequence and stale “pending” status text were removed. An older CVE execution note was marked as a historical checkpoint and its ChatGPT-only citation tokens were replaced with a normal source link.
+
+Regression tests were added for the new input-validation cases. GitHub Actions run [40115268148](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40115268148) passed the full test workflow at commit `baa97f1f1778e1d63ab9f4bf09e986515f899726`, which included the initial NVD, redirect, and bounds-model changes. Subsequent compatibility-validation and documentation edits were committed after that run and have **not yet been validated by a new CI run**; do not treat the earlier pass as validation of the latest branch head.
+
+This follow-up is a repository metadata/tooling audit only. It does not establish exploitability, jailbreak feasibility, or device safety.

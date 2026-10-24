@@ -30,14 +30,18 @@ class CompatibilityClaim:
 
     @classmethod
     def from_mapping(cls, item: dict[str, Any]) -> "CompatibilityClaim":
+        def text_field(name: str) -> str:
+            value = item.get(name, "")
+            return value.strip() if isinstance(value, str) else ""
+
         return cls(
-            device_family=str(item.get("device_family", "")).strip(),
-            model_identifier=str(item.get("model_identifier", "")).strip(),
-            os_version=str(item.get("os_version", "")).strip(),
-            build=str(item.get("build", "")).strip(),
-            status=str(item.get("status", "")).strip(),
-            evidence_url=str(item.get("evidence_url", "")).strip(),
-            notes=str(item.get("notes", "")).strip(),
+            device_family=text_field("device_family"),
+            model_identifier=text_field("model_identifier"),
+            os_version=text_field("os_version"),
+            build=text_field("build"),
+            status=text_field("status"),
+            evidence_url=text_field("evidence_url"),
+            notes=text_field("notes"),
         )
 
     def validate(self) -> list[str]:
