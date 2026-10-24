@@ -43,9 +43,11 @@ jobs:
             --output "$package" "$(cat fixed-ota-url.txt)"
           actual_size="$(stat -c '%s' "$package")"
           expected_size=8724152320
+          expected_sha256=0078dc02b647fbc5c6efb8fd4e3fe0fc79d02af5f798f2e7981e069bd6987d92
           test "$actual_size" -eq "$expected_size"
           actual_sha256="$(sha256sum "$package" | cut -d ' ' -f 1)"
-          printf 'url=%s\nsize_bytes=%s\nsha256=%s\n' "$(cat fixed-ota-url.txt)" "$actual_size" "$actual_sha256" | tee fixed-ota-verification.txt
+          test "$actual_sha256" = "$expected_sha256"
+          printf 'url=%s\nsize_bytes=%s\nexpected_sha256=%s\nsha256=%s\n' "$(cat fixed-ota-url.txt)" "$actual_size" "$expected_sha256" "$actual_sha256" | tee fixed-ota-verification.txt
           rm -f "$package"
       - name: Upload OTA verification record
         uses: actions/upload-artifact@v4
