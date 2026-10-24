@@ -77,6 +77,10 @@ def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[s
                 "after": new,
             })
 
+    raw_member_hash_comparison_names = sorted(
+        name for name in (left.keys() & right.keys())
+        if left[name].get("member_sha256") and right[name].get("member_sha256")
+    )
     return {
         "schema_version": 1,
         "product_type": before["product_type"],
@@ -87,7 +91,8 @@ def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[s
         "metadata_change_count": len(changes),
         "changes": changes,
         "interpretation": {
-            "component_payload_bytes_compared": any("member_sha256" in item.get("changed_fields", []) for item in changes),
+            "component_payload_bytes_compared": bool(raw_member_hash_comparison_names),
+            "raw_member_hash_comparison_names": raw_member_hash_comparison_names,
             "cve_attribution_performed": False,
             "exact_build_vulnerability_confirmed": False,
             "note": "Only selected raw ZIP member byte hashes are compared; they are not decrypted code hashes. Manifest differences do not establish patch attribution, vulnerable-code reachability, or exploitability.",
