@@ -21,18 +21,21 @@ def inventory(build, components, product="iPhone17,4", verified=True):
 class CompareIpswManifestInventoriesTests(unittest.TestCase):
     def test_reports_manifest_metadata_changes_without_claiming_binary_diff(self):
         before = inventory("23G83", [
-            {"name": "KernelCache", "path": "kernel.old", "digest_sha1": "a" * 40,
+            {"name": "KernelCache", "path": "kernel.old", "digest_hex": "a" * 40,
+             "member_sha256": "a" * 64, "member_size_bytes": 100, "member_hash_algorithm": "sha256",
              "is_encrypted": True},
             {"name": "OldComponent", "path": "old.bin"},
         ])
         after = inventory("24A437", [
-            {"name": "KernelCache", "path": "kernel.new", "digest_sha1": "b" * 40,
+            {"name": "KernelCache", "path": "kernel.new", "digest_hex": "b" * 40,
+             "member_sha256": "b" * 64, "member_size_bytes": 100, "member_hash_algorithm": "sha256",
              "is_encrypted": True},
             {"name": "NewComponent", "path": "new.bin"},
         ])
         result = compare_inventories(before, after)
         self.assertEqual(result["metadata_change_count"], 3)
-        self.assertFalse(result["interpretation"]["component_payload_bytes_compared"])
+        self.assertTrue(result["interpretation"]["component_payload_bytes_compared"])
+        self.assertEqual(result["interpretation"]["raw_member_hash_comparison_names"], ["KernelCache"])
         self.assertFalse(result["interpretation"]["cve_attribution_performed"])
         statuses = {item["name"]: item["status"] for item in result["changes"]}
         self.assertEqual(statuses["KernelCache"], "metadata_changed")

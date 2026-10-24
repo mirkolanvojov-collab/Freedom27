@@ -25,7 +25,7 @@ def _hex(value: Any) -> str | None:
 
 
 def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
-                   product_type: str, device_class: str) -> dict[str, Any]:
+                   product_type: str, device_class: str, hash_components: list[str] | None = None) -> dict[str, Any]:
     """Verify full IPSW bytes, then inventory matching BuildManifest identities."""
     image = Path(path)
     expected_sha256 = expected_sha256.strip().lower()
@@ -73,6 +73,8 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         raise ValueError("BuildManifest.plist has no BuildIdentities array")
 
     selected = []
+    wanted_hashes = set(hash_components or [])
+    member_hash_cache: dict[str, dict[str, Any]] = {}
     for index, identity in enumerate(identities):
         if not isinstance(identity, dict):
             continue
@@ -92,15 +94,41 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
             component_info = component.get("Info", {})
             if not isinstance(component_info, dict):
                 component_info = {}
-            components.append({
+            component_path = component.get("Path", component_info.get("Path"))
+            component_result = {
                 "name": str(name),
-                "path": component.get("Path", component_info.get("Path")),
+                "path": component_path,
                 "digest_hex": _hex(component.get("Digest", component_info.get("Digest"))),
                 "partial_digest_hex": _hex(component.get("PartialDigest", component_info.get("PartialDigest"))),
                 "is_encrypted": component.get("IsEncrypted", component_info.get("IsEncrypted")),
                 "trusted": component.get("Trusted", component_info.get("Trusted")),
                 "personalized": component.get("Personalized", component_info.get("Personalized")),
-            })
+            }
+            if str(name) in wanted_hashes:
+                if not isinstance(component_path, str) or not component_path:
+                    raise ValueError(f"selected component {name!r} has no manifest path")
+                if component_path not in member_hash_cache:
+                    member_digest = hashlib.sha256()
+                    member_size = 0
+                    try:
+                        with zipfile.ZipFile(image, "r") as member_archive:
+                            member_info = member_archive.getinfo(component_path)
+                            with member_archive.open(member_info, "r") as member_stream:
+                                while True:
+                                    chunk = member_stream.read(1024 * 1024)
+                                    if not chunk:
+                                        break
+                                    member_digest.update(chunk)
+                                    member_size += len(chunk)
+                    except KeyError as exc:
+                        raise ValueError(f"selected component path missing from IPSW: {component_path}") from exc
+                    member_hash_cache[component_path] = {
+                        "member_sha256": member_digest.hexdigest(),
+                        "member_size_bytes": member_size,
+                        "member_hash_algorithm": "sha256",
+                    }
+                component_result.update(member_hash_cache[component_path])
+            components.append(component_result)
         selected.append({
             "identity_index": index,
             "device_class": identity_info.get("DeviceClass"),
@@ -126,7 +154,8 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
         "build_manifest_entry": "BuildManifest.plist",
         "build_identities": selected,
         "method_limits": [
-            "Only BuildManifest.plist metadata was read; no firmware component was extracted or hashed individually.",
+            "Only BuildManifest.plist metadata was read; no firmware component was extracted or decrypted.",
+            "Requested component member hashes, when enabled, are SHA-256 hashes of the exact uncompressed ZIP member bytes; they are not decrypted code hashes.",
             "Manifest component digests are recorded as metadata and are not independent verification of component bytes.",
             "A matching IPSW hash proves consistency with the pinned digest, not Apple-signed authenticity by itself.",
             "Component names or digest changes do not attribute a CVE or prove exploitability.",
@@ -143,10 +172,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--size", required=True, type=int, help="pinned whole-file byte count")
     parser.add_argument("--product-type", required=True, help="e.g. iPhone17,4; checked against SupportedProductTypes")
     parser.add_argument("--device-class", required=True, help="board config from authoritative device metadata, e.g. D48AP")
+    parser.add_argument("--hash-component", action="append", default=[], help="also SHA-256 hash this exact IPSW member by manifest component name; repeatable")
     parser.add_argument("--output", help="optional JSON output path; stdout if omitted")
     args = parser.parse_args(argv)
     try:
-        result = inventory_ipsw(args.ipsw, args.sha256, args.size, args.product_type, args.device_class)
+        result = inventory_ipsw(args.ipsw, args.sha256, args.size, args.product_type, args.device_class, args.hash_component)
     except (OSError, ValueError, zipfile.BadZipFile, plistlib.InvalidFileException) as exc:
         print(json.dumps({"verified": False, "error": str(exc)}, indent=2), file=sys.stderr)
         return 2

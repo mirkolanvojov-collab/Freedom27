@@ -31,6 +31,8 @@ python research/scripts/inventory_ipsw_manifest.py /path/to/iPhone17,4_26.6.1_23
   --size 11225458130 \
   --product-type iPhone17,4 \\
   --device-class D48AP \\
+  --hash-component AVE \\
+  --hash-component KernelCache \\
   --output target-23G83-manifest.json
 ```
 

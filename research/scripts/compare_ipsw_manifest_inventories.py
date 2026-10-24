@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Compare two verified IPSW BuildManifest inventory JSON files.
+"""Compare two verified IPSW BuildManifest inventories and selected raw member hashes.
 
-This compares manifest metadata only; it does not compare component payload bytes
-or attribute changes to vulnerabilities.
+This compares manifest metadata plus SHA-256 hashes of selected uncompressed ZIP
+members. It does not decrypt components or attribute changes to vulnerabilities.
 """
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-FIELDS = ("path", "digest_sha1", "partial_digest_sha1", "is_encrypted", "trusted", "personalized")
+FIELDS = ("path", "digest_hex", "partial_digest_hex", "is_encrypted", "trusted", "personalized", "member_sha256", "member_size_bytes", "member_hash_algorithm")
 
 
 def load_inventory(path: str | Path) -> dict[str, Any]:
@@ -77,6 +77,10 @@ def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[s
                 "after": new,
             })
 
+    raw_member_hash_comparison_names = sorted(
+        name for name in (left.keys() & right.keys())
+        if left[name].get("member_sha256") and right[name].get("member_sha256")
+    )
     return {
         "schema_version": 1,
         "product_type": before["product_type"],
@@ -87,10 +91,11 @@ def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[s
         "metadata_change_count": len(changes),
         "changes": changes,
         "interpretation": {
-            "component_payload_bytes_compared": False,
+            "component_payload_bytes_compared": bool(raw_member_hash_comparison_names),
+            "raw_member_hash_comparison_names": raw_member_hash_comparison_names,
             "cve_attribution_performed": False,
             "exact_build_vulnerability_confirmed": False,
-            "note": "Manifest metadata differences are triage leads only; they do not establish payload differences, patch attribution, vulnerable-code reachability, or exploitability.",
+            "note": "Only selected raw ZIP member byte hashes are compared; they are not decrypted code hashes. Manifest differences do not establish patch attribution, vulnerable-code reachability, or exploitability.",
         },
     }
 
