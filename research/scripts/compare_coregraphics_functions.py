@@ -85,6 +85,11 @@ def disassemble(binary: Path, symbol: str) -> list[str]:
             if "symbol not found in macho symtab" in str(exc).lower():
                 continue
             raise
+        if re.search(r"disassembling 100 instructions at", output, re.IGNORECASE):
+            raise RuntimeError(
+                f"ipsw could not determine the function boundary for {candidate} in {binary}; "
+                "refusing its 100-instruction fallback"
+            )
         instructions = normalize_disassembly(output)
         if instructions:
             return instructions
