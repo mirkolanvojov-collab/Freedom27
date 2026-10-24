@@ -1,10 +1,12 @@
 # Freedom27 — priority execution update (2026-10-24)
 
+> **Historical checkpoint:** the later [exact-target CVE assessment](target_build_cve_assessment_2026-10-24.md) supersedes this note's provisional source-reconciliation and version-range status. Retain this document as the record of the earlier research pass; use the linked assessment for the current 12-CVE result.
+
 ## Scope and safety
 
 This update advances public-evidence and non-exploit regression work for the existing 12-CVE research set. It is a source-traceability plan, not exploit implementation. No payloads, exploit triggers, kernel writes, privilege-escalation code, or device changes are included.
 
-Primary source: Apple, “About the security content of iOS 26.7 and iPadOS 26.7” — https://support.apple.com/en-us/149041. Apple says iOS/iPadOS 26.7 was released September 14, 2026. The bulletin gives impact/fix summaries but no source diffs or enough detail to reconstruct exploitability. citeturn549937search0
+Primary source: Apple, “About the security content of iOS 26.7 and iPadOS 26.7” — https://support.apple.com/en-us/149041. Apple says iOS/iPadOS 26.7 was released September 14, 2026. The bulletin gives impact/fix summaries but no source diffs or enough detail to reconstruct exploitability. [Apple's iOS 26.7 security advisory](https://support.apple.com/en-us/149041)
 
 ## Priority 0 — correct source-of-truth mapping
 
@@ -13,7 +15,7 @@ The two previously flagged CVE mappings can now be resolved against Apple’s bu
 - **CVE-2026-86876 — CoreMedia.** Apple says a sandboxed process may circumvent sandbox restrictions; an out-of-bounds write was addressed with improved bounds checking. Credit: Chris Bailey / Short Circuit.
 - **CVE-2026-86886 — TCC.** Apple says an app may modify protected system files; a path-traversal issue was addressed with improved input validation. Credits include Constantin Clerc and others as listed by Apple.
 
-Do not conflate CVE-2026-86886 with CVE-2026-86887 (Time Zone/privacy) or CVE-2026-86890 (Siri Suggestions/physical access). These are separate entries. citeturn549937search0
+Do not conflate CVE-2026-86886 with CVE-2026-86887 (Time Zone/privacy) or CVE-2026-86890 (Siri Suggestions/physical access). These are separate entries. [Apple's iOS 26.7 security advisory](https://support.apple.com/en-us/149041)
 
 ## Priority 1 — evidence ledger for the current 12 candidates
 
@@ -34,7 +36,7 @@ The following summary records Apple’s public impact/fix language where directl
 | CVE-2026-84622 | App with root privileges may read uninitialized kernel memory (prior notes) | Verify exact Apple entry | Prerequisite already includes root; not an initial escalation path |
 | CVE-2026-28968 | Kernel; out-of-bounds write, termination or kernel-memory corruption (prior notes) | Verify exact Apple entry | Do not promote without primary-source confirmation |
 
-Evidence labels: “Confirmed against Apple bulletin” means the component and summary above were found in Apple’s bulletin. “Prior notes” means the earlier ledger contains the claim but this update does not independently verify it. Rows marked for recheck remain provisional. citeturn549937search0
+Evidence labels: “Confirmed against Apple bulletin” means the component and summary above were found in Apple’s bulletin. “Prior notes” means the earlier ledger contains the claim but this update does not independently verify it. Rows marked for recheck remain provisional. [Apple's iOS 26.7 security advisory](https://support.apple.com/en-us/149041)
 
 ## Priority 2 — version applicability and device-specific evidence
 
