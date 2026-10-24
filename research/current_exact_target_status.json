@@ -63,7 +63,7 @@
     "target_manifest_inventory": "passed against full pinned target IPSW in ephemeral GitHub Actions; manifest-only artifact produced; whole-file SHA-256 and exact size rechecked",
     "fixed_build_manifest_inventory": "passed against pinned iOS 27.0 build 24A437 IPSW in ephemeral GitHub Actions; manifest-only artifact produced; whole-file SHA-256 rechecked",
     "component_member_hashing": {
-      "status": "partial",
+      "status": "complete_raw_hashes",
       "workflow": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40048409001",
       "target_build": "23G83",
       "target_members": {
@@ -81,10 +81,27 @@
         }
       },
       "fixed_build": "24A437",
-      "fixed_build_member_hashes": "pending; selected-component workflow still downloading the fixed IPSW at last check",
-      "caveat": "Raw IPSW member hashes do not represent decrypted executable code and do not establish CVE patch attribution."
+      "fixed_build_member_hashes": "complete; fixed-build artifact verified against pinned whole-IPSW SHA-256 and size",
+      "caveat": "Raw IPSW member hashes do not represent decrypted executable code and do not establish CVE patch attribution.",
+      "fixed_build_source_sha256": "a8bed747c08709a63e5b9d55fa87bfca2839245f91a82082a8c30b8833fae149",
+      "fixed_build_source_size_bytes": 12313212859,
+      "fixed_build_workflow": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40048801314",
+      "fixed_build_members": {
+        "AVE": {
+          "path": "Firmware/ave/AppleAVE2FW_H17.im4p",
+          "sha256": "0f054362656bb9e00298692b711f1f007569628cd376ce861a06fa9be275f7a3",
+          "size_bytes": 2748385,
+          "hash_scope": "raw uncompressed ZIP member bytes"
+        },
+        "KernelCache": {
+          "path": "kernelcache.release.iphone17",
+          "sha256": "a1844ca958421bb8b878ed38c4f3033293baef6302c7bc4cf7b88266e5d7e5af",
+          "size_bytes": 23406137,
+          "hash_scope": "raw uncompressed ZIP member bytes"
+        }
+      }
     }
   },
-  "next_gate": "Finish raw AVE and KernelCache member hashes for fixed build 24A437, compare same named raw member SHA-256 values, then determine whether the available artifact format permits any further non-invasive code-level analysis. Exact-build reachability, exploitability, and complete jailbreak remain unverified.",
+  "next_gate": "Compare same-named raw AVE and KernelCache member SHA-256 values and sizes across 23G83 and 24A437; document byte-level deltas only. CVE attribution, exact-build reachability, exploitability, and complete jailbreak remain unverified.",
   "safety_note": "Do not restore, downgrade, install unknown profiles, or run unreviewed payloads on the daily-use phone as a substitute for evidence."
 }
