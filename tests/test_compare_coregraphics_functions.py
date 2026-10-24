@@ -53,6 +53,13 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         self.assertIn("aa_path_iterator_create", mocked.call_args_list[0].args[0])
         self.assertIn("_aa_path_iterator_create", mocked.call_args_list[1].args[0])
 
+    def test_disassembler_rejects_ipsw_100_instruction_fallback(self):
+        from research.scripts import compare_coregraphics_functions as module
+        output = "WARN disassembling 100 instructions at 0x1000\\n0x1000: ret"
+        with patch.object(module, "run", return_value=output):
+            with self.assertRaisesRegex(RuntimeError, "function boundary"):
+                disassemble(Path("CoreGraphics"), "_aa_render")
+
     def test_disassembler_fails_closed_on_empty_output(self):
         from research.scripts import compare_coregraphics_functions as module
         with patch.object(module, "run", return_value=""):
