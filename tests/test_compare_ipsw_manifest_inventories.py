@@ -75,6 +75,17 @@ class CompareIpswManifestInventoriesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "device_class mismatch"):
             compare_inventories(inventory("23G83", []), inventory("24A437", [], device_class="D73AP"))
 
+    def test_rejects_ambiguous_duplicate_component_entries(self):
+        before = inventory("23G83", [
+            {"name": "KernelCache", "path": "kernelcache", "digest_hex": "a" * 40},
+            {"name": "KernelCache", "path": "kernelcache", "digest_hex": "b" * 40},
+        ])
+        after = inventory("24A437", [
+            {"name": "KernelCache", "path": "kernelcache", "digest_hex": "c" * 40},
+        ])
+        with self.assertRaisesRegex(ValueError, "ambiguous duplicate component"):
+            compare_inventories(before, after)
+
     def test_rejects_unverified_input(self):
         with self.assertRaisesRegex(ValueError, "before inventory is not hash-verified"):
             compare_inventories(inventory("23G83", [], verified=False), inventory("24A437", []))
