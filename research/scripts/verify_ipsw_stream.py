@@ -86,7 +86,7 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
                     # A full response is allowed only at offset zero.
                     declared_length = response.headers.get("Content-Length")
                     if declared_length is not None:
-                        if re.fullmatch(r"\\d+", declared_length.strip()) is None:
+                        if not declared_length.strip().isascii() or not declared_length.strip().isdigit():
                             raise RuntimeError(f"Invalid Content-Length header: {declared_length!r}")
                         if int(declared_length) != expected_size:
                             raise RuntimeError(
@@ -111,7 +111,7 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
                     response_limit = int(match.group(2)) + 1
                     declared_length = response.headers.get("Content-Length")
                     if declared_length is not None:
-                        if re.fullmatch(r"\\d+", declared_length.strip()) is None:
+                        if not declared_length.strip().isascii() or not declared_length.strip().isdigit():
                             raise RuntimeError(f"Invalid Content-Length header: {declared_length!r}")
                         if int(declared_length) != response_limit - total:
                             raise RuntimeError(
