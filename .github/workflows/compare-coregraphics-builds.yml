@@ -35,8 +35,8 @@ jobs:
           fixed_url='https://updates.cdn-apple.com/2026FallFCS/5ef51a7b-0f58-4585-8cdf-14afa18e9622/com_apple_MobileAsset_SoftwareUpdate/818080afd3f2204f9cf3c8da075752ee6e05c420554a0b076e7c9f5d2378d203.aea'
 
           # Extract only the arm64e dyld shared cache; do not restore or modify a device.
-          ipsw extract --remote --dyld --dyld-arch arm64e --output out/target "$target_url"
-          ipsw extract --remote --dyld --dyld-arch arm64e --output out/fixed "$fixed_url"
+          ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --remote --output out/target "$target_url"
+          ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --remote --output out/fixed "$fixed_url"
 
           find out/target out/fixed -type f -name '*dyld_shared_cache*' -print
 
