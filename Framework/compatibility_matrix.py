@@ -53,14 +53,14 @@ class CompatibilityClaim:
             errors.append(f"status must be one of: {', '.join(sorted(VALID_STATUSES))}")
         if self.status == "verified":
             try:
-                parsed = urlparse(self.evidence_url)
-                valid_url = (
-                    parsed.scheme == "https" and bool(parsed.hostname)
+                parsed = urlparse(self.evidence_url) if isinstance(self.evidence_url, str) else None
+                valid_url = bool(
+                    parsed and parsed.scheme == "https" and parsed.hostname
                     and not parsed.username and not parsed.password
                 )
                 if valid_url:
                     _ = parsed.port  # Reject malformed port values.
-            except ValueError:
+            except (AttributeError, TypeError, ValueError):
                 valid_url = False
             if not valid_url:
                 errors.append("verified claims require a valid HTTPS evidence_url")
