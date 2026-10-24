@@ -84,10 +84,15 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
                 response_limit = expected_size
                 if total == 0 and last_status == 200:
                     # A full response is allowed only at offset zero.
-                    pass
+                    declared_length = response.headers.get("Content-Length")
+                    if declared_length is not None and int(declared_length) != expected_size:
+                        raise RuntimeError(
+                            f"Content-Length does not match pinned size: "
+                            f"{declared_length!r} vs {expected_size}"
+                        )
                 elif last_status == 206:
                     content_range = response.headers.get("Content-Range", "")
-                    match = re.fullmatch(r"bytes (\\d+)-(\\d+)/(\\d+|\\*)", content_range)
+                    match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+|\*)", content_range)
                     if (
                         not match
                         or int(match.group(1)) != total
