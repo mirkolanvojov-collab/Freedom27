@@ -63,16 +63,33 @@ def normalize_disassembly(output: str) -> list[str]:
 
 
 def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
-    output = run([
-        "ipsw", "macho", "disass", "--force", "--symbol", symbol,
-        "--count", str(instruction_limit), str(binary),
-    ])
-    instructions = normalize_disassembly(output)
-    if not instructions:
-        raise RuntimeError(
-            f"disassembler returned no parseable instructions for {symbol} in {binary}"
+    # ipsw's symbol listing can omit Mach-O's leading C-symbol underscore for
+    # an individual entry. Retry that one documented naming variant only when
+    # ipsw explicitly reports that the original spelling is absent.
+    candidates = [symbol]
+    if not symbol.startswith("_"):
+        candidates.append("_" + symbol)
+    last_error: RuntimeError | None = None
+    for candidate in candidates:
+        try:
+            output = run([
+                "ipsw", "macho", "disass", "--force", "--symbol", candidate,
+                "--count", str(instruction_limit), str(binary),
+            ])
+        except RuntimeError as exc:
+            last_error = exc
+            if "symbol not found in macho symtab" in str(exc).lower():
+                continue
+            raise
+        instructions = normalize_disassembly(output)
+        if instructions:
+            return instructions
+        last_error = RuntimeError(
+            f"disassembler returned no parseable instructions for {candidate} in {binary}"
         )
-    return instructions
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError(f"unable to disassemble {symbol} in {binary}")
 
 
 def digest_instructions(instructions: list[str]) -> str:
