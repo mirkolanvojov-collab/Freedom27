@@ -156,6 +156,18 @@ class VerifyIpswStreamTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             stream_url_sha256("https://example.invalid/test", 6, max_retries=-1)
 
+    def test_rejects_non_https_or_credentialed_source_before_request(self):
+        def should_not_open(*_args, **_kwargs):
+            self.fail("opener must not be called for an invalid URL")
+        for url in (
+            "http://example.invalid/test",
+            "file:///tmp/firmware.ipsw",
+            "https://user:pass@example.invalid/test",
+            "https://example.invalid:bad/test",
+        ):
+            with self.subTest(url=url):
+                with self.assertRaisesRegex(ValueError, "valid HTTPS URL"):
+                    stream_url_sha256(url, 6, opener=should_not_open, sleep=lambda _: None)
     def test_interrupted_read_resumes_from_bytes_already_hashed(self):
         class InterruptedResponse(FakeResponse):
             def __init__(self):
