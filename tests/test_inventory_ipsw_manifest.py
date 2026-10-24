@@ -17,7 +17,7 @@ def make_ipsw(path: Path) -> bytes:
                 "Info": {"DeviceClass": "D48AP", "Variant": "Customer Erase Install",
                          "BuildTrain": "Example", "BuildVersion": "23G83"},
                 "Manifest": {
-                    "KernelCache": {"Path": "kernelcache.release", "Digest": bytes.fromhex("ab" * 20),
+                    "KernelCache": {"Path": "kernelcache.release", "Digest": bytes.fromhex("ab" * 48),
                                     "IsEncrypted": True},
                     "RestoreRamDisk": {"Path": "restore.dmg", "Digest": bytes.fromhex("cd" * 20),
                                        "Trusted": True},
@@ -58,8 +58,8 @@ class InventoryIpswManifestTests(unittest.TestCase):
         self.assertEqual(result["product_type"], "iPhone17,4")
         self.assertEqual(result["device_class"], "D48AP")
         self.assertEqual([c["name"] for c in identity["components"]], ["KernelCache", "RestoreRamDisk"])
-        self.assertEqual(identity["components"][0]["digest_hex"], "ab" * 20)
-        self.assertEqual(identity["components"][0]["digest_algorithm"], "sha1")
+        self.assertEqual(identity["components"][0]["digest_hex"], "ab" * 48)
+        self.assertEqual(identity["components"][0]["digest_algorithm"], "sha384")
         self.assertFalse(result["device_modified"])
         self.assertFalse(result["exploit_executed"])
 
