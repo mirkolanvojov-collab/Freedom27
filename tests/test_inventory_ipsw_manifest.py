@@ -25,7 +25,7 @@ def make_ipsw(path: Path) -> bytes:
             },
             {
                 "ProductType": "iPhone17,3",
-                "Info": {"DeviceClass": "d83", "Variant": "Other"},
+                "Info": {"DeviceClass": "D47AP", "Variant": "Other"},
                 "Manifest": {"KernelCache": {"Path": "other-kernel"}},
             },
         ]
@@ -52,7 +52,7 @@ class InventoryIpswManifestTests(unittest.TestCase):
         self.assertEqual(result["source_size_bytes"], self.size)
         self.assertEqual(len(result["build_identities"]), 1)
         identity = result["build_identities"][0]
-        self.assertEqual(identity["device_class"], "d83ap")
+        self.assertEqual(identity["device_class"], "D48AP")
         self.assertEqual(identity["product_type"], "iPhone17,4")
         self.assertEqual(identity["build_version"], "23G83")
         self.assertEqual(result["product_type"], "iPhone17,4")
