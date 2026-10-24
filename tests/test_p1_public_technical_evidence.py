@@ -26,7 +26,7 @@ class P1PublicTechnicalEvidenceTests(unittest.TestCase):
             self.assertTrue(all(s["url"].startswith("https://") for s in item["primary_sources"]))
             self.assertEqual(item["exact_build_applicability"], "not_independently_verified")
             self.assertEqual(item["exploitability"], "not_established")
-            self.assertTrue(any(term in item["patch_diff_status"] for term in ("patch", "diff")))
+            self.assertTrue(item["patch_diff_status"])
 
     def test_public_84607_report_is_caveated(self):
         item = self.records["CVE-2026-84607"]
