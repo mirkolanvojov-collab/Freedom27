@@ -29,7 +29,7 @@ jobs:
             artifact_name: fixed-24A437
             url: https://updates.cdn-apple.com/2026FallFCS/601712cb-7aa9-4914-b421-91d45da959e6/iPhone17%2C4_27.0_24A437_Restore.ipsw
             sha256: a8bed747c08709a63e5b9d55fa87bfca2839245f91a82082a8c30b8833fae149
-            expected_size: ""
+            expected_size: "12313212859"
 
     steps:
       - name: Check out repository
