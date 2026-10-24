@@ -14,17 +14,36 @@ FIELDS = ("path", "digest_hex", "partial_digest_hex", "is_encrypted", "trusted",
 
 def load_inventory(path: str | Path) -> dict[str, Any]:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"{path}: inventory root must be an object")
     if data.get("integrity_verified_against_pinned_values") is not True:
         raise ValueError(f"{path}: inventory is not hash-verified")
-    if not data.get("product_type"):
-        raise ValueError(f"{path}: missing product_type")
-    if not isinstance(data.get("source_sha256"), str) or len(data["source_sha256"]) != 64:
+    for field in ("product_type", "device_class"):
+        if not isinstance(data.get(field), str) or not data[field].strip():
+            raise ValueError(f"{path}: missing or invalid {field}")
+    source_sha256 = data.get("source_sha256")
+    if (
+        not isinstance(source_sha256, str)
+        or len(source_sha256) != 64
+        or any(char not in "0123456789abcdefABCDEF" for char in source_sha256)
+    ):
         raise ValueError(f"{path}: missing or invalid source SHA-256")
-    if not isinstance(data.get("source_size_bytes"), int) or data["source_size_bytes"] <= 0:
+    if (
+        type(data.get("source_size_bytes")) is not int
+        or data["source_size_bytes"] <= 0
+    ):
         raise ValueError(f"{path}: missing or invalid source size")
     identities = data.get("build_identities")
     if not isinstance(identities, list) or not identities:
         raise ValueError(f"{path}: missing build identities")
+    for index, identity in enumerate(identities):
+        if not isinstance(identity, dict):
+            raise ValueError(f"{path}: build identity {index} must be an object")
+        components = identity.get("components")
+        if not isinstance(components, list):
+            raise ValueError(f"{path}: build identity {index} components must be a list")
+        if any(not isinstance(component, dict) for component in components):
+            raise ValueError(f"{path}: build identity {index} has a non-object component")
     return data
 
 
@@ -37,7 +56,13 @@ def _components(inventory: dict[str, Any]) -> dict[tuple[str, str], dict[str, An
             if isinstance(name, str):
                 record = dict(component)
                 record["variant"] = variant
-                found[(variant, name)] = record
+                key = (variant, name)
+                previous = found.get(key)
+                if previous is not None and previous != record:
+                    raise ValueError(
+                        f"ambiguous duplicate component entry for variant={variant!r}, name={name!r}"
+                    )
+                found[key] = record
     return found
 
 
