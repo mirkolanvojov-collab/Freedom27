@@ -2,19 +2,21 @@
 
 ## Summary
 
-Two useful checks were completed in this pass:
-
-1. The exact IPSW SHA-256 published by IPSW Downloads and AppleSN.info matches: `101aed9c3d5513b598a2b22da7bda5843a051adbe0430f23faed546c1613bd0f`. Both list iPhone 16 Plus (`iPhone17,4`), iOS 26.6.1, build `23G83`. The catalogues point to an Apple CDN URL. This is cross-catalogue agreement, **not** an independently recalculated checksum: the 11+ GiB firmware image was not downloaded in this pass.
+1. **Exact IPSW streaming verification succeeded.** GitHub Actions run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40046497529 streamed the complete Apple CDN response and reported SHA-256 `101aed9c3d5513b598a2b22da7bda5843a051adbe0430f23faed546c1613bd0f`, exactly matching the pinned digest, and `11225458130` bytes, exactly matching the pinned size. The IPSW was streamed without being written to disk. This closes the checksum-verification process gap, but it does not supply a local IPSW file for component extraction or establish exploitability.
 2. A separate public AppleAVE2 research repository was found for **CVE-2026-64747**, describing a macOS AppleAVE2 buffer-overflow hypothesis. It must not be conflated with the project's iOS CVE-2026-84607 candidate.
 
-## Firmware metadata provenance
+## Firmware metadata and verification provenance
 
 - Apple security-content advisory for iOS 26.6.1: https://support.apple.com/en-us/148282
 - IPSW Downloads exact build page: https://ipsw.me/download/iPhone17%2C4/23G83/
 - AppleSN.info exact build page: https://applesn.info/firmware/ipsw/iPhone17%2C4/23G83/
-- Apple CDN URL listed by AppleSN.info: https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75160/D83A8969-3179-4D59-9F72-37FFC825CD9A/iPhone17,4_26.6.1_23G83_Restore.ipsw
+- Apple CDN URL: https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75160/D83A8969-3179-4D59-9F72-37FFC825CD9A/iPhone17,4_26.6.1_23G83_Restore.ipsw
+- Verification workflow: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40046497529
+- Expected and computed SHA-256: `101aed9c3d5513b598a2b22da7bda5843a051adbe0430f23faed546c1613bd0f`
+- Expected and computed size: `11225458130` bytes
+- File written to disk: no; device modified: no.
 
-Both secondary catalogues list the same SHA-256, SHA-1, and MD5 values for the same filename/build. Matching values strengthen metadata consistency but do not substitute for hashing a downloaded file or cryptographically verifying its contents. Apple’s advisory says the release was published on 2026-08-17 and that it delivers security fixes first made available in iOS 27 betas.
+The stream's byte-for-byte digest and length match establish integrity relative to the pinned digest and byte count. The digest was previously listed by secondary firmware catalogues; the computation itself was performed by the project's read-only CI job. This does not establish that the digest is an Apple-signed attestation, and it does not provide a persistent local image for binary analysis.
 
 ## Cross-CVE triage: CVE-2026-64747
 
@@ -35,12 +37,12 @@ The public repository describes its work as AppleAVE2 analysis for **CVE-2026-64
 
 ## Next evidence gate
 
-To advance exact-build confidence without touching the device, the next gate is to obtain a lawful, authenticated copy of the matching firmware, independently calculate its SHA-256, record download and tool provenance, and inspect only the minimum relevant binaries using a reproducible, read-only workflow. Any comparison against a fixed build must pin both builds and avoid treating symbol/string similarities alone as proof of CVE attribution. If the firmware cannot be obtained and verified, record that blocker rather than infer the result.
+The transfer/checksum gap is closed. The remaining non-invasive step is a reproducible read-only component inventory/comparison using pinned firmware builds, recording component paths, build identifiers, hashes, extraction-tool versions, and limitations. A successful hash stream does not create a local file to extract. Any comparison must avoid treating symbol/string similarities alone as proof of CVE attribution. If the image is later downloaded to a controlled analysis environment, verify the file hash again before extracting any component.
 
 ## Method limits
 
-- Public-source read-only research.
-- No firmware image downloaded or independently hashed in this pass.
+- Public-source read-only research and streaming integrity verification.
+- No firmware image persisted to disk by the verification job.
 - No exploit code built or run.
 - No device accessed, installed on, downgraded, restored, or modified.
 - No exact-build vulnerable code path, jailbreak chain, or crash-safety guarantee established.

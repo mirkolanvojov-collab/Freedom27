@@ -13,8 +13,10 @@ class Ave2CrossCveTriageTests(unittest.TestCase):
 
     def test_firmware_hash_provenance_is_explicit(self):
         self.assertIn("101aed9c3d5513b598a2b22da7bda5843a051adbe0430f23faed546c1613bd0f", self.text)
-        self.assertIn("not** an independently recalculated checksum", self.text)
-        self.assertIn("11+ GiB firmware image was not downloaded", self.text)
+        self.assertIn("11225458130", self.text)
+        self.assertIn("streaming verification succeeded", self.text)
+        self.assertIn("without being written to disk", self.text)
+        self.assertIn("does not establish that the digest is an Apple-signed attestation", self.text)
 
     def test_distinct_cves_are_not_conflated(self):
         self.assertIn("CVE-2026-64747", self.text)
