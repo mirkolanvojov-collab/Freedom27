@@ -65,5 +65,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coregraphics-build-comparison
-          path: coregraphics-comparison.txt
+          path: coregraphics-comparison.json
           if-no-files-found: error
