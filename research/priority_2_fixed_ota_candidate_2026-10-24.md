@@ -14,12 +14,14 @@ The earlier blocker was phrased too narrowly as “no iPhone17,4 iOS 26.7.1 rest
 - Apple security bulletin: https://support.apple.com/en-us/149226
 - Public patch analysis: https://calif.io/research/the-great-glyph-grift
 
-The catalogue entry is a useful acquisition lead and resolves the claim that no same-device 26.7.1 OTA is listed. It does **not** by itself verify the downloaded bytes: the identifier is not a SHA-256 checksum, and the catalogue is not Apple’s security bulletin. Do not invent a direct download URL or package digest.
+The exact download URL was subsequently resolved from Apple's live OTA metadata using the open-source `ipsw` utility in GitHub Actions (run 40053023805): https://updates.cdn-apple.com/2026FallFCS/5ef51a7b-0f58-4585-8cdf-14afa18e9622/com_apple_MobileAsset_SoftwareUpdate/818080afd3f2204f9cf3c8da075752ee6e05c420554a0b076e7c9f5d2378d203.aea
+
+The CI step verified that the returned URL's hostname is exactly `updates.cdn-apple.com`. This resolves URL discovery, but **does not yet verify the downloaded bytes**. The filename's 64-hex identifier is not treated as a checksum until independently compared with the downloaded package hash.
 
 ## Safe validation sequence
 
-1. Resolve the catalogue link to its exact Apple CDN URL, without guessing URL components.
-2. Download only from the resolved Apple CDN endpoint; validate HTTP response, exact length (8,724,152,320 bytes if the catalogue remains accurate), and compute SHA-256 locally/CI.
+1. **Completed:** resolve the exact Apple CDN URL through Apple's live OTA metadata; URL host checked in CI run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40053023805.
+2. Download only from that resolved Apple CDN endpoint; validate HTTP response, exact length (8,724,152,320 bytes if the catalogue remains accurate), and compute SHA-256 in CI.
 3. Validate OTA metadata and device/build identity before extraction. Treat the published extraction key as untrusted until cross-checked against an independent firmware metadata source.
 4. If the package can be lawfully and reproducibly extracted, identify the CoreGraphics binary and record its cryptographic hash, architecture, UUID/build metadata, and provenance.
 5. Compare only corresponding code with the target 23G83 component. If target or fixed binary is encrypted, incomparable, or lacks sufficient symbols/metadata, record that limitation rather than inferring a patch.
