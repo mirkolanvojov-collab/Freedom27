@@ -36,6 +36,26 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
             ["nop", "b <branch-target>", "mov x0, #0x3ffff001"],
         )
 
+    def test_normalizes_layout_addresses_and_comments(self):
+        first = normalize_disassembly(
+            "0x1000: adrp x9, 0x1847c2000\n"
+            "0x1004: b.eq loc_18430e230 ; ⤵ <branch-target>\n"
+        )
+        second = normalize_disassembly(
+            "0x2000: adrp x9, 0x1847e9000\n"
+            "0x2004: b.eq loc_1843353d8 ; ⤵ <branch-target>\n"
+        )
+        self.assertEqual(first, second)
+        self.assertEqual(first[0], "adrp x9, <image-address>")
+        self.assertEqual(first[1], "b.eq <local-label>")
+
+    def test_preserves_non_address_immediates(self):
+        output = "0x1000: mov x13, #0xfff800000000\n"
+        self.assertEqual(
+            normalize_disassembly(output),
+            ["mov x13, #0xfff800000000"],
+        )
+
     def test_normalizes_branch_addresses_across_builds(self):
         first = normalize_disassembly("0x1000: bl #0x1010\n0x1004: ret")
         second = normalize_disassembly("0x2000: bl #0x2020\n0x2004: ret")
