@@ -38,6 +38,17 @@ class P1PublicTechnicalEvidenceTests(unittest.TestCase):
         self.assertTrue(lead["stated_limitations"])
         self.assertFalse(lead["code_executed"])
 
+    def test_43689_researcher_attribution_has_provenance(self):
+        item = self.records["CVE-2026-43689"]
+        self.assertEqual(item["researcher_attribution"], [
+            "Andreas Jaegersberger", "Ro Achterberg", "Nosebeard Labs"
+        ])
+        disclosure = [lead for lead in item["public_leads"]
+                      if lead["kind"] == "researcher_organization_disclosure_index"]
+        self.assertEqual(len(disclosure), 1)
+        self.assertEqual(disclosure[0]["disclosed_on"], "2026-04-26")
+        self.assertFalse(disclosure[0]["technical_writeup_found"])
+
     def test_no_unsupported_success_claims(self):
         self.assertEqual(self.doc["summary"]["exact_build_confirmations"], 0)
         self.assertEqual(self.doc["summary"]["freedom27_reproductions"], 0)
