@@ -36,6 +36,12 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         self.assertIn("--count", args)
         self.assertNotIn("--instrs", args)
 
+    def test_disassembler_fails_closed_on_empty_output(self):
+        from research.scripts import compare_coregraphics_functions as module
+        with patch.object(module, "run", return_value=""):
+            with self.assertRaisesRegex(RuntimeError, "no parseable instructions"):
+                disassemble(Path("CoreGraphics"), "_aa_render", 600)
+
     def test_digest_is_stable_and_order_sensitive(self):
         self.assertEqual(
             digest_instructions(["cmp x0, #1", "ret"]),
