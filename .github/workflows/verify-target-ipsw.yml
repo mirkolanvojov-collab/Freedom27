@@ -14,7 +14,7 @@ jobs:
   stream-and-hash:
     name: Stream official Apple IPSW and verify digest
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 360
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
