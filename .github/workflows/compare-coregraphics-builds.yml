@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: coregraphics-build-comparison-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   compare:
     # OTA cryptex patching requires macOS on iOS 16+.
