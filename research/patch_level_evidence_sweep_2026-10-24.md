@@ -4,7 +4,7 @@
 
 The existing 12-candidate reconciliation remains valid for the iOS 26.7 advisory set: all 12 are present in Apple's primary bulletin and their published iOS/iPadOS version ranges include versions below 26.7, but none is independently confirmed on target build 23G83. The public-source sweep did not find a public patch diff tying those 12 advisory entries to exact vulnerable source lines or a reproducible target-build behavior.
 
-A more concrete, newly identified lead is **CVE-2026-86950 (CoreGraphics)**, fixed in iOS 26.7.1. Apple states that processing a maliciously crafted file may lead to arbitrary code execution and that the issue may have been exploited in highly targeted attacks on versions before iOS 27. A public Calif research write-up reports a binary patch comparison between iOS 26.7 and 26.7.1 and identifies the corrected bounds behavior in CoreGraphics path rasterization. This is stronger patch-level evidence than the generic advisory summaries for the existing 12 candidates, but it is not proof that build 23G83 is vulnerable or that the issue yields a jailbreak.
+A more concrete lead is **CVE-2026-86950 (CoreGraphics)**, fixed in iOS 26.7.1. Apple states that processing a maliciously crafted file may lead to arbitrary code execution and that the issue may have been exploited in highly targeted attacks on versions before iOS 27. A public Calif research write-up reports a binary patch comparison between iOS 26.7 and 26.7.1 and identifies the corrected bounds behavior in CoreGraphics path rasterization. Freedom27's later static comparison of target build 23G83 against fixed reference 23H30 found guard patterns consistent with that analysis in seven functions. This is stronger target-specific static evidence than the earlier advisory-only status, but it is not proof of runtime reachability, exploitability, or a jailbreak.
 
 ## Evidence record: CVE-2026-86950
 
@@ -32,7 +32,7 @@ Sources:
 
 The researcher reports comparing the CoreGraphics binary before and after the 26.7.1 fix and identifies a repeated code change related to safe conversion of rasterization coordinates into a fixed-point integer representation. The reported fix constrains the converted value before the integer cast, addressing the out-of-bounds-write root cause described in Apple's advisory.
 
-This is a public, technically specific patch attribution for the 26.7.1 fix. It does not automatically map the same code to the target IPSW: the project's earlier AVE and KernelCache member hashes are unrelated archive-member hashes and cannot be used as evidence for CoreGraphics. No decrypted target CoreGraphics binary, exact 23G83 function mapping, or independent target reproduction has been captured here.
+This is a public, technically specific patch attribution for the 26.7.1 fix. The later target/fixed CoreGraphics comparison now provides a static function-level correspondence in seven functions to the same coordinate-conversion guard pattern. The project's earlier AVE and KernelCache member hashes remain unrelated archive-member hashes and are not evidence for CoreGraphics. The static mapping does not establish runtime reachability on 23G83 or independent target reproduction.
 
 The public article includes exploit demonstration material. Freedom27 does not adopt or execute its PoC, weaponization steps, or target-specific trigger sequence. The useful result for this project is the patch-level description and a testable *defensive invariant*: conversion must clamp or otherwise safely handle non-finite and out-of-range coordinates before narrowing, and subsequent bounding-box arithmetic must not wrap.
 
@@ -50,13 +50,13 @@ The 12 CVEs in `research/cve_program_reconciliation_2026-10-24_canonical.json` r
 
 The absence of a public patch diff in this sweep is a time-bounded search result, not proof that no private, embargoed, or unindexed analysis exists.
 
-## Safe next validation gate
+## Remaining validation gate
 
 1. Preserve the public source and its date/URL as provenance; do not copy exploit steps into Freedom27.
-2. Seek a lawful, reproducible way to compare the relevant CoreGraphics code in verified 23G83 and 26.7.1 images. Verify each full IPSW digest before extraction, and document tool versions and whether the extracted payload is decrypted.
-3. If code is inspectable, compare only the relevant defensive invariant and record exact binary identity, function mapping, and limitations. Do not infer a patch from unrelated component hashes or strings.
-4. Add synthetic tests for coordinate conversion and bounding-box arithmetic in a standalone model; do not trigger memory corruption on a live device.
-5. Keep the target status at `not_established` until exact-build evidence supports an upgrade. A patch diff alone does not establish a reliable exploit, kernel privilege, persistence, or a complete jailbreak.
+2. **Completed:** verified the pinned target IPSW provenance, extracted CoreGraphics from target 23G83 and fixed reference 23H30, and compared 25 shared executable `aa_*` symbols with zero disassembly failures.
+3. **Completed, static only:** correlated guard patterns in seven changed functions with the public coordinate-conversion patch description. Review relocation-sensitive references before making stronger semantic claims.
+4. Keep synthetic coordinate-conversion and bounding-box model tests separate from Apple's implementation; do not trigger memory corruption on a live device.
+5. Keep runtime reachability, exploitability, kernel privilege, persistence, and complete-jailbreak status unverified until independently supported by safe, authorized evidence.
 
 ## Safety statement
 
