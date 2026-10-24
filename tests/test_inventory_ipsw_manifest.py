@@ -24,7 +24,6 @@ def make_ipsw(path: Path) -> bytes:
                 },
             },
             {
-                "ProductType": "iPhone17,3",
                 "Info": {"DeviceClass": "D47AP", "Variant": "Other"},
                 "Manifest": {"KernelCache": {"Path": "other-kernel"}},
             },
@@ -76,7 +75,7 @@ class InventoryIpswManifestTests(unittest.TestCase):
 
     def test_wrong_board_configuration_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "no BuildIdentity matched"):
-            inventory_ipsw(self.path, self.sha, self.size, "iPhone17,4", "D47AP")
+            inventory_ipsw(self.path, self.sha, self.size, "iPhone17,4", "D99AP")
 
     def test_invalid_pinned_digest_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "64 hexadecimal"):
