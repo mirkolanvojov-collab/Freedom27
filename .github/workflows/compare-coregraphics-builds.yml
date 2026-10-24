@@ -35,19 +35,23 @@ jobs:
           # The target is a restore IPSW; remote extraction is supported directly.
           ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --remote --output out/target "$target_url"
 
-          # The fixed reference is an AEA OTA asset, not a ZIP/restore IPSW.
-          # Use the OTA-aware downloader so AEA decryption and cryptex patching
-          # are handled by ipsw on macOS instead of feeding the .aea to IPSW ZIP logic.
-          ipsw download ota --platform ios --device iPhone17,4 --build 23H30 --dyld --dyld-arch arm64e --output out/fixed --confirm
+          # This fixed OTA is AEA-encrypted. Download it locally first: ipsw's
+          # remote dyld path currently rejects this AEA asset before extraction.
+          ipsw download ota --platform ios --device iPhone17,4 --build 23H30 --output out/fixed --confirm
+          ota_file="$(find out/fixed -type f -name '*.aea' -print -quit)"
+          test -n "$ota_file"
+          mkdir -p out/fixed-cache
+          # Local OTA extraction enables AEA key lookup/decryption and cryptex patching.
+          ipsw extract --dyld --dyld-arch arm64e --output out/fixed-cache "$ota_file"
 
-          find out/target out/fixed -type f -name 'dyld_shared_cache_arm64e' -print
+          find out/target out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print
 
       - name: Extract CoreGraphics and record comparison metadata
         shell: bash
         run: |
           set -euo pipefail
           target_cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
-          fixed_cache="$(find out/fixed -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          fixed_cache="$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
           test -n "$target_cache"
           test -n "$fixed_cache"
 
