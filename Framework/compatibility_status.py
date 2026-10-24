@@ -9,10 +9,22 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 ALLOWED = {"not-investigated", "researching", "theoretical", "experimental", "verified", "not-supported"}
 
+
+def _valid_evidence_url(value: object) -> bool:
+    """Accept only well-formed HTTPS evidence URLs without embedded credentials."""
+    try:
+        parsed = urlparse(value) if isinstance(value, str) else None
+        return bool(
+            parsed and parsed.scheme == "https" and parsed.hostname
+            and not parsed.username and not parsed.password
+        )
+    except ValueError:
+        return False
 
 def _read(path: Path) -> Any:
     with path.open("r", encoding="utf-8") as stream:
@@ -52,7 +64,7 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
     for item in claims:
         if not isinstance(item, dict):
             continue
-        if all(str(item.get(key, "")) == identity[key] for key in ("model_identifier", "os_version", "build_number")):
+        if all(str(item.get(key, "")) == identity[key] for key in ("device_model", "model_identifier", "os_version", "build_number")):
             matches.append(item)
 
     valid = []
@@ -63,7 +75,7 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
         if status not in ALLOWED:
             errors.append(f"matching claim has invalid status: {status}")
             continue
-        if status in {"verified", "not-supported"} and (not url.startswith("https://") or not notes):
+        if status in {"verified", "not-supported"} and (not _valid_evidence_url(url) or not notes):
             errors.append(f"{status} claim requires an HTTPS evidence URL and review notes")
             continue
         valid.append(item)
