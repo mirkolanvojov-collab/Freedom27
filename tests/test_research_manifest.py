@@ -61,6 +61,15 @@ class ResearchManifestTests(unittest.TestCase):
         errors = validate_manifest([VALID, VALID])
         self.assertTrue(any("duplicate id" in e for e in errors))
 
+    def test_ids_with_surrounding_whitespace_cannot_bypass_duplicate_check(self):
+        padded = {**VALID, "id": " lead-001 "}
+        errors = validate_manifest([VALID, padded])
+        self.assertTrue(any("surrounding whitespace" in e for e in errors))
+        self.assertTrue(any("duplicate id" in e for e in errors))
+
+    def test_non_iterable_manifest_input_fails_closed(self):
+        self.assertTrue(any("iterable of objects" in e for e in validate_manifest(None)))
+
     def test_unknown_status_is_rejected(self):
         item = {**VALID, "status": "works"}
         self.assertTrue(any("status must be one of" in e for e in validate_manifest([item])))
