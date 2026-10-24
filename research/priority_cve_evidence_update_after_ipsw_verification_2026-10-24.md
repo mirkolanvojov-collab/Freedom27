@@ -52,3 +52,17 @@ This gives a strong published version-range match for iOS 26.6.1, and Apple's de
 The remaining evidence gap is no longer firmware transfer or checksum calculation. It is exact-build component provenance and patch-level technical evidence. The next non-invasive task should be a reproducible, read-only inventory/comparison of relevant firmware component metadata across pinned builds, recording hashes, build identifiers, extraction-tool versions, and limitations. A string or symbol difference alone must not be treated as proof of CVE attribution. If public evidence does not identify the affected function/invariant, record it as unavailable rather than reconstructing an exploit.
 
 No exploit was executed, no payload was built or run, and no device was accessed or modified.
+
+
+## Additional public technical-lead review: CVE-2026-84607
+
+A public report was read at https://github.com/Ping-2o/ios.CVE-2026-84616-84607/blob/main/REPORT_AVE_84607.md. It claims to locate a state-consistency guard in later AppleAVE2 binaries and associates it with CVE-2026-84607. The report itself contains material caveats: it is labeled AI-generated with no line-by-line human review; it says Apple publishes no per-CVE code mapping; it leaves code-level pre-fix absence and userspace component comparisons unresolved; and its comparison focuses on iOS 27.0 beta/GM builds, not the target iOS 26.6.1 build 23G83.
+
+**Interpretation:** this is a useful public lead to track, not an independently verified root cause or exploit. It does not establish that the alleged guard maps to CVE-2026-84607, that the vulnerable code is present/reachable in build 23G83, or that a controllable primitive exists. Freedom27 should not reproduce the report's race choreography or operational trigger from this evidence alone.
+
+The public firmware catalog lists iOS 26.7 build 23H24 for iPhone17,4, but shows no full IPSW file for that build; it lists a full OTA update instead. The catalog lists a full iOS 27.0 IPSW for iPhone17,4 as build 24A437. Sources:
+- https://applesn.info/device/ios/iphone/iphone-16-plus/
+- https://applesn.info/firmware/ios/23H24/
+- https://applesn.info/firmware/ipsw/iPhone17%2C4/24A437/
+
+A 26.7 OTA may be a closer patch-baseline candidate than 27.0, but its artifact format and extraction reproducibility must be validated before planning a comparison. A 27.0 full IPSW is a fallback comparison source with a larger version gap and therefore more confounding changes. Neither has yet been downloaded, hashed, or compared in this project. Do not describe component-level analysis as completed.
