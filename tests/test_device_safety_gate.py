@@ -109,6 +109,29 @@ class DeviceSafetyGateTests(unittest.TestCase):
         self.assertFalse(report["preflight_passed"])
         self.assertIn("backup_verified", report["blockers"])
 
+    def test_duplicate_chain_gate_ids_fail_closed_even_if_last_entry_is_verified(self):
+        target = dict(self.target_status)
+        target["status"] = "verified"
+        target["verified_complete_jailbreak"] = True
+        evidence = {
+            "status": "verified",
+            "evidence_url": "https://example.org/evidence",
+            "evidence_note": "Reviewed evidence",
+            "source_revision": "a" * 40,
+            "target": target["generated_for"],
+        }
+        target["gates"] = (
+            [{"id": "entry", "status": "missing"}]
+            + [{"id": gate_id, "status": "verified", "evidence": evidence}
+               for gate_id in REQUIRED_CHAIN_GATES]
+        )
+        attestations = {gate_id: dict(evidence) for gate_id, _ in REQUIRED_ATTESTATIONS}
+        report = assess_safety(target, attestations)
+        self.assertFalse(report["preflight_passed"])
+        self.assertIn("project_exact_target_chain", report["blockers"])
+        chain_gate = next(gate for gate in report["gates"] if gate["id"] == "project_exact_target_chain")
+        self.assertIn("Duplicate milestone gate IDs", chain_gate["reason"])
+
     def test_invalid_input_fails_closed(self):
         report = assess_safety(None, None)
         self.assertFalse(report["preflight_passed"])
