@@ -110,11 +110,10 @@ jobs:
             test -f "$fixed_binary"
 
             # Static comparison only; neither binary is executed.
-            # Keep this explicit: older PR merge runs used the script's 600-instruction default.
+            # Let ipsw resolve the exact function extent from Mach-O metadata.
             python3 research/scripts/compare_coregraphics_functions.py \
               --target-binary "$target_binary" \
               --fixed-binary "$fixed_binary" \
-              --instruction-limit 5000 \
               --output coregraphics-function-diff.json
             echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } 2>&1 | tee diagnostics/coregraphics-comparison.log
