@@ -12,6 +12,7 @@ import json
 import re
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 URL = "https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75160/D83A8969-3179-4D59-9F72-37FFC825CD9A/iPhone17,4_26.6.1_23G83_Restore.ipsw"
@@ -64,6 +65,20 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
         raise ValueError("expected_size must be a positive integer")
     if type(max_retries) is not int or max_retries < 0:
         raise ValueError("max_retries must be a non-negative integer")
+    try:
+        parsed_url = urllib.parse.urlparse(url)
+        valid_url = (
+            parsed_url.scheme == "https"
+            and bool(parsed_url.hostname)
+            and not parsed_url.username
+            and not parsed_url.password
+        )
+        # Accessing .port validates malformed port values.
+        _ = parsed_url.port
+    except (AttributeError, ValueError):
+        valid_url = False
+    if not valid_url:
+        raise ValueError("url must be a valid HTTPS URL without embedded credentials")
 
     digest = hashlib.sha256()
     total = 0
