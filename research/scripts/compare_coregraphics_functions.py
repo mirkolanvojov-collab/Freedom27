@@ -67,7 +67,9 @@ def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
     # an individual entry. Retry that one documented naming variant only when
     # ipsw explicitly reports that the original spelling is absent.
     candidates = [symbol]
-    if not symbol.startswith("_"):
+    if symbol.startswith("_"):
+        candidates.append(symbol[1:])
+    else:
         candidates.append("_" + symbol)
     last_error: RuntimeError | None = None
     for candidate in candidates:
