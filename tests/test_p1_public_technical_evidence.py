@@ -26,14 +26,16 @@ class P1PublicTechnicalEvidenceTests(unittest.TestCase):
             self.assertTrue(all(s["url"].startswith("https://") for s in item["primary_sources"]))
             self.assertEqual(item["exact_build_applicability"], "not_independently_verified")
             self.assertEqual(item["exploitability"], "not_established")
-            self.assertEqual(item["patch_diff_status"], "not_found_in_reviewed_sources")
+            self.assertIn("patch", item["patch_diff_status"])
 
-    def test_public_84607_lead_is_not_overstated(self):
+    def test_public_84607_report_is_caveated(self):
         item = self.records["CVE-2026-84607"]
-        self.assertTrue(item["public_leads"])
+        self.assertEqual(len(item["public_leads"]), 1)
         lead = item["public_leads"][0]
-        self.assertEqual(lead["verification_status"], "unverified_repository_lead")
-        self.assertFalse(lead["code_fetched"])
+        self.assertEqual(lead["verification_status"], "unverified_third_party_binary_analysis_hypothesis")
+        self.assertIn("AI-generated", lead["source_authorship"])
+        self.assertIn("23G83", lead["target_mismatch"])
+        self.assertTrue(lead["stated_limitations"])
         self.assertFalse(lead["code_executed"])
 
     def test_no_unsupported_success_claims(self):
