@@ -46,6 +46,8 @@ def _valid_gate_evidence(record: object, target: dict) -> bool:
             parsed is not None and parsed.scheme == "https"
             and bool(parsed.hostname) and not parsed.username and not parsed.password
         )
+        if valid_source:
+            _ = parsed.port  # Reject malformed port values.
     except ValueError:
         valid_source = False
     if not valid_source:
