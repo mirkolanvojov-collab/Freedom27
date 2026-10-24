@@ -15,7 +15,7 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
 """
         self.assertEqual(
             normalize_disassembly(output),
-            ["nop", "b #<branch-target>", "mov x0, #0x3ffff001"],
+            ["nop", "b <branch-target>", "mov x0, #0x3ffff001"],
         )
 
     def test_normalizes_branch_addresses_across_builds(self):
