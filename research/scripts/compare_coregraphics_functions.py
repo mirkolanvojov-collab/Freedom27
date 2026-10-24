@@ -19,6 +19,7 @@ from typing import Any
 
 SYMBOL_RE = re.compile(r"(?<![A-Za-z0-9_$])_?aa_[A-Za-z0-9_$]+")
 LINE_RE = re.compile(r"^\s*0x[0-9a-fA-F]+:\s*(.*)$")
+RECORD_LINE_RE = re.compile(r"^\s*(0x[0-9a-fA-F]+):\s*(.*)$")
 HEX_BYTES_RE = re.compile(r"^(?:(?:[0-9a-fA-F]{2})\s+){4}(.*)$")
 BRANCH_RE = re.compile(r"^(?:b(?:\.[a-z]+)?|bl|cbz|cbnz|tbz|tbnz)\s+(.+)$", re.I)
 
@@ -51,6 +52,46 @@ def discover_symbols(binary: Path) -> list[str]:
     return sorted(found)
 
 
+def parse_instruction_records(output: str) -> list[dict[str, str]]:
+    """Parse instruction addresses and operands before any layout normalization."""
+    records: list[dict[str, str]] = []
+    for line in output.splitlines():
+        match = RECORD_LINE_RE.match(line)
+        if not match:
+            continue
+        address, text = match.group(1), match.group(2).strip()
+        byte_match = HEX_BYTES_RE.match(text)
+        if byte_match:
+            text = byte_match.group(1).strip()
+        text = text.split(";", 1)[0].strip()
+        text = re.sub(r"\s+", " ", text)
+        if text:
+            records.append({"address": address, "instruction": text})
+    return records
+
+
+def extract_relocation_sites(output: str, context_size: int = 4) -> list[dict[str, Any]]:
+    """Retain raw ADR/ADRP targets plus nearby instructions for manual static review.
+
+    These are review leads only: a displayed address is not a resolved relocation
+    or proof that the referenced object has equivalent semantics across builds.
+    """
+    records = parse_instruction_records(output)
+    sites: list[dict[str, Any]] = []
+    for index, record in enumerate(records):
+        if not re.match(r"^adrp?\s+", record["instruction"], re.I):
+            continue
+        start = max(0, index - 1)
+        stop = min(len(records), index + context_size + 1)
+        sites.append({
+            "instruction_index": index,
+            "address": record["address"],
+            "instruction": record["instruction"],
+            "context": records[start:stop],
+        })
+    return sites
+
+
 def normalize_disassembly(output: str) -> list[str]:
     """Normalize layout/presentation noise for triage, not semantic proof.
 
@@ -59,19 +100,8 @@ def normalize_disassembly(output: str) -> list[str]:
     to equivalent objects; those cases still require manual symbol/relocation review.
     """
     instructions: list[str] = []
-    for line in output.splitlines():
-        match = LINE_RE.match(line)
-        if not match:
-            continue
-        text = match.group(1).strip()
-        byte_match = HEX_BYTES_RE.match(text)
-        if byte_match:
-            text = byte_match.group(1).strip()
-        if not text:
-            continue
-        # Remove assembler comments, which often contain build-specific labels.
-        text = text.split(";", 1)[0].strip()
-        text = re.sub(r"\s+", " ", text)
+    for record in parse_instruction_records(output):
+        text = record["instruction"]
         # ADR/ADRP image addresses commonly move between builds. Preserve the
         # opcode/register but mark the target as relocation-sensitive.
         address_match = re.match(r"^(adrp?)\s+([^,]+),\s*#?(0x[0-9a-fA-F]+)(.*)$", text, re.I)
@@ -87,7 +117,7 @@ def normalize_disassembly(output: str) -> list[str]:
         instructions.append(text)
     return instructions
 
-def disassemble(binary: Path, symbol: str) -> list[str]:
+def disassemble_raw(binary: Path, symbol: str) -> str:
     # ipsw's symbol listing can omit Mach-O's leading C-symbol underscore for
     # an individual entry. Retry that one documented naming variant only when
     # ipsw explicitly reports that the original spelling is absent.
@@ -115,15 +145,18 @@ def disassemble(binary: Path, symbol: str) -> list[str]:
                 f"ipsw could not determine the function boundary for {candidate} in {binary}; "
                 "refusing its 100-instruction fallback"
             )
-        instructions = normalize_disassembly(output)
-        if instructions:
-            return instructions
+        if parse_instruction_records(output):
+            return output
         last_error = RuntimeError(
             f"disassembler returned no parseable instructions for {candidate} in {binary}"
         )
     if last_error is not None:
         raise last_error
     raise RuntimeError(f"unable to disassemble {symbol} in {binary}")
+
+
+def disassemble(binary: Path, symbol: str) -> list[str]:
+    return normalize_disassembly(disassemble_raw(binary, symbol))
 
 
 def digest_instructions(instructions: list[str]) -> str:
@@ -142,8 +175,10 @@ def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
 
     for symbol in common:
         try:
-            target_ins = disassemble(target_binary, symbol)
-            fixed_ins = disassemble(fixed_binary, symbol)
+            target_raw = disassemble_raw(target_binary, symbol)
+            fixed_raw = disassemble_raw(fixed_binary, symbol)
+            target_ins = normalize_disassembly(target_raw)
+            fixed_ins = normalize_disassembly(fixed_raw)
         except RuntimeError as exc:
             failures.append({"symbol": symbol, "error": str(exc)})
             continue
@@ -159,11 +194,13 @@ def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
         if not same:
             item["target_instructions"] = target_ins
             item["fixed_instructions"] = fixed_ins
+            item["target_relocation_sensitive_sites"] = extract_relocation_sites(target_raw)
+            item["fixed_relocation_sensitive_sites"] = extract_relocation_sites(fixed_raw)
         results.append(item)
 
     changed = [item for item in results if not item["instruction_stream_identical"]]
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "mode": "read_only_symbol_scoped_disassembly_comparison",
         "target_binary": str(target_binary),
         "fixed_reference_binary": str(fixed_binary),
@@ -173,7 +210,7 @@ def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
         "common_aa_symbol_count": len(common),
         "successfully_compared_symbol_count": len(results),
         "changed_symbol_count": len(changed),
-        "layout_normalization_note": "ADR/ADRP image addresses, generated local labels, branch targets, and disassembler comments are normalized for triage; matching normalized streams are not proof of semantic equivalence because relocated references may resolve to different objects.",
+        "layout_normalization_note": "ADR/ADRP image addresses, generated local labels, branch targets, and disassembler comments are normalized for triage. For changed functions, raw ADR/ADRP addresses and nearby instructions are also retained as relocation-review leads; these do not resolve relocations or prove semantic equivalence.",
         "changed_symbols": [item["symbol"] for item in changed],
         "symbols": results,
         "disassembly_failures": failures,
