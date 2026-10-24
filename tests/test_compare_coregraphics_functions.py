@@ -10,13 +10,20 @@ from research.scripts.compare_coregraphics_functions import (
 
 
 class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
-    def test_discovery_ignores_zero_address_unresolved_symbols(self):
+    def test_discovery_keeps_only_executable_text_symbols(self):
         from research.scripts import compare_coregraphics_functions as module
         output = """SYMBOLS
-0x00001000: S _aa_render
-0x00000000: U _aa_path_iterator_create"""
+0x00001000: (__TEXT,__text) private _aa_render
+0x00001040: (__TEXT,__text) private _aa_path_iterate
+0x00002000: (__TEXT,__const) private _aa_gray_levels
+0x00002040: (__TEXT,__const) private _aa_mono_levels
+0x00003000: (__AUTH_CONST,__const) private aa_path_iterator_create.callbacks
+0x00000000: U _aa_unresolved"""
         with patch.object(module, "run", return_value=output):
-            self.assertEqual(module.discover_symbols(Path("CoreGraphics")), ["_aa_render"])
+            self.assertEqual(
+                module.discover_symbols(Path("CoreGraphics")),
+                ["_aa_path_iterate", "_aa_render"],
+            )
 
     def test_normalizes_addresses_but_preserves_bounds_constants(self):
         output = """
