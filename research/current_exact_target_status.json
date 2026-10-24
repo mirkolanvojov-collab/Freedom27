@@ -58,8 +58,12 @@
     "exact_target_compatibility_gate": "passed in GitHub Actions",
     "interpretation": "These checks validate repository tooling and metadata only; they do not test iOS security boundaries or the physical iPhone.",
     "ipsw_integrity_stream": "passed in GitHub Actions; exact SHA-256 and byte count matched the pinned target IPSW",
-    "manifest_inventory_tooling": "implemented and unit-tested; not yet run against a local full IPSW"
+    "manifest_inventory_tooling": "hash-gated BuildManifest inventory and board-config matching passed in CI; no component extraction or decryption",
+    "primary_advisory_reconciliation": "all 12 candidate IDs matched directly to Apple's iOS 26.7 security bulletin; version-range match is not exact-build reachability evidence",
+    "target_manifest_inventory": "passed against full pinned target IPSW in ephemeral GitHub Actions; manifest-only artifact produced; whole-file SHA-256 and exact size rechecked",
+    "fixed_build_manifest_inventory": "passed against pinned iOS 27.0 build 24A437 IPSW in ephemeral GitHub Actions; manifest-only artifact produced; whole-file SHA-256 rechecked",
+    "component_member_hashing": "tool and tests merged; CI run with independent SHA-256 of AVE and KernelCache raw ZIP members in progress"
   },
-  "next_gate": "Run the hash-gated BuildManifest inventory against a locally available verified target IPSW and a fixed-build comparison image; exact-build reachability and exploitability remain unverified.",
+  "next_gate": "Complete selected raw-member hashes for AVE and KernelCache on target/fixed images, record exact byte-hash comparison, then assess whether any public evidence supports CVE patch attribution. Exact-build reachability, privilege escalation, bootstrap, and a complete jailbreak remain unverified.",
   "safety_note": "Do not restore, downgrade, install unknown profiles, or run unreviewed payloads on the daily-use phone as a substitute for evidence."
 }
