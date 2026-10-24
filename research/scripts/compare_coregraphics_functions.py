@@ -82,6 +82,14 @@ def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
                 continue
             raise
         instructions = normalize_disassembly(output)
+        if len(instructions) >= instruction_limit:
+            # ipsw --count caps output without guaranteeing that the function
+            # ended naturally. Fail closed rather than treating a capped
+            # prefix as a complete instruction stream.
+            raise RuntimeError(
+                f"disassembly reached instruction limit ({instruction_limit}) "
+                f"for {candidate} in {binary}; completeness cannot be established"
+            )
         if instructions:
             return instructions
         last_error = RuntimeError(
@@ -149,7 +157,7 @@ def compare(target_binary: Path, fixed_binary: Path, instruction_limit: int = 60
         ),
         "limitations": [
             "Only symbols discoverable through ipsw's Mach-O symbol listing are compared.",
-            "Each disassembly is capped at the configured instruction limit.",
+            "Disassemblies reaching the configured instruction limit are rejected as potentially truncated.",
             "Compiler/build changes may alter instructions for reasons unrelated to the CVE.",
             "This static comparison does not establish runtime reachability or exploitability.",
             "No binary was executed; no crafted input or device was used.",
