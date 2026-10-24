@@ -51,3 +51,13 @@ Additional issues fixed in this follow-up:
 Validation after the code fixes: GitHub Actions test run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40116859478 completed successfully on commit `0f87efa3df8bb1848e3507c5612f8552be28a24b`, including the new regression tests for malformed evidence/inventory input, empty CoreGraphics comparisons, and coordinate bounds. The fixed-OTA digest workflow passed on commit `6a78d9811e53aecfeebea8fa82a1dfca22a43eb0`; the latest workflow revisions add concurrency controls without changing the pinned digest check. The final audit-document update is documentation-only and will trigger a fresh PR check.
 
 Remaining audit boundary: repository-level static review and tests do not prove Apple firmware behavior, exact-build exploitability, or a working jailbreak. The CoreGraphics comparison remains static, relocation-sensitive references are not fully resolved, and runtime reachability, privilege escalation, persistence, and independent reproduction remain open.
+
+
+## Follow-up audit — compatibility metadata edge cases (2026-10-24)
+
+A further pass over the compatibility claim helpers found two edge cases that could obscure conflicting or malformed evidence:
+
+1. **Conflicting rows for the same exact target:** the compatibility matrix duplicate key included the claim status, so the same model/version/build could appear once as `researching` and again as `verified` without a duplicate warning. The key now identifies the target tuple independent of status, and a regression test covers conflicting statuses.
+2. **Whitespace-normalized status leakage:** the exact-target status reader validated a trimmed status but returned the original untrimmed value, allowing padded status text to leak into output and conflict handling. Validated claims now store the normalized status; a regression test covers it.
+
+Validation: GitHub Actions test run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40119295737 passed on commit `84ee2e969ccd2662297316a980073f12b19347c4`, including compilation, unit tests, advisory-source checks, evidence metadata checks, fail-closed safety preflight, and generated report validation. This follow-up did not test or modify a device and does not change the project's unverified jailbreak status.
