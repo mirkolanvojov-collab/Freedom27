@@ -60,7 +60,7 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
 
     def test_disassembler_fails_closed_when_instruction_limit_is_reached(self):
         from research.scripts import compare_coregraphics_functions as module
-        output = "\\n".join(f"0x{0x1000 + i * 4:x}: nop" for i in range(3))
+        output = "\n".join(f"0x{0x1000 + i * 4:x}: nop" for i in range(3))
         with patch.object(module, "run", return_value=output):
             with self.assertRaisesRegex(RuntimeError, "completeness cannot be established"):
                 disassemble(Path("CoreGraphics"), "_aa_render", 3)
