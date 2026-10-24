@@ -71,6 +71,19 @@ class CompatibilityStatusTests(unittest.TestCase):
         path.write_text(json.dumps(data), encoding="utf-8")
         self.assertTrue(assess_target(root)["errors"])
 
+    def test_claim_rejects_malformed_or_credentialed_https_urls(self):
+        for url in ("https://", "https://user:pass@example.com/evidence", "https://[::1"):
+            with self.subTest(url=url):
+                temp, root = self.make_root(claim_status="verified")
+                self.addCleanup(temp.cleanup)
+                path = root / "research" / "target_status.json"
+                data = json.loads(path.read_text(encoding="utf-8"))
+                data["claims"][0]["evidence_url"] = url
+                path.write_text(json.dumps(data), encoding="utf-8")
+                report = assess_target(root)
+                self.assertEqual(report["status"], "unknown")
+                self.assertTrue(any("valid HTTPS evidence URL" in error for error in report["errors"]))
+
     def test_malformed_status_claims_fail_closed(self):
         temp, root = self.make_root()
         self.addCleanup(temp.cleanup)
