@@ -36,8 +36,15 @@ def run(args: list[str]) -> str:
 
 def discover_symbols(binary: Path) -> list[str]:
     output = run(["ipsw", "macho", "info", "--symbols", str(binary)])
-    # Preserve the exact spelling printed by ipsw for use with --symbol.
-    found = {match.group(0) for line in output.splitlines() for match in SYMBOL_RE.finditer(line)}
+    # Only accept names on addressed symbol-table rows. A plain text regex over
+    # the whole report can accidentally collect undefined/imported references
+    # that ipsw cannot resolve as a disassembly start address.
+    found: set[str] = set()
+    for line in output.splitlines():
+        row = re.match(r"^\\s*(0x[0-9a-fA-F]+):", line)
+        if not row or int(row.group(1), 16) == 0:
+            continue
+        found.update(match.group(0) for match in SYMBOL_RE.finditer(line))
     return sorted(found)
 
 
