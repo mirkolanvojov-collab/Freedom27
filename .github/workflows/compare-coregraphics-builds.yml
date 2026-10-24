@@ -35,14 +35,18 @@ jobs:
           # The target is a restore IPSW; remote extraction is supported directly.
           ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --remote --output out/target "$target_url"
 
-          # This fixed OTA is AEA-encrypted. Download it locally first: ipsw's
-          # remote dyld path currently rejects this AEA asset before extraction.
-          ipsw download ota --platform ios --device iPhone17,4 --build 23H30 --output out/fixed --confirm
-          ota_file="$(find out/fixed -type f -name '*.aea' -print -quit)"
-          test -n "$ota_file"
+          # Apple OTA metadata is intermittently unreachable from CI, so pin the
+          # previously verified device/build URL and key. Validate the complete
+          # download before extraction; use the OTA-specific parser (not IPSW ZIP parsing).
+          ota_url='https://updates.cdn-apple.com/2026FallFCS/5ef51a7b-0f58-4585-8cdf-14afa18e9622/com_apple_MobileAsset_SoftwareUpdate/818080afd3f2204f9cf3c8da075752ee6e05c420554a0b076e7c9f5d2378d203.aea'
+          ota_file="$PWD/fixed-23H30-iPhone17,4.aea"
+          curl --fail --location --retry 5 --retry-all-errors --connect-timeout 30 --max-time 3000 --output "$ota_file" "$ota_url"
+          test "$(stat -f '%z' "$ota_file")" -eq 8724152320
+          actual_sha256="$(shasum -a 256 "$ota_file" | awk '{print $1}')"
+          test "$actual_sha256" = '0078dc02b647fbc5c6efb8fd4e3fe0fc79d02af5f798f2e7981e069bd6987d92'
           mkdir -p out/fixed-cache
-          # Local OTA extraction enables AEA key lookup/decryption and cryptex patching.
-          ipsw extract --dyld --dyld-arch arm64e --output out/fixed-cache "$ota_file"
+          ipsw ota extract --key-val 'YSWzwfZFdAFfs7gP222NfRfnN9lb1riyeL3bzwMlkEs=' "$ota_file" --dyld --dyld-arch arm64e --output out/fixed-cache --json > out/fixed-ota-extraction.json
+          cat out/fixed-ota-extraction.json
 
           find out/target out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print
 
@@ -63,7 +67,7 @@ jobs:
             --output coregraphics-comparison.json
 
           # Keep only the compact evidence record as the artifact.
-          rm -rf out coregraphics-comparison-components
+          rm -rf out coregraphics-comparison-components fixed-23H30-iPhone17,4.aea
 
       - name: Upload comparison evidence
         uses: actions/upload-artifact@v4
