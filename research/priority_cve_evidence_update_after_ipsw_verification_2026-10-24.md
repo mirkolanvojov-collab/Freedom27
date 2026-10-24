@@ -66,3 +66,8 @@ The public firmware catalog lists iOS 26.7 build 23H24 for iPhone17,4, but shows
 - https://applesn.info/firmware/ipsw/iPhone17%2C4/24A437/
 
 A 26.7 OTA may be a closer patch-baseline candidate than 27.0, but its artifact format and extraction reproducibility must be validated before planning a comparison. A 27.0 full IPSW is a fallback comparison source with a larger version gap and therefore more confounding changes. Neither has yet been downloaded, hashed, or compared in this project. Do not describe component-level analysis as completed.
+
+
+## Validation note
+
+The report's regression checks are updated to assert the new computed-hash provenance and preserve the distinction between streamed verification and a locally persisted firmware image.
