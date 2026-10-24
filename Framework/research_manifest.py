@@ -18,7 +18,11 @@ def validate_manifest(items: Iterable[dict[str, Any]]) -> list[str]:
     """Return errors for incomplete, mutable, duplicate, or overclaimed records."""
     errors: list[str] = []
     seen: set[str] = set()
-    for index, item in enumerate(items):
+    try:
+        iterator = iter(items)
+    except TypeError:
+        return ["manifest: records must be an iterable of objects"]
+    for index, item in enumerate(iterator):
         prefix = f"item[{index}]"
         if not isinstance(item, dict):
             errors.append(f"{prefix}: record must be an object")
@@ -26,10 +30,14 @@ def validate_manifest(items: Iterable[dict[str, Any]]) -> list[str]:
         record_id = item.get("id")
         if not isinstance(record_id, str) or not record_id.strip():
             errors.append(f"{prefix}: id must be a non-empty string")
-        elif record_id in seen:
-            errors.append(f"{prefix}: duplicate id {record_id!r}")
         else:
-            seen.add(record_id)
+            normalized_id = record_id.strip()
+            if record_id != normalized_id:
+                errors.append(f"{prefix}: id must not contain surrounding whitespace")
+            if normalized_id in seen:
+                errors.append(f"{prefix}: duplicate id {normalized_id!r}")
+            else:
+                seen.add(normalized_id)
 
         for field in ("title", "source_url", "source_revision", "claim", "status"):
             if not isinstance(item.get(field), str) or not item[field].strip():
