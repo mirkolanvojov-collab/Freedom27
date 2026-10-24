@@ -113,7 +113,7 @@ jobs:
             python3 research/scripts/compare_coregraphics_functions.py \
               --target-binary "$target_binary" \
               --fixed-binary "$fixed_binary" \
-              --instruction-limit 600 \
+              --instruction-limit 5000 \
               --output coregraphics-function-diff.json
             echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } 2>&1 | tee diagnostics/coregraphics-comparison.log
