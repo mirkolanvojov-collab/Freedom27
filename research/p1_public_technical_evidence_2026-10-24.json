@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "report_date": "2026-10-24",
-  "observed_at_utc": "2026-10-24T00:12:00Z",
+  "observed_at_utc": "2026-10-24T00:18:00Z",
   "target": {
     "device": "iPhone 16 Plus",
     "model_identifier": "iPhone17,4",
@@ -90,12 +90,31 @@
           "kind": "secondary_report",
           "url": "https://github.com/alan-turing-institute/cyber-threat-observatory/blob/3be96b8d69360acbfed4ebe7abeac0c0298533c8/reports/2026-09-14/TIER_3_CVE-2026-43689.md",
           "assessment": "secondary summary; no independently reproduced technical finding or patch-level diff established"
+        },
+        {
+          "kind": "researcher_organization_disclosure_index",
+          "url": "https://nosebeard.co/",
+          "relevant_entry": "CVE-2026-43689 — Kernel: Root LPE — iOS, iPadOS, macOS, visionOS",
+          "disclosed_on": "2026-04-26",
+          "assessment": "Confirms researcher attribution and a pre-advisory disclosure listing; the indexed public page does not itself expose a technical patch diff or implementation details.",
+          "technical_writeup_found": false
+        },
+        {
+          "kind": "archived_apple_advisory_distribution",
+          "url": "https://www.mail-archive.com/fulldisclosure%40seclists.org/msg09572.html",
+          "relevant_entry": "Apple-SA-09-14-2026-2 iOS 26.7 and iPadOS 26.7",
+          "assessment": "Reproduces Apple's advisory wording and credits Andreas Jaegersberger and Ro Achterberg of Nosebeard Labs; not a patch diff."
         }
       ],
       "patch_diff_status": "not_found_in_reviewed_sources",
       "exact_build_applicability": "not_independently_verified",
       "exploitability": "not_established",
-      "confidence": "high for vendor summary; low for secondary technical detail and exact-target applicability"
+      "confidence": "high for vendor impact and researcher attribution; low for implementation details and exact-target applicability",
+      "researcher_attribution": [
+        "Andreas Jaegersberger",
+        "Ro Achterberg",
+        "Nosebeard Labs"
+      ]
     }
   ],
   "method_limits": [
@@ -105,6 +124,7 @@
     "No exact-build device testing",
     "No claim that the public-source search is exhaustive",
     "Read-only inspection of the public repository README/report metadata; no exploit code was executed.",
-    "Third-party binary-analysis conclusions are treated as hypotheses because the report is AI-generated, not independently reviewed, and acknowledges unresolved verification gaps."
+    "Third-party binary-analysis conclusions are treated as hypotheses because the report is AI-generated, not independently reviewed, and acknowledges unresolved verification gaps.",
+    "Researcher attribution for CVE-2026-43689 was cross-checked against Apple's advisory text and Nosebeard Labs' public CVE index."
   ]
 }
