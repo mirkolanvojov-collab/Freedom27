@@ -37,6 +37,17 @@ def _components(inventory: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return found
 
 
+def _build_metadata(inventory: dict[str, Any]) -> dict[str, Any]:
+    identities = inventory["build_identities"]
+    return {
+        "source_file_name": inventory.get("source_file_name"),
+        "build_versions": sorted({str(item.get("build_version")) for item in identities if item.get("build_version")}),
+        "build_trains": sorted({str(item.get("build_train")) for item in identities if item.get("build_train")}),
+        "sha256": inventory.get("source_sha256"),
+        "size_bytes": inventory.get("source_size_bytes"),
+    }
+
+
 def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
     for label, inventory in (("before", before), ("after", after)):
         if inventory.get("integrity_verified_against_pinned_values") is not True:
@@ -69,16 +80,8 @@ def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[s
     return {
         "schema_version": 1,
         "product_type": before["product_type"],
-        "before_build": {
-            "version": before.get("source_file_name"),
-            "sha256": before.get("source_sha256"),
-            "size_bytes": before.get("source_size_bytes"),
-        },
-        "after_build": {
-            "version": after.get("source_file_name"),
-            "sha256": after.get("source_sha256"),
-            "size_bytes": after.get("source_size_bytes"),
-        },
+        "before_build": _build_metadata(before),
+        "after_build": _build_metadata(after),
         "component_names_before": len(left),
         "component_names_after": len(right),
         "metadata_change_count": len(changes),
