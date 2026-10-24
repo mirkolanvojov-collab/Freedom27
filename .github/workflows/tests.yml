@@ -23,9 +23,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          go install github.com/blacktop/ipsw/cmd/ipsw@latest
-          export PATH="$(go env GOPATH)/bin:$PATH"
-          ipsw download ota --platform ios --device iPhone17,4 --build 23H30 --urls | tee /tmp/fixed-ota-urls.txt
+          docker run --rm blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H30 --urls | tee /tmp/fixed-ota-urls.txt
           python - <<'PY'
           from pathlib import Path
           from urllib.parse import urlparse
