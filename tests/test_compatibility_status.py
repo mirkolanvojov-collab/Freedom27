@@ -93,6 +93,26 @@ class CompatibilityStatusTests(unittest.TestCase):
         report = assess_target(root)
         self.assertEqual(report["status"], "unknown")
         self.assertTrue(any("HTTPS evidence URL" in error for error in report["errors"]))
+    def test_null_target_fields_are_reported_as_missing(self):
+        temp, root = self.make_root()
+        self.addCleanup(temp.cleanup)
+        path = root / "research" / "target_profile.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["device_model"] = None
+        path.write_text(json.dumps(data), encoding="utf-8")
+        report = assess_target(root)
+        self.assertTrue(any("device_model is missing" in error for error in report["errors"]))
+
+    def test_null_claim_status_is_not_stringified(self):
+        temp, root = self.make_root()
+        self.addCleanup(temp.cleanup)
+        path = root / "research" / "target_status.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["claims"][0]["status"] = None
+        path.write_text(json.dumps(data), encoding="utf-8")
+        report = assess_target(root)
+        self.assertEqual(report["status"], "unknown")
+        self.assertTrue(any("invalid status" in error for error in report["errors"]))
     def test_malformed_status_claims_fail_closed(self):
         temp, root = self.make_root()
         self.addCleanup(temp.cleanup)
