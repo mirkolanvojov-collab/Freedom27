@@ -26,66 +26,109 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Explicitly trust the upstream tap formula dependency required by ipsw.
           brew trust --formula blacktop/tap/ipsw-frida
           brew install blacktop/tap/ipsw
           ipsw version
 
-      - name: Extract target and fixed dyld caches
+      - name: Extract target dyld cache (iOS 26.6.1 / 23G83)
         shell: bash
-        timeout-minutes: 100
+        timeout-minutes: 35
         run: |
           set -euo pipefail
-          mkdir -p out/target out/fixed
+          mkdir -p out/target diagnostics
           target_url='https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75160/D83A8969-3179-4D59-9F72-37FFC825CD9A/iPhone17,4_26.6.1_23G83_Restore.ipsw'
-          # The target is a restore IPSW; remote extraction is supported directly.
-          ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --remote --output out/target "$target_url"
+          {
+            echo "stage=target_dyld_extraction"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "runner=$(sw_vers -productVersion)"
+            ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --remote --output out/target "$target_url"
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            find out/target -type f -name 'dyld_shared_cache_arm64e' -print
+          } 2>&1 | tee diagnostics/target-extraction.log
+          test -n "$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
 
-          # Apple OTA metadata is intermittently unreachable from CI, so pin the
-          # previously verified device/build URL and key. Validate the complete
-          # download before extraction; use the OTA-specific parser (not IPSW ZIP parsing).
+      - name: Download and verify fixed-build OTA
+        shell: bash
+        timeout-minutes: 55
+        run: |
+          set -euo pipefail
+          mkdir -p out diagnostics
           ota_url='https://updates.cdn-apple.com/2026FallFCS/5ef51a7b-0f58-4585-8cdf-14afa18e9622/com_apple_MobileAsset_SoftwareUpdate/818080afd3f2204f9cf3c8da075752ee6e05c420554a0b076e7c9f5d2378d203.aea'
           ota_file="$PWD/fixed-23H30-iPhone17,4.aea"
-          curl --fail --location --retry 5 --retry-all-errors --connect-timeout 30 --max-time 3000 --output "$ota_file" "$ota_url"
-          test "$(stat -f '%z' "$ota_file")" -eq 8724152320
-          actual_sha256="$(shasum -a 256 "$ota_file" | awk '{print $1}')"
-          test "$actual_sha256" = '0078dc02b647fbc5c6efb8fd4e3fe0fc79d02af5f798f2e7981e069bd6987d92'
-          mkdir -p out/fixed-cache
-          ipsw ota extract --key-val 'YSWzwfZFdAFfs7gP222NfRfnN9lb1riyeL3bzwMlkEs=' "$ota_file" --dyld --dyld-arch arm64e --output out/fixed-cache --json > out/fixed-ota-extraction.json
-          cat out/fixed-ota-extraction.json
+          {
+            echo "stage=fixed_ota_download_and_verification"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            curl --fail --location --show-error --retry 5 --retry-all-errors --connect-timeout 30 --max-time 3300 --output "$ota_file" "$ota_url"
+            actual_size="$(stat -f '%z' "$ota_file")"
+            echo "download_size_bytes=$actual_size"
+            test "$actual_size" -eq 8724152320
+            actual_sha256="$(shasum -a 256 "$ota_file" | awk '{print $1}')"
+            echo "download_sha256=$actual_sha256"
+            test "$actual_sha256" = '0078dc02b647fbc5c6efb8fd4e3fe0fc79d02af5f798f2e7981e069bd6987d92'
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/fixed-ota-download.log
 
-          find out/target out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print
-
-      - name: Extract CoreGraphics and record comparison metadata
+      - name: Extract fixed dyld cache (iOS 26.7.1 / 23H30)
         shell: bash
+        timeout-minutes: 25
         run: |
           set -euo pipefail
-          target_cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
-          fixed_cache="$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
-          test -n "$target_cache"
-          test -n "$fixed_cache"
+          mkdir -p out/fixed-cache diagnostics
+          ota_file="$PWD/fixed-23H30-iPhone17,4.aea"
+          {
+            echo "stage=fixed_ota_dyld_extraction"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            ipsw ota extract --key-val 'YSWzwfZFdAFfs7gP222NfRfnN9lb1riyeL3bzwMlkEs=' "$ota_file" --dyld --dyld-arch arm64e --output out/fixed-cache --json > out/fixed-ota-extraction.json
+            cat out/fixed-ota-extraction.json
+            find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/fixed-ota-extraction.log
+          test -n "$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
 
-          python3 research/scripts/compare_coregraphics.py \
-            --target-cache "$target_cache" \
-            --fixed-cache "$fixed_cache" \
-            --output coregraphics-comparison.json
+      - name: Extract CoreGraphics and compare function instructions
+        shell: bash
+        timeout-minutes: 20
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          {
+            echo "stage=coregraphics_comparison"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            target_cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+            fixed_cache="$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+            test -n "$target_cache"
+            test -n "$fixed_cache"
 
-          target_binary="coregraphics-comparison-components/target/CoreGraphics"
-          fixed_binary="coregraphics-comparison-components/fixed/CoreGraphics"
-          test -f "$target_binary"
-          test -f "$fixed_binary"
+            python3 research/scripts/compare_coregraphics.py \
+              --target-cache "$target_cache" \
+              --fixed-cache "$fixed_cache" \
+              --output coregraphics-comparison.json
 
-          # Static function-scoped comparison only; neither binary is executed.
-          python3 research/scripts/compare_coregraphics_functions.py \
-            --target-binary "$target_binary" \
-            --fixed-binary "$fixed_binary" \
-            --instruction-limit 600 \
-            --output coregraphics-function-diff.json
+            target_binary="coregraphics-comparison-components/target/CoreGraphics"
+            fixed_binary="coregraphics-comparison-components/fixed/CoreGraphics"
+            test -f "$target_binary"
+            test -f "$fixed_binary"
 
-          # Keep only compact evidence records as artifacts.
-          rm -rf out coregraphics-comparison-components fixed-23H30-iPhone17,4.aea
+            # Static comparison only; neither binary is executed.
+            python3 research/scripts/compare_coregraphics_functions.py \
+              --target-binary "$target_binary" \
+              --fixed-binary "$fixed_binary" \
+              --instruction-limit 600 \
+              --output coregraphics-function-diff.json
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/coregraphics-comparison.log
+
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coregraphics-comparison-diagnostics
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload comparison evidence
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: coregraphics-build-comparison
@@ -93,3 +136,9 @@ jobs:
             coregraphics-comparison.json
             coregraphics-function-diff.json
           if-no-files-found: error
+
+      - name: Remove downloaded firmware and extracted binaries
+        if: always()
+        shell: bash
+        run: |
+          rm -rf out coregraphics-comparison-components fixed-23H30-iPhone17,4.aea
