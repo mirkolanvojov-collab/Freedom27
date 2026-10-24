@@ -1,0 +1,581 @@
+{
+  "schema_version": 1,
+  "title": "CVE Program / Apple advisory / NVD capture reconciliation",
+  "review_date": "2026-10-24",
+  "cve_list_snapshot": {
+    "repository": "CVEProject/cvelistV5",
+    "commit": "c21430318b4b48252dd6ba344df26d60e6354f12",
+    "commit_url": "https://github.com/CVEProject/cvelistV5/commit/c21430318b4b48252dd6ba344df26d60e6354f12"
+  },
+  "sources": {
+    "apple_advisory": "https://support.apple.com/en-us/149041",
+    "cve_program_repository": "https://github.com/CVEProject/cvelistV5",
+    "nvd_capture_run": "https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40041118442",
+    "nvd_artifact_sha256": "e21723d4911c67ca86efbfa74b845c595070ca39ca80856bf1d8e4af3fd9f236"
+  },
+  "target": {
+    "device_model": "iPhone 16 Plus",
+    "model_identifier": "iPhone17,4",
+    "os_version": "iOS 26.6.1",
+    "build_number": "23G83"
+  },
+  "summary": {
+    "expected_records": 12,
+    "records_retrieved": 12,
+    "all_published_apple_cna_records": true,
+    "all_reference_ios_26_7_advisory": true,
+    "all_have_iphone_os_nvd_capture": true,
+    "all_version_ranges_match_target": true,
+    "exact_build_confirmations": 0,
+    "exploitability_confirmations": 0
+  },
+  "interpretation": "CVE Program records, Apple's advisory, and the prior NVD capture agree on the broad pre-26.7 iOS version boundary and high-level impact statements for the 12 selected records. Version ranges do not prove build 23G83 code presence/reachability. NVD CPE records are not exact-build evidence. No exploit or jailbreak is established.",
+  "records": [
+    {
+      "cve_id": "CVE-2026-84607",
+      "apple_component": "AVEVideoEncoder",
+      "apple_advisory_issue_class": "race condition",
+      "cve_record_impact": "A sandboxed app may be able to execute arbitrary code with kernel privileges",
+      "cve_record_description": "A race condition was addressed with improved state management. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Sequoia 15.8, macOS Tahoe 26.7, tvOS 27, visionOS 27, watchOS 27. A sandboxed app may be able to execute arbitrary code with kernel privileges.",
+      "impact_wording_semantically_consistent": true,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/84xxx/CVE-2026-84607.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:51:27.510Z",
+        "date_updated": "2026-09-16T03:55:39.550Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-84607",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-43689",
+      "apple_component": "Kernel",
+      "apple_advisory_issue_class": "permissions issue",
+      "cve_record_impact": "A malicious app may be able to gain root privileges",
+      "cve_record_description": "A permissions issue was addressed with additional restrictions. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, visionOS 27. A malicious app may be able to gain root privileges.",
+      "impact_wording_semantically_consistent": true,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/43xxx/CVE-2026-43689.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:47:27.154Z",
+        "date_updated": "2026-10-20T00:50:07.857Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-43689",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-84523",
+      "apple_component": "APFS",
+      "apple_advisory_issue_class": "out-of-bounds write",
+      "cve_record_impact": "An app may be able to cause unexpected system termination or write kernel memory",
+      "cve_record_description": "An out-of-bounds write issue was addressed with improved bounds checking. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Sequoia 15.8, macOS Tahoe 26.7, tvOS 27, visionOS 27, watchOS 27. An app may be able to cause unexpected system termination or write kernel memory.",
+      "impact_wording_semantically_consistent": false,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/84xxx/CVE-2026-84523.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:51:02.122Z",
+        "date_updated": "2026-10-20T00:50:29.405Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-84523",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-86876",
+      "apple_component": "CoreMedia",
+      "apple_advisory_issue_class": "out-of-bounds write",
+      "cve_record_impact": "A sandboxed process may be able to circumvent sandbox restrictions",
+      "cve_record_description": "An out-of-bounds write issue was addressed with improved bounds checking. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Sequoia 15.8, macOS Tahoe 26.7, visionOS 27, watchOS 27. A sandboxed process may be able to circumvent sandbox restrictions.",
+      "impact_wording_semantically_consistent": true,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/86xxx/CVE-2026-86876.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:51:59.688Z",
+        "date_updated": "2026-10-20T00:50:45.145Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-86876",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-86886",
+      "apple_component": "TCC",
+      "apple_advisory_issue_class": "path traversal",
+      "cve_record_impact": "An app may be able to modify protected system files",
+      "cve_record_description": "A path traversal issue was addressed with improved input validation. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, watchOS 27. An app may be able to modify protected system files.",
+      "impact_wording_semantically_consistent": true,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/86xxx/CVE-2026-86886.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:48:40.053Z",
+        "date_updated": "2026-09-17T15:38:26.054Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-86886",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-84566",
+      "apple_component": "Kernel",
+      "apple_advisory_issue_class": "memory handling",
+      "cve_record_impact": "A local attacker may be able to cause unexpected system termination or corrupt kernel memory",
+      "cve_record_description": "The issue was addressed with improved memory handling. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Sequoia 15.8, macOS Tahoe 26.7. A local attacker may be able to cause unexpected system termination or corrupt kernel memory.",
+      "impact_wording_semantically_consistent": false,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/84xxx/CVE-2026-84566.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:48:52.828Z",
+        "date_updated": "2026-10-20T00:50:35.698Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-84566",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-43687",
+      "apple_component": "Kernel",
+      "apple_advisory_issue_class": "memory disclosure",
+      "cve_record_impact": "Connecting to a malicious NFS server may disclose kernel memory",
+      "cve_record_description": "The issue was addressed with improved memory handling. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Tahoe 26.7, tvOS 27, visionOS 27, watchOS 27. Connecting to a malicious NFS server may disclose kernel memory.",
+      "impact_wording_semantically_consistent": true,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/43xxx/CVE-2026-43687.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:51:04.124Z",
+        "date_updated": "2026-10-20T00:50:07.607Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-43687",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-43684",
+      "apple_component": "Kernel",
+      "apple_advisory_issue_class": "use-after-free",
+      "cve_record_impact": "An app may be able to cause unexpected system termination or corrupt kernel memory",
+      "cve_record_description": "A use-after-free issue was addressed with improved memory management. This issue is fixed in iOS 26.7 and iPadOS 26.7, macOS Golden Gate 27, macOS Sequoia 15.8. An app may be able to cause unexpected system termination or corrupt kernel memory.",
+      "impact_wording_semantically_consistent": false,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/43xxx/CVE-2026-43684.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:48:16.646Z",
+        "date_updated": "2026-10-20T00:50:07.078Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-43684",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-43686",
+      "apple_component": "Kernel",
+      "apple_advisory_issue_class": "use-after-free",
+      "cve_record_impact": "Connecting to a malicious NFS server may lead to kernel memory corruption",
+      "cve_record_description": "A use-after-free issue was addressed with improved memory management. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Sequoia 15.8, macOS Tahoe 26.7, tvOS 27, visionOS 27, watchOS 27. Connecting to a malicious NFS server may lead to kernel memory corruption.",
+      "impact_wording_semantically_consistent": false,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/43xxx/CVE-2026-43686.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:51:49.511Z",
+        "date_updated": "2026-10-20T00:50:07.338Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-43686",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-65405",
+      "apple_component": "Kernel",
+      "apple_advisory_issue_class": "memory initialization",
+      "cve_record_impact": "An app may be able to determine kernel memory layout",
+      "cve_record_description": "A memory initialization issue was addressed with improved memory handling. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Sequoia 15.8, macOS Tahoe 26.7, tvOS 27, visionOS 27, watchOS 27. An app may be able to determine kernel memory layout.",
+      "impact_wording_semantically_consistent": true,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/65xxx/CVE-2026-65405.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:51:42.387Z",
+        "date_updated": "2026-10-20T00:50:24.905Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-65405",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-84622",
+      "apple_component": "Kernel",
+      "apple_advisory_issue_class": "memory initialization",
+      "cve_record_impact": "An app with root privileges may be able to read uninitialized kernel memory",
+      "cve_record_description": "A memory initialization issue was addressed with improved memory handling. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Sequoia 15.8, macOS Tahoe 26.7, tvOS 27, visionOS 27, watchOS 27. An app with root privileges may be able to read uninitialized kernel memory.",
+      "impact_wording_semantically_consistent": true,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/84xxx/CVE-2026-84622.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:48:59.138Z",
+        "date_updated": "2026-10-20T00:50:40.638Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-84622",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    },
+    {
+      "cve_id": "CVE-2026-28968",
+      "apple_component": "Kernel",
+      "apple_advisory_issue_class": "out-of-bounds write",
+      "cve_record_impact": "An app may be able to cause unexpected system termination or corrupt kernel memory",
+      "cve_record_description": "An out-of-bounds write issue was addressed with improved bounds checking. This issue is fixed in iOS 26.7 and iPadOS 26.7, iOS 27 and iPadOS 27, macOS Golden Gate 27, macOS Sequoia 15.8, macOS Tahoe 26.7, tvOS 27, visionOS 27, watchOS 27. An app may be able to cause unexpected system termination or corrupt kernel memory.",
+      "impact_wording_semantically_consistent": false,
+      "record": {
+        "url": "https://github.com/CVEProject/cvelistV5/blob/c21430318b4b48252dd6ba344df26d60e6354f12/cves/2026/28xxx/CVE-2026-28968.json",
+        "state": "PUBLISHED",
+        "assigner_short_name": "apple",
+        "date_published": "2026-09-14T20:49:25.356Z",
+        "date_updated": "2026-10-20T00:50:06.034Z",
+        "ios_ipados_affected_ranges": [
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "26.7",
+            "version_type": "custom"
+          },
+          {
+            "version": "0",
+            "status": "affected",
+            "less_than": "27",
+            "version_type": "custom"
+          }
+        ],
+        "apple_ios_26_7_advisory_referenced": true
+      },
+      "nvd": {
+        "detail_url": "https://nvd.nist.gov/vuln/detail/cve-2026-28968",
+        "capture_run_id": 40041118442,
+        "cve_record_captured": true,
+        "cpe_match_record_captured": true,
+        "iphone_os_version_end_excluding": "26.7",
+        "target_release_version_range_match": true
+      },
+      "target": {
+        "device_model": "iPhone 16 Plus",
+        "model_identifier": "iPhone17,4",
+        "os_version": "iOS 26.6.1",
+        "build_number": "23G83",
+        "exact_build_applicability": "not_independently_verified",
+        "exploitability": "not_established"
+      }
+    }
+  ]
+}
