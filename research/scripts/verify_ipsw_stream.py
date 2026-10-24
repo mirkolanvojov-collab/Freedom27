@@ -81,8 +81,18 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
                 elif last_status == 206:
                     content_range = response.headers.get("Content-Range", "")
                     match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+|\*)", content_range)
-                    if not match or int(match.group(1)) != total:
-                        raise RuntimeError(f"Unsafe/missing Content-Range for offset {total}: {content_range!r}")
+                    if (
+                        not match
+                        or int(match.group(1)) != total
+                        or int(match.group(2)) < int(match.group(1))
+                        or match.group(3) == "*"
+                        or int(match.group(3)) != expected_size
+                        or int(match.group(2)) >= expected_size
+                    ):
+                        raise RuntimeError(
+                            f"Unsafe/missing Content-Range for offset {total} "
+                            f"and expected size {expected_size}: {content_range!r}"
+                        )
                 else:
                     raise RuntimeError(f"Unexpected HTTP status {last_status} at offset {total}")
 

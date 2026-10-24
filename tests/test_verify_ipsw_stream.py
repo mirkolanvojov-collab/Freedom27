@@ -81,6 +81,52 @@ class VerifyIpswStreamTests(unittest.TestCase):
                 sleep=lambda _: None, max_retries=1,
             )
 
+    def test_resume_rejects_wrong_total_in_content_range(self):
+        responses = [
+            FakeResponse(b"abc", 200),
+            FakeResponse(b"def", 206, {"Content-Range": "bytes 3-5/7"}),
+        ]
+
+        def opener(request, timeout):
+            return responses.pop(0)
+
+        with self.assertRaisesRegex(RuntimeError, "Unsafe/missing Content-Range"):
+            stream_url_sha256(
+                "https://example.invalid/test", 6, opener=opener,
+                sleep=lambda _: None, max_retries=1,
+            )
+
+    def test_interrupted_read_resumes_from_bytes_already_hashed(self):
+        class InterruptedResponse(FakeResponse):
+            def __init__(self):
+                super().__init__(b"abc", 200)
+                self.read_calls = 0
+
+            def read(self, size=-1):
+                self.read_calls += 1
+                if self.read_calls == 1:
+                    return super().read(size)
+                raise ConnectionResetError("synthetic interrupted stream")
+
+        responses = [
+            InterruptedResponse(),
+            FakeResponse(b"def", 206, {"Content-Range": "bytes 3-5/6"}),
+        ]
+        requests = []
+
+        def opener(request, timeout):
+            requests.append(request)
+            return responses.pop(0)
+
+        digest, size, status = stream_url_sha256(
+            "https://example.invalid/test", 6, opener=opener,
+            sleep=lambda _: None, max_retries=2,
+        )
+        self.assertEqual(digest, hashlib.sha256(b"abcdef").hexdigest())
+        self.assertEqual(size, 6)
+        self.assertEqual(status, 206)
+        self.assertEqual(requests[1].get_header("Range"), "bytes=3-")
+
 
 if __name__ == "__main__":
     unittest.main()
