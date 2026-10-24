@@ -23,10 +23,13 @@ def _valid_evidence_url(value: object) -> bool:
     """Accept only well-formed HTTPS evidence URLs without embedded credentials."""
     try:
         parsed = urlparse(value) if isinstance(value, str) else None
-        return bool(
+        if not (
             parsed and parsed.scheme == "https" and parsed.hostname
             and not parsed.username and not parsed.password
-        )
+        ):
+            return False
+        _ = parsed.port
+        return True
     except ValueError:
         return False
 
