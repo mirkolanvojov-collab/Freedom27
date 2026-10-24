@@ -7,6 +7,8 @@ on:
     paths:
       - ".github/workflows/compare-coregraphics-builds.yml"
       - "research/scripts/compare_coregraphics.py"
+      - "research/scripts/compare_coregraphics_functions.py"
+      - "tests/test_compare_coregraphics_functions.py"
 
 permissions:
   contents: read
@@ -63,19 +65,31 @@ jobs:
           test -n "$target_cache"
           test -n "$fixed_cache"
 
-          # Once both caches exist, component extraction and metadata comparison
-          # are performed by the reusable tool; no second firmware download.
           python3 research/scripts/compare_coregraphics.py \
             --target-cache "$target_cache" \
             --fixed-cache "$fixed_cache" \
             --output coregraphics-comparison.json
 
-          # Keep only the compact evidence record as the artifact.
+          target_binary="coregraphics-comparison-components/target/CoreGraphics"
+          fixed_binary="coregraphics-comparison-components/fixed/CoreGraphics"
+          test -f "$target_binary"
+          test -f "$fixed_binary"
+
+          # Static function-scoped comparison only; neither binary is executed.
+          python3 research/scripts/compare_coregraphics_functions.py \
+            --target-binary "$target_binary" \
+            --fixed-binary "$fixed_binary" \
+            --instruction-limit 600 \
+            --output coregraphics-function-diff.json
+
+          # Keep only compact evidence records as artifacts.
           rm -rf out coregraphics-comparison-components fixed-23H30-iPhone17,4.aea
 
       - name: Upload comparison evidence
         uses: actions/upload-artifact@v4
         with:
           name: coregraphics-build-comparison
-          path: coregraphics-comparison.json
+          path: |
+            coregraphics-comparison.json
+            coregraphics-function-diff.json
           if-no-files-found: error
