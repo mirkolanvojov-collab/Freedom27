@@ -52,6 +52,12 @@ def discover_symbols(binary: Path) -> list[str]:
 
 
 def normalize_disassembly(output: str) -> list[str]:
+    """Normalize layout/presentation noise for triage, not semantic proof.
+
+    Absolute ADR/ADRP targets and generated local labels vary across builds.
+    A matching normalized stream does not prove relocated references resolve
+    to equivalent objects; those cases still require manual symbol/relocation review.
+    """
     instructions: list[str] = []
     for line in output.splitlines():
         match = LINE_RE.match(line)
@@ -63,14 +69,23 @@ def normalize_disassembly(output: str) -> list[str]:
             text = byte_match.group(1).strip()
         if not text:
             continue
+        # Remove assembler comments, which often contain build-specific labels.
+        text = text.split(";", 1)[0].strip()
         text = re.sub(r"\s+", " ", text)
+        # ADR/ADRP image addresses commonly move between builds. Preserve the
+        # opcode/register but mark the target as relocation-sensitive.
+        address_match = re.match(r"^(adrp?)\s+([^,]+),\s*#?(0x[0-9a-fA-F]+)(.*)$", text, re.I)
+        if address_match:
+            text = f"{address_match.group(1)} {address_match.group(2).strip()}, <image-address>{address_match.group(4)}"
         branch = BRANCH_RE.match(text)
         if branch:
             operands = re.sub(r"#?0x[0-9a-fA-F]+", "<branch-target>", branch.group(1))
+            operands = re.sub(r"\b(?:loc|sub|LAB|L)_?[0-9a-fA-F]{5,}\b", "<local-label>", operands)
             text = text.split()[0] + " " + operands
+        else:
+            text = re.sub(r"\b(?:loc|sub|LAB|L)_?[0-9a-fA-F]{5,}\b", "<local-label>", text)
         instructions.append(text)
     return instructions
-
 
 def disassemble(binary: Path, symbol: str) -> list[str]:
     # ipsw's symbol listing can omit Mach-O's leading C-symbol underscore for
@@ -148,7 +163,7 @@ def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
 
     changed = [item for item in results if not item["instruction_stream_identical"]]
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "mode": "read_only_symbol_scoped_disassembly_comparison",
         "target_binary": str(target_binary),
         "fixed_reference_binary": str(fixed_binary),
@@ -158,11 +173,12 @@ def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
         "common_aa_symbol_count": len(common),
         "successfully_compared_symbol_count": len(results),
         "changed_symbol_count": len(changed),
+        "layout_normalization_note": "ADR/ADRP image addresses, generated local labels, branch targets, and disassembler comments are normalized for triage; matching normalized streams are not proof of semantic equivalence because relocated references may resolve to different objects.",
         "changed_symbols": [item["symbol"] for item in changed],
         "symbols": results,
         "disassembly_failures": failures,
         "interpretation": (
-            "One or more shared aa_* symbol instruction streams differ; inspect the recorded disassembly before attributing changes to CVE-2026-86950."
+            "One or more layout-normalized shared aa_* instruction streams differ; inspect changes and relocation-sensitive references before attributing anything to CVE-2026-86950."
             if changed else
             "No differences were established among successfully compared shared aa_* symbol instruction streams. Missing symbols, truncated streams, or failed disassemblies may limit coverage."
         ),
@@ -170,6 +186,7 @@ def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
             "Only symbols discoverable through ipsw's Mach-O symbol listing are compared.",
             "Function boundaries depend on Mach-O function metadata; symbols without reliable boundaries may fail closed.",
             "Compiler/build changes may alter instructions for reasons unrelated to the CVE.",
+            "Layout normalization is triage only: matching ADR/ADRP placeholders do not prove references resolve to equivalent objects.",
             "This static comparison does not establish runtime reachability or exploitability.",
             "No binary was executed; no crafted input or device was used.",
         ],
