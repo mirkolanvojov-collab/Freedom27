@@ -109,6 +109,13 @@ jobs:
             test -f "$target_binary"
             test -f "$fixed_binary"
 
+            # Preserve symbol and Mach-O function-start metadata for diagnosing
+            # symbols that ipsw cannot disassemble. These are read-only reports.
+            ipsw macho info --symbols "$target_binary" > diagnostics/target-coregraphics-symbols.txt
+            ipsw macho info --symbols "$fixed_binary" > diagnostics/fixed-coregraphics-symbols.txt
+            otool -l "$target_binary" > diagnostics/target-coregraphics-load-commands.txt
+            otool -l "$fixed_binary" > diagnostics/fixed-coregraphics-load-commands.txt
+
             # Static comparison only; neither binary is executed.
             # Let ipsw resolve the exact function extent from Mach-O metadata.
             python3 research/scripts/compare_coregraphics_functions.py \
