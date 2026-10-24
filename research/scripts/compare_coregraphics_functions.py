@@ -64,7 +64,7 @@ def normalize_disassembly(output: str) -> list[str]:
 
 def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
     output = run([
-        "ipsw", "macho", "disass", "--symbol", symbol,
+        "ipsw", "macho", "disass", "--force", "--symbol", symbol,
         "--count", str(instruction_limit), str(binary),
     ])
     instructions = normalize_disassembly(output)
