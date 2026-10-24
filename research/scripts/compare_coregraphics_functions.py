@@ -207,7 +207,10 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({key: value for key, value in report.items() if key != "symbols"}, indent=2))
-    if report["common_aa_symbol_count"] and report["successfully_compared_symbol_count"] == 0:
+    if report["common_aa_symbol_count"] == 0:
+        print("no shared executable aa_* symbols were found; refusing a false-success result", file=sys.stderr)
+        return 3
+    if report["successfully_compared_symbol_count"] == 0:
         print("no shared aa_* symbols were successfully disassembled; refusing a false-success result", file=sys.stderr)
         return 3
     if report["disassembly_failures"]:
