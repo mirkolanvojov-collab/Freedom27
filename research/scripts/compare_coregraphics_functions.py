@@ -65,7 +65,7 @@ def normalize_disassembly(output: str) -> list[str]:
 def disassemble(binary: Path, symbol: str, instruction_limit: int) -> list[str]:
     output = run([
         "ipsw", "macho", "disass", "--symbol", symbol,
-        "--instrs", str(instruction_limit), str(binary),
+        "--count", str(instruction_limit), str(binary),
     ])
     return normalize_disassembly(output)
 
@@ -152,6 +152,11 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({key: value for key, value in report.items() if key != "symbols"}, indent=2))
+    if report["common_aa_symbol_count"] and report["successfully_compared_symbol_count"] == 0:
+        print("no shared aa_* symbols were successfully disassembled; refusing a false-success result", file=sys.stderr)
+        return 3
+    if report["disassembly_failures"]:
+        print(f"warning: {len(report['disassembly_failures'])} symbol disassembly attempt(s) failed", file=sys.stderr)
     return 0
 
 
