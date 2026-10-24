@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - research/run-manifest-inventory
+      - research/hash-selected-components
 
 permissions:
   contents: read
