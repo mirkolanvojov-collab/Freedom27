@@ -16,7 +16,7 @@ I reviewed all 12 selected CVE Program records at a pinned upstream snapshot and
 - CVE Program snapshot: [CVEProject/cvelistV5 commit c21430318b4b48252dd6ba344df26d60e6354f12](https://github.com/CVEProject/cvelistV5/commit/c21430318b4b48252dd6ba344df26d60e6354f12)
 - NVD capture run: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40041118442
 - NVD artifact SHA-256: `e21723d4911c67ca86efbfa74b845c595070ca39ca80856bf1d8e4af3fd9f236`
-- Machine-readable record-level reconciliation: [cve_program_reconciliation_2026-10-24.json](cve_program_reconciliation_2026-10-24.json)
+- Machine-readable record-level reconciliation: [cve_program_reconciliation_2026-10-24_canonical.json](cve_program_reconciliation_2026-10-24_canonical.json)
 
 The JSON stores the canonical CVE Program impact wording, record state, Apple CNA attribution, publication/update timestamps, iOS/iPadOS version boundaries, Apple-advisory reference presence, and NVD capture provenance.
 
