@@ -32,7 +32,7 @@ jobs:
 
       - name: Extract target dyld cache (iOS 26.6.1 / 23G83)
         shell: bash
-        timeout-minutes: 35
+        timeout-minutes: 25
         run: |
           set -euo pipefail
           mkdir -p out/target diagnostics
@@ -49,7 +49,7 @@ jobs:
 
       - name: Download and verify fixed-build OTA
         shell: bash
-        timeout-minutes: 55
+        timeout-minutes: 45
         run: |
           set -euo pipefail
           mkdir -p out diagnostics
@@ -58,7 +58,7 @@ jobs:
           {
             echo "stage=fixed_ota_download_and_verification"
             echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            curl --fail --location --show-error --retry 5 --retry-all-errors --connect-timeout 30 --max-time 3300 --output "$ota_file" "$ota_url"
+            curl --fail --location --show-error --retry 5 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
             actual_size="$(stat -f '%z' "$ota_file")"
             echo "download_size_bytes=$actual_size"
             test "$actual_size" -eq 8724152320
@@ -70,7 +70,7 @@ jobs:
 
       - name: Extract fixed dyld cache (iOS 26.7.1 / 23H30)
         shell: bash
-        timeout-minutes: 25
+        timeout-minutes: 20
         run: |
           set -euo pipefail
           mkdir -p out/fixed-cache diagnostics
@@ -87,7 +87,7 @@ jobs:
 
       - name: Extract CoreGraphics and compare function instructions
         shell: bash
-        timeout-minutes: 20
+        timeout-minutes: 15
         run: |
           set -euo pipefail
           mkdir -p diagnostics
