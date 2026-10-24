@@ -41,6 +41,7 @@ class ChainReadinessTests(unittest.TestCase):
             "source_revision": "a" * 40,
             "evidence_note": "Primary-source scope reviewed and independently reproduced.",
             "independent_reproduction": True,
+            "scope_confirmed": True,
         }
         key = "Phone|OS|BUILD"
         evidence = {"target_evidence": {key: {
