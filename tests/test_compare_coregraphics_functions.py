@@ -27,14 +27,15 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         self.assertEqual(first, second)
 
 
-    def test_disassembler_uses_supported_count_flag(self):
+    def test_disassembler_uses_function_boundaries_not_fixed_count(self):
         from research.scripts import compare_coregraphics_functions as module
         with patch.object(module, "run", return_value="0x1000: ret") as mocked:
-            result = disassemble(Path("CoreGraphics"), "_aa_render", 600)
+            result = disassemble(Path("CoreGraphics"), "_aa_render")
         self.assertEqual(result, ["ret"])
         args = mocked.call_args.args[0]
-        self.assertIn("--count", args)
         self.assertIn("--force", args)
+        self.assertIn("--symbol", args)
+        self.assertNotIn("--count", args)
         self.assertNotIn("--instrs", args)
 
     def test_disassembler_retries_leading_underscore_for_missing_symbol(self):
@@ -46,7 +47,7 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
                 "0x1000: ret",
             ],
         ) as mocked:
-            result = disassemble(Path("CoreGraphics"), "aa_path_iterator_create", 600)
+            result = disassemble(Path("CoreGraphics"), "aa_path_iterator_create")
         self.assertEqual(result, ["ret"])
         self.assertEqual(mocked.call_count, 2)
         self.assertIn("aa_path_iterator_create", mocked.call_args_list[0].args[0])
@@ -57,13 +58,6 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         with patch.object(module, "run", return_value=""):
             with self.assertRaisesRegex(RuntimeError, "no parseable instructions"):
                 disassemble(Path("CoreGraphics"), "_aa_render", 600)
-
-    def test_disassembler_fails_closed_when_instruction_limit_is_reached(self):
-        from research.scripts import compare_coregraphics_functions as module
-        output = "\n".join(f"0x{0x1000 + i * 4:x}: nop" for i in range(3))
-        with patch.object(module, "run", return_value=output):
-            with self.assertRaisesRegex(RuntimeError, "completeness cannot be established"):
-                disassemble(Path("CoreGraphics"), "_aa_render", 3)
 
     def test_main_fails_closed_on_partial_comparison(self):
         import tempfile
