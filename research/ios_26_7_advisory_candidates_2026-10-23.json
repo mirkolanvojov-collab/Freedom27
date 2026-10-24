@@ -183,12 +183,19 @@
       "published_impact": "Processing a maliciously crafted file may lead to arbitrary code execution; Apple reports possible exploitation in highly targeted attacks on versions before iOS 27",
       "fix_summary": "Out-of-bounds write addressed with improved bounds checking",
       "fixed_release": "iOS 26.7.1",
-      "target_applicability": "not_established",
+      "target_applicability": "public_version_range_includes_26_6_1_exact_build_unverified",
       "reproduction_status": "not_reproduced_by_Freedom27",
       "chain_status": "not_established",
       "priority": "high",
-      "reason": "A public patch-analysis write-up identifies a CoreGraphics fixed-point coordinate conversion bounds fix between iOS 26.7 and 26.7.1. The target 26.6.1 predates the fixed release, but build 23G83 has not been independently verified and no Freedom27 exploit or chain is established.",
-      "source_url": "https://support.apple.com/en-us/149226"
+      "reason": "Public NVD affected-software range includes iOS 26.6.1, and public patch analysis describes the CoreGraphics bounds fix between iOS 26.7 and 26.7.1. Exact build 23G83 code mapping, reachability, Freedom27 reproduction, and a complete chain remain unestablished.",
+      "source_url": "https://support.apple.com/en-us/149226",
+      "version_evidence": {
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86950",
+        "source_type": "NVD affected-software configuration",
+        "stated_range": "Apple iOS/iPadOS versions below 26.7.1",
+        "interpretation": "The published version range includes iOS 26.6.1; exact build 23G83 and device-specific behavior have not been independently verified.",
+        "checked_on": "2026-10-24"
+      }
     }
   ],
   "required_evidence_for_upgrade": [
