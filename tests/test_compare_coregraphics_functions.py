@@ -37,6 +37,21 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         self.assertIn("--force", args)
         self.assertNotIn("--instrs", args)
 
+    def test_disassembler_retries_leading_underscore_for_missing_symbol(self):
+        from research.scripts import compare_coregraphics_functions as module
+        with patch.object(
+            module, "run",
+            side_effect=[
+                RuntimeError("command failed: symbol not found in macho symtab"),
+                "0x1000: ret",
+            ],
+        ) as mocked:
+            result = disassemble(Path("CoreGraphics"), "aa_path_iterator_create", 600)
+        self.assertEqual(result, ["ret"])
+        self.assertEqual(mocked.call_count, 2)
+        self.assertIn("aa_path_iterator_create", mocked.call_args_list[0].args[0])
+        self.assertIn("_aa_path_iterator_create", mocked.call_args_list[1].args[0])
+
     def test_disassembler_fails_closed_on_empty_output(self):
         from research.scripts import compare_coregraphics_functions as module
         with patch.object(module, "run", return_value=""):
