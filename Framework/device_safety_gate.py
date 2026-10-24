@@ -92,11 +92,18 @@ def assess_safety(target_status: dict, attestations: dict | None = None) -> dict
         })
 
     status_gates = target_status.get("gates", [])
-    gate_map = {
-        item.get("id"): item for item in status_gates
-        if isinstance(item, dict) and isinstance(item.get("id"), str)
-    } if isinstance(status_gates, list) else {}
-    chain_evidence_complete = all(
+    gate_map = {}
+    duplicate_gate_ids = set()
+    if isinstance(status_gates, list):
+        for item in status_gates:
+            if not isinstance(item, dict) or not isinstance(item.get("id"), str):
+                continue
+            gate_id = item["id"]
+            if gate_id in gate_map:
+                duplicate_gate_ids.add(gate_id)
+            else:
+                gate_map[gate_id] = item
+    chain_evidence_complete = not duplicate_gate_ids and all(
         gate_map.get(gate_id, {}).get("status") == "verified"
         and _verified_attestation(gate_map.get(gate_id, {}).get("evidence"), target)
         for gate_id in REQUIRED_CHAIN_GATES
@@ -110,7 +117,11 @@ def assess_safety(target_status: dict, attestations: dict | None = None) -> dict
         "id": "project_exact_target_chain",
         "description": "Every required chain milestone has target-matched source-pinned evidence",
         "passed": chain_verified,
-        "reason": "" if chain_verified else "Exact-target chain and all required milestone evidence are not independently established",
+        "reason": "" if chain_verified else (
+            "Duplicate milestone gate IDs detected: " + ", ".join(sorted(duplicate_gate_ids))
+            if duplicate_gate_ids else
+            "Exact-target chain and all required milestone evidence are not independently established"
+        ),
     })
     blockers = [gate["id"] for gate in gates if not gate["passed"]]
     return {
