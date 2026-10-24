@@ -57,7 +57,7 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         from research.scripts import compare_coregraphics_functions as module
         with patch.object(module, "run", return_value=""):
             with self.assertRaisesRegex(RuntimeError, "no parseable instructions"):
-                disassemble(Path("CoreGraphics"), "_aa_render", 600)
+                disassemble(Path("CoreGraphics"), "_aa_render")
 
     def test_main_fails_closed_on_partial_comparison(self):
         import tempfile
