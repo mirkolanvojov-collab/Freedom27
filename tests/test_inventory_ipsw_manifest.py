@@ -74,6 +74,10 @@ class InventoryIpswManifestTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not listed in SupportedProductTypes"):
             inventory_ipsw(self.path, self.sha, self.size, "iPhone99,9", "D48AP")
 
+    def test_wrong_board_configuration_fails_closed(self):
+        with self.assertRaisesRegex(ValueError, "no BuildIdentity matched"):
+            inventory_ipsw(self.path, self.sha, self.size, "iPhone17,4", "D47AP")
+
     def test_invalid_pinned_digest_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "64 hexadecimal"):
             inventory_ipsw(self.path, "not-a-hash", self.size, "iPhone17,4", "D48AP")
