@@ -5,6 +5,7 @@ from unittest.mock import patch
 from research.scripts.compare_coregraphics_functions import (
     digest_instructions,
     disassemble,
+    extract_relocation_sites,
     normalize_disassembly,
 )
 
@@ -35,6 +36,19 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
             normalize_disassembly(output),
             ["nop", "b <branch-target>", "mov x0, #0x3ffff001"],
         )
+
+    def test_relocation_audit_preserves_raw_addresses_and_nearby_instructions(self):
+        output = (
+            "0x1000: 09 00 00 90 adrp x9, 0x180000000\n"
+            "0x1004: 29 01 40 f9 ldr x9, [x9, #0x20]\n"
+            "0x1008: 20 01 3f d6 blr x9\n"
+            "0x100c: c0 03 5f d6 ret\n"
+        )
+        sites = extract_relocation_sites(output)
+        self.assertEqual(len(sites), 1)
+        self.assertEqual(sites[0]["address"], "0x1000")
+        self.assertEqual(sites[0]["instruction"], "adrp x9, 0x180000000")
+        self.assertEqual(sites[0]["context"][1]["instruction"], "ldr x9, [x9, #0x20]")
 
     def test_normalizes_layout_addresses_and_comments(self):
         first = normalize_disassembly(
@@ -90,7 +104,7 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
 
     def test_disassembler_rejects_ipsw_100_instruction_fallback(self):
         from research.scripts import compare_coregraphics_functions as module
-        output = "WARN disassembling 100 instructions at 0x1000\\n0x1000: ret"
+        output = "WARN disassembling 100 instructions at 0x1000\n0x1000: ret"
         with patch.object(module, "run", return_value=output):
             with self.assertRaisesRegex(RuntimeError, "function boundary"):
                 disassemble(Path("CoreGraphics"), "_aa_render")

@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, research/cve-source-reconciliation-2026-10-24]
   pull_request:
-    branches: [main]
+    branches: [main, research/cve-source-reconciliation-2026-10-24]
 
 permissions:
   contents: read
