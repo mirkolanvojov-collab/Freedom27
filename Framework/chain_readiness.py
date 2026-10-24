@@ -34,7 +34,7 @@ def _valid_gate_evidence(record: object, target: dict) -> bool:
         return False
     if any(
         not isinstance(target.get(field), str)
-        or not target.get(field)
+        or not target[field].strip()
         or recorded_target.get(field) != target.get(field)
         for field in target_fields
     ):
@@ -57,6 +57,7 @@ def _valid_gate_evidence(record: object, target: dict) -> bool:
         isinstance(record.get("evidence_note"), str)
         and bool(record["evidence_note"].strip())
         and record.get("independent_reproduction") is True
+        and record.get("scope_confirmed") is True
     )
 
 
