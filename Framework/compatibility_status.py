@@ -15,6 +15,10 @@ ROOT = Path(__file__).resolve().parent.parent
 ALLOWED = {"not-investigated", "researching", "theoretical", "experimental", "verified", "not-supported"}
 
 
+def _text(value: object) -> str:
+    """Normalize only actual strings; null and other types stay missing."""
+    return value.strip() if isinstance(value, str) else ""
+
 def _valid_evidence_url(value: object) -> bool:
     """Accept only well-formed HTTPS evidence URLs without embedded credentials."""
     try:
@@ -54,24 +58,24 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
         input_errors.append("target status claims must be a list")
         claims = []
     identity = {
-        "device_model": str(profile.get("device_model", "")),
-        "model_identifier": str(profile.get("model_identifier", "")),
-        "os_version": str(profile.get("exact_os_version", "")),
-        "build_number": str(profile.get("build_number", "")),
+        "device_model": _text(profile.get("device_model")),
+        "model_identifier": _text(profile.get("model_identifier")),
+        "os_version": _text(profile.get("exact_os_version")),
+        "build_number": _text(profile.get("build_number")),
     }
     errors = input_errors + [f"{key} is missing" for key, value in identity.items() if not value]
     matches = []
     for item in claims:
         if not isinstance(item, dict):
             continue
-        if all(str(item.get(key, "")) == identity[key] for key in ("device_model", "model_identifier", "os_version", "build_number")):
+        if all(_text(item.get(key)) == identity[key] for key in ("device_model", "model_identifier", "os_version", "build_number")):
             matches.append(item)
 
     valid = []
     for item in matches:
-        status = str(item.get("status", ""))
-        url = str(item.get("evidence_url", ""))
-        notes = str(item.get("notes", ""))
+        status = _text(item.get("status"))
+        url = _text(item.get("evidence_url"))
+        notes = _text(item.get("notes"))
         if status not in ALLOWED:
             errors.append(f"matching claim has invalid status: {status}")
             continue
