@@ -80,8 +80,28 @@ def _build_metadata(inventory: dict[str, Any]) -> dict[str, Any]:
 
 def compare_inventories(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
     for label, inventory in (("before", before), ("after", after)):
+        if not isinstance(inventory, dict):
+            raise ValueError(f"{label} inventory root must be an object")
         if inventory.get("integrity_verified_against_pinned_values") is not True:
             raise ValueError(f"{label} inventory is not hash-verified")
+        for field in ("product_type", "device_class"):
+            if not isinstance(inventory.get(field), str) or not inventory[field].strip():
+                raise ValueError(f"{label} inventory has missing or invalid {field}")
+        source_sha256 = inventory.get("source_sha256")
+        if (not isinstance(source_sha256, str) or len(source_sha256) != 64
+                or any(char not in "0123456789abcdefABCDEF" for char in source_sha256)):
+            raise ValueError(f"{label} inventory has missing or invalid source SHA-256")
+        if type(inventory.get("source_size_bytes")) is not int or inventory["source_size_bytes"] <= 0:
+            raise ValueError(f"{label} inventory has missing or invalid source size")
+        identities = inventory.get("build_identities")
+        if not isinstance(identities, list) or not identities:
+            raise ValueError(f"{label} inventory has missing build identities")
+        for index, identity in enumerate(identities):
+            if not isinstance(identity, dict):
+                raise ValueError(f"{label} build identity {index} must be an object")
+            components = identity.get("components")
+            if not isinstance(components, list) or any(not isinstance(item, dict) for item in components):
+                raise ValueError(f"{label} build identity {index} components must be a list of objects")
     if before.get("product_type") != after.get("product_type"):
         raise ValueError("product_type mismatch: cross-device comparison is not allowed")
     if before.get("device_class") != after.get("device_class"):
