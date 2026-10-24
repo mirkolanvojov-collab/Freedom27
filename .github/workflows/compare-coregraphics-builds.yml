@@ -110,6 +110,7 @@ jobs:
             test -f "$fixed_binary"
 
             # Static comparison only; neither binary is executed.
+            # Keep this explicit: older PR merge runs used the script's 600-instruction default.
             python3 research/scripts/compare_coregraphics_functions.py \
               --target-binary "$target_binary" \
               --fixed-binary "$fixed_binary" \
