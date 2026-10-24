@@ -161,7 +161,11 @@ def main() -> int:
         print("no shared aa_* symbols were successfully disassembled; refusing a false-success result", file=sys.stderr)
         return 3
     if report["disassembly_failures"]:
-        print(f"warning: {len(report['disassembly_failures'])} symbol disassembly attempt(s) failed", file=sys.stderr)
+        print(
+            f"comparison incomplete: {len(report['disassembly_failures'])} symbol disassembly attempt(s) failed; refusing a false-success result",
+            file=sys.stderr,
+        )
+        return 4
     return 0
 
 
