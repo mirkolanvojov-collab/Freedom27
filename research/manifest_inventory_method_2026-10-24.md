@@ -20,7 +20,7 @@ The 26.7 advisory is the closest named fixed release for the tracked CVEs, but a
 2. Requires a pinned SHA-256 and exact byte count before opening the ZIP.
 3. Reads only root `BuildManifest.plist`, with a 64 MiB manifest-size ceiling.
 4. Requires root `SupportedProductTypes` to include `iPhone17,4`, then selects BuildIdentity entries whose `Info.DeviceClass` matches board configuration `D48AP`. Product type and board configuration are distinct identifiers.
-5. Writes the component names, paths, manifest-provided digests, encryption/trust flags, and build metadata to JSON.
+5. Writes component names, paths and flags (including fields nested under each component's `Info` dictionary), raw manifest digest bytes as hex, and build metadata to JSON without assuming the digest algorithm.
 6. Does not extract component payloads, decrypt binaries, contact a device, or execute code.
 
 Example for the already verified target image:
