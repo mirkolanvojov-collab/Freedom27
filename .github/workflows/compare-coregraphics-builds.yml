@@ -1,0 +1,82 @@
+name: Compare CoreGraphics across target and fixed iOS builds
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/compare-coregraphics-builds.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    # OTA cryptex patching requires macOS on iOS 16+.
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - name: Install ipsw
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install blacktop/tap/ipsw
+          ipsw version
+
+      - name: Extract target and fixed dyld caches
+        shell: bash
+        timeout-minutes: 100
+        run: |
+          set -euo pipefail
+          mkdir -p out/target out/fixed
+          target_url='https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75160/D83A8969-3179-4D59-9F72-37FFC825CD9A/iPhone17,4_26.6.1_23G83_Restore.ipsw'
+          fixed_url='https://updates.cdn-apple.com/2026FallFCS/5ef51a7b-0f58-4585-8cdf-14afa18e9622/com_apple_MobileAsset_SoftwareUpdate/818080afd3f2204f9cf3c8da075752ee6e05c420554a0b076e7c9f5d2378d203.aea'
+
+          # Extract only the arm64e dyld shared cache; do not restore or modify a device.
+          ipsw extract --remote --dyld --dyld-arch arm64e --output out/target "$target_url"
+          ipsw extract --remote --dyld --dyld-arch arm64e --output out/fixed "$fixed_url"
+
+          find out/target out/fixed -type f -name '*dyld_shared_cache*' -print
+
+      - name: Extract CoreGraphics and record comparison metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          target_cache="$(find out/target -type f -name '*dyld_shared_cache*' -print -quit)"
+          fixed_cache="$(find out/fixed -type f -name '*dyld_shared_cache*' -print -quit)"
+          test -n "$target_cache"
+          test -n "$fixed_cache"
+
+          mkdir -p out/target-dylib out/fixed-dylib
+          ipsw dyld extract "$target_cache" CoreGraphics --output out/target-dylib
+          ipsw dyld extract "$fixed_cache" CoreGraphics --output out/fixed-dylib
+
+          target_cg="$(find out/target-dylib -type f -iname '*CoreGraphics*' -print -quit)"
+          fixed_cg="$(find out/fixed-dylib -type f -iname '*CoreGraphics*' -print -quit)"
+          test -n "$target_cg"
+          test -n "$fixed_cg"
+
+          {
+            echo "target_build=23G83"
+            echo "target_device=iPhone17,4"
+            echo "target_cache=$target_cache"
+            echo "target_coregraphics=$target_cg"
+            echo "target_coregraphics_sha256=$(shasum -a 256 "$target_cg" | awk '{print $1}')"
+            echo "target_coregraphics_size=$(stat -f '%z' "$target_cg")"
+            echo "fixed_build=23H30"
+            echo "fixed_device=iPhone17,4"
+            echo "fixed_cache=$fixed_cache"
+            echo "fixed_coregraphics=$fixed_cg"
+            echo "fixed_coregraphics_sha256=$(shasum -a 256 "$fixed_cg" | awk '{print $1}')"
+            echo "fixed_coregraphics_size=$(stat -f '%z' "$fixed_cg")"
+          } | tee coregraphics-comparison.txt
+
+          # Keep only the compact evidence record as the artifact.
+          rm -rf out
+
+      - name: Upload comparison evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: coregraphics-build-comparison
+          path: coregraphics-comparison.txt
+          if-no-files-found: error
