@@ -1,50 +1,72 @@
 # All-priority public advisory reconciliation — 2026-10-24
 
-## Primary-source correction
+## Primary source and exact candidate reconciliation
 
-The current Apple iOS 26.7 / iPadOS 26.7 bulletin is available at https://support.apple.com/en-us/149041. It confirms these entries directly:
+Primary source: Apple, [About the security content of iOS 26.7 and iPadOS 26.7](https://support.apple.com/en-us/149041), released September 14, 2026. Apple's affected-device scope for the entries below is iPhone 11 and later, which includes iPhone 16 Plus.
 
-- CVE-2026-84607 — AVEVideoEncoder race condition; sandboxed app may execute arbitrary code with kernel privileges; improved state management.
-- CVE-2026-43689 — Kernel permissions issue; malicious app may gain root privileges; additional restrictions.
-- CVE-2026-84523 — APFS out-of-bounds write; unexpected system termination or kernel-memory write; improved bounds checking.
-- CVE-2026-86876 — CoreMedia out-of-bounds write; sandboxed process may circumvent sandbox restrictions; improved bounds checking.
-- CVE-2026-86886 — TCC path traversal; app may modify protected system files; improved input validation.
-- CVE-2026-84566 — Kernel memory handling; local attacker may cause termination or corrupt kernel memory; improved memory handling.
+The 12 project candidates below are all explicitly present in this Apple bulletin. This closes the earlier source-coverage gap for these candidate IDs. It does **not** establish that a vulnerable path is reachable on target build iOS 26.6.1 (23G83), nor that a usable exploit primitive exists.
 
-This resolves the previous uncertainty for CVE-2026-86876 and CVE-2026-86886: their component and high-level impact are explicitly present in Apple's primary bulletin. It does not reveal the exact code path, patch diff, or reproduction conditions.
+| Priority | CVE | Apple component | Apple-published impact | Apple fix summary | Practical implication for Freedom27 |
+|---|---|---|---|---|---|
+| P1 | CVE-2026-84607 | AVEVideoEncoder | Sandboxed app may execute arbitrary code with kernel privileges | Race condition; improved state management | Highest-impact lead, but no exact-build state transition, patch diff, or reproduction is established |
+| P1 | CVE-2026-43689 | Kernel | Malicious app may gain root privileges | Permissions issue; additional restrictions | Root privilege impact does not itself prove kernel code execution or an initial sandbox escape |
+| P2 | CVE-2026-84523 | APFS | App may cause unexpected system termination or write kernel memory | Out-of-bounds write; improved bounds checking | Potentially high impact, but exact operation and bounds invariant remain unknown |
+| P2 | CVE-2026-84566 | Kernel | Local attacker may cause unexpected system termination or corrupt kernel memory | Improved memory handling | Generic kernel-memory impact; object, caller, and reachable operation remain unknown |
+| P2 | CVE-2026-43684 | Kernel | App may cause unexpected system termination or corrupt kernel memory | Use-after-free; improved memory management | Object lifetime and trigger conditions remain unknown |
+| P2 | CVE-2026-43686 | Kernel | Connection to malicious NFS server may cause kernel memory corruption | Use-after-free; improved memory management | Requires the relevant NFS path; no target reproduction or patch diff established |
+| P2 | CVE-2026-28968 | Kernel | App may cause unexpected system termination or corrupt kernel memory | Out-of-bounds write; improved bounds checking | Structure and arithmetic invariant remain unknown |
+| P3 | CVE-2026-86876 | CoreMedia | Sandboxed process may circumvent sandbox restrictions | Out-of-bounds write; improved bounds checking | Sandbox-impact candidate; exact media path and reachable condition remain unknown |
+| P3 | CVE-2026-86886 | TCC | App may modify protected system files | Path traversal; improved input validation | File-protection bypass candidate; exact path resolution and authorization path remain unknown |
+| P4 | CVE-2026-43687 | Kernel | Connection to malicious NFS server may disclose kernel memory | Improved memory handling | Disclosure alone is not an entry point; NFS preconditions and data source remain unknown |
+| P4 | CVE-2026-65405 | Kernel | App may determine kernel memory layout | Memory initialization issue; improved memory handling | Information disclosure only; practical value on this build remains unestablished |
+| P4 | CVE-2026-84622 | Kernel | App with root privileges may read uninitialized kernel memory | Memory initialization issue; improved memory handling | Explicit root prerequisite means it is not established as an initial entry point |
 
-## Priority work status across all 12 candidates
+## Source verification notes
 
-The following are public-source triage states, not exploitability determinations.
+The entries above were cross-checked by exact CVE identifier against Apple's primary bulletin:
 
-| Priority | CVE(s) | Publicly established | Still not publicly established in this review | Safe validation target |
-|---|---|---|---|---|
-| P1 | CVE-2026-84607 | AVEVideoEncoder race; kernel-privilege code execution impact; improved state management | Specific state transition, source diff, reproducible affected-build condition | Abstract state-machine regression: invalid or concurrent lifecycle transitions must not violate authorization/state invariants |
-| P1 | CVE-2026-43689 | Kernel permission issue; root-privilege impact; additional restrictions | Exact check, caller/entitlement conditions, patch diff | Authorization model test: unauthorized callers remain denied on every entry path |
-| P2 | CVE-2026-84523 | APFS out-of-bounds write; bounds-checking fix | Exact APFS operation, size/offset invariant, patch diff | Boundary-value and overflow tests in a vendor-controlled parser/model |
-| P2 | CVE-2026-84566 | Kernel memory handling; termination or kernel-memory corruption; improved memory handling | Object/type, lifetime invariant, patch diff | Ownership and error-path tests in a model/unit-test harness |
-| P2 | CVE-2026-43684 | Kernel use-after-free as recorded in candidate ledger | Exact object, public patch/source evidence, reachability | Reference lifetime and cleanup-order model tests |
-| P2 | CVE-2026-43686 | Kernel/NFS use-after-free/corruption as recorded; NFS context noted in public description | Exact object/path and patch diff | NFS request ownership/lifecycle model tests; no malicious server against a real device |
-| P2 | CVE-2026-28968 | Kernel out-of-bounds write as recorded in candidate ledger | Exact structure, invariant, patch diff | Bounds and arithmetic validation model tests |
-| P3 | CVE-2026-86876 | CoreMedia out-of-bounds write; sandbox restriction bypass impact | Exact affected parsing path and patch diff | Sandbox policy must remain enforced for media-processing work; bounds tests in a model |
-| P3 | CVE-2026-86886 | TCC path traversal; protected-system-file modification impact | Exact path-handling function and patch diff | Authorization against canonical resolved path; traversal tests in a mock filesystem |
-| P4 | CVE-2026-43687 | Kernel/NFS memory-disclosure impact as recorded | Exact disclosure source, data structure, patch diff | All output bytes initialized and limited to authorized response fields |
-| P4 | CVE-2026-65405 | Kernel memory-layout disclosure impact as recorded | Exact disclosed data and practical utility, patch diff | User-visible outputs do not expose unauthorized kernel addresses/data |
-| P4 | CVE-2026-84622 | Root-privileged app may read uninitialized kernel memory as recorded | Exact interface/structure and patch diff | All copyout fields initialized; access checks explicit; root prerequisite means not established as initial entry point |
+- AVEVideoEncoder CVE-2026-84607: race condition / kernel-privilege code execution, state management.
+- Kernel CVE-2026-43689: permissions / root privileges, additional restrictions.
+- APFS CVE-2026-84523: out-of-bounds write, bounds checking.
+- Kernel CVE-2026-84566: memory handling.
+- Kernel CVE-2026-43684 and CVE-2026-43686: use-after-free / memory management, with the latter explicitly tied to a malicious NFS server.
+- Kernel CVE-2026-28968: out-of-bounds write / bounds checking.
+- CoreMedia CVE-2026-86876: out-of-bounds write / bounds checking, sandbox restrictions.
+- TCC CVE-2026-86886: path traversal / input validation, protected system files.
+- Kernel CVE-2026-43687: malicious NFS server / kernel memory disclosure.
+- Kernel CVE-2026-65405: memory initialization / kernel memory layout disclosure.
+- Kernel CVE-2026-84622: root-privileged app / uninitialized kernel memory.
 
-**Important evidence limit:** The table preserves the existing candidate ledger's summaries for the CVEs where this pass did not independently retrieve a complete Apple advisory entry. Those rows must remain provisional until their specific Apple entries are located and cross-checked. Do not infer a component, impact, or patch detail from a CVE ID alone.
+## What the advisory does and does not prove
 
-## What was accomplished
+Apple's advisory provides component, high-level impact, fix class, and affected-product scope. It does not provide source-level patch diffs or establish a vulnerable code path for the exact 23G83 firmware. The target iOS 26.6.1 build is within the release sequence preceding iOS 26.7, but version chronology alone is not sufficient to prove the exact target binary is vulnerable.
 
-1. Checked the primary Apple bulletin and reconciled the two previously flagged mappings (86876 and 86886).
-2. Ranked all 12 candidates by public impact and prerequisite considerations for research planning.
-3. Converted each candidate into a safe regression-property target without adding exploit triggers, payloads, race choreography, or memory-corruption instructions.
-4. Kept the distinction between public impact, version-range match, exact build applicability, and exploitability explicit.
+## Safe validation properties
 
-## Next evidence requirement
+| Candidate | Non-weaponized regression property |
+|---|---|
+| CVE-2026-84607 | Invalid or concurrent lifecycle transitions must not violate authorization/state invariants |
+| CVE-2026-43689 | Unauthorized callers remain denied on every entry path |
+| CVE-2026-84523 | Bounds and arithmetic checks reject overflow and out-of-range operations |
+| CVE-2026-84566 | Ownership and error-path handling preserve memory invariants |
+| CVE-2026-43684 | Reference lifetime and cleanup ordering remain valid |
+| CVE-2026-43686 | NFS request ownership/lifecycle remains valid on errors and teardown |
+| CVE-2026-28968 | Structure bounds and arithmetic validation are enforced |
+| CVE-2026-86876 | Media processing cannot bypass sandbox policy; bounds checks hold |
+| CVE-2026-86886 | Authorization uses canonical resolved paths and rejects traversal |
+| CVE-2026-43687 | NFS responses expose only initialized, authorized bytes |
+| CVE-2026-65405 | User-visible outputs do not expose unauthorized kernel addresses/data |
+| CVE-2026-84622 | Copyout fields are initialized and root prerequisite is explicitly enforced |
 
-For each provisional row, locate the exact entry in Apple's primary bulletin or an authoritative CVE Program record and quote/record only the minimum component, impact, fix summary, and publication timestamp needed for traceability. Search for public source diffs or author write-ups only when they are explicitly published. If no public patch-level evidence is available, record `not_publicly_available_in_review` and stop there rather than reverse-engineering a weaponized chain from impact text.
+These are test properties for a vendor-controlled model or source-level test harness, not triggers for a live device. No exploit choreography, payload, or real-device malicious server test is proposed.
 
-## Safety
+## Remaining evidence gates
 
-This is read-only advisory analysis and abstract regression planning. No exploit was executed, no device was accessed or modified, and no jailbreak functionality is claimed.
+1. **Target and fixed-build firmware inventory:** hash-gated BuildManifest inventories are being generated by CI. These contain metadata only and are not a patch diff.
+2. **Exact component comparison:** requires verified component payload bytes and reproducible extraction tooling. BuildManifest digest changes alone do not attribute a CVE.
+3. **Patch attribution:** no exact source diff was established in this review. If Apple does not publish one, record that limitation rather than infer a fix from names or strings.
+4. **Exact-build applicability and exploitability:** unverified until a code path is evidenced and a safe, reproducible validation establishes reachability. A jailbreak is not verified.
+
+## Safety and scope
+
+This is public-advisory and read-only firmware research. No exploit was executed, no device was accessed or modified, and no jailbreak functionality is claimed.
