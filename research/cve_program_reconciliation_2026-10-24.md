@@ -39,6 +39,15 @@ The JSON stores the canonical CVE Program impact wording, record state, Apple CN
 
 The table shortens descriptions for readability; the JSON retains canonical wording. CVE-2026-43684 has only the `<26.7` iOS/iPadOS affected range in the pinned CVE Program record. Most of the other records list both `<26.7` and `<27` ranges. This difference does **not** change the conclusion for iOS 26.6.1 because all twelve records explicitly include a range below 26.7.
 
+## Public technical-disclosure sweep
+
+A focused search for public patch diffs, technical write-ups, and proof-of-concept disclosures for the 12 IDs did not surface an authoritative patch diff or a reproducible, independently validated technical report in the sources reviewed. Third-party CVE trackers for CVE-2026-84607 and CVE-2026-43689 also report no public PoC in their tracked sources, but that is only a time-bounded negative search result—not proof that no private or unindexed material exists.
+
+- CVE-2026-84607 tracker: https://cve.tools/v/CVE-2026-84607
+- CVE-2026-43689 tracker: https://cve.tools/v/CVE-2026-43689
+- The trackers repeat the vendor impact summaries; they do not disclose the vulnerable function, patch diff, exact build behavior, or an independently reproduced chain.
+- The reviewed sources therefore do not close the technical-invariant gap. No hidden implementation detail is inferred from the advisory description.
+
 ## Reconciliation interpretation
 
 1. **CVE Program vs Apple advisory:** all twelve records are published under Apple's CNA identity and cite the iOS 26.7 advisory. The high-level impacts align with the advisory's wording. The CVE Program record provides the canonical impact statement; Apple's advisory provides the component context and fix summary.
