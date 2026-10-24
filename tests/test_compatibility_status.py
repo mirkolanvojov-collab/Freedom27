@@ -93,6 +93,17 @@ class CompatibilityStatusTests(unittest.TestCase):
         self.assertEqual(report["status"], "unknown")
         self.assertTrue(any("claims must be a list" in error for error in report["errors"]))
 
+    def test_non_string_target_identity_is_rejected(self):
+        temp, root = self.make_root()
+        self.addCleanup(temp.cleanup)
+        path = root / "research" / "target_profile.json"
+        profile = json.loads(path.read_text(encoding="utf-8"))
+        profile["device_model"] = None
+        path.write_text(json.dumps(profile), encoding="utf-8")
+        report = assess_target(root)
+        self.assertEqual(report["target"]["device_model"], "")
+        self.assertTrue(any("device_model is missing or invalid" in error for error in report["errors"]))
+
 
 if __name__ == "__main__":
     unittest.main()
