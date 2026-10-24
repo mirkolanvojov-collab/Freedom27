@@ -56,6 +56,13 @@ class CompatibilityStatusTests(unittest.TestCase):
         path.write_text(json.dumps(data), encoding="utf-8")
         self.assertEqual(assess_target(root)["status"], "conflicting-evidence")
 
+    def test_whitespace_around_status_is_normalized_before_reporting(self):
+        temp, root = self.make_root(claim_status=" not-supported ")
+        self.addCleanup(temp.cleanup)
+        report = assess_target(root)
+        self.assertEqual(report["status"], "not-supported")
+        self.assertEqual(report["matching_claims"][0]["status"], "not-supported")
+
     def test_report_warns_it_is_not_a_device_test(self):
         temp, root = self.make_root()
         self.addCleanup(temp.cleanup)

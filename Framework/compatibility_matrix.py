@@ -74,16 +74,18 @@ class CompatibilityClaim:
 def validate_claims(items: Iterable[dict[str, Any]]) -> list[str]:
     """Validate claims and reject malformed or duplicate device/version/build tuples."""
     errors: list[str] = []
-    seen: set[tuple[str, str, str, str]] = set()
+    seen: set[tuple[str, str, str]] = set()
     for index, item in enumerate(items):
         if not isinstance(item, dict):
             errors.append(f"claim[{index}]: must be an object")
             continue
         claim = CompatibilityClaim.from_mapping(item)
         errors.extend(f"claim[{index}]: {error}" for error in claim.validate())
-        key = (claim.model_identifier, claim.os_version, claim.build, claim.status)
+        # A target tuple must have one authoritative row. Allowing the same build
+        # to appear once as "researching" and again as "verified" hides conflicts.
+        key = (claim.model_identifier, claim.os_version, claim.build)
         if key in seen:
-            errors.append(f"claim[{index}]: duplicate model/version/build/status tuple")
+            errors.append(f"claim[{index}]: duplicate model/version/build tuple")
         seen.add(key)
     return errors
 

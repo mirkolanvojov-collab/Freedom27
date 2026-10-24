@@ -70,6 +70,20 @@ class CompatibilityMatrixTests(unittest.TestCase):
         errors = validate_claims([item, item])
         self.assertTrue(any("duplicate" in error for error in errors))
 
+    def test_same_target_with_different_statuses_is_rejected(self):
+        base = {
+            "device_family": "iPhone 16 Plus",
+            "model_identifier": "iPhone17,4",
+            "os_version": "iOS 26.6.1",
+            "build": "23G83",
+            "status": "researching",
+        }
+        conflicting = {**base, "status": "verified",
+                       "evidence_url": "https://example.org/evidence",
+                       "notes": "Reviewed evidence."}
+        errors = validate_claims([base, conflicting])
+        self.assertTrue(any("duplicate model/version/build tuple" in error for error in errors))
+
     def test_null_fields_are_not_stringified_into_valid_metadata(self):
         errors = validate_claims([{
             "device_family": None,

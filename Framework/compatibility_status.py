@@ -85,7 +85,9 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
         if status in {"verified", "not-supported"} and (not _valid_evidence_url(url) or not notes):
             errors.append(f"{status} claim requires an HTTPS evidence URL and review notes")
             continue
-        valid.append(item)
+        # Store the normalized status used by validation so whitespace cannot
+        # leak back into the report or evade conflict detection.
+        valid.append({**item, "status": status})
 
     # Conflicting exact-build claims are not silently resolved by choosing one.
     statuses = {item["status"] for item in valid}
