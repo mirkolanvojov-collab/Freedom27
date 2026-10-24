@@ -60,6 +60,11 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
     Returns (sha256, bytes_read, final_http_status). Refuses to append a response
     unless the server confirms the exact requested byte offset.
     """
+    if type(expected_size) is not int or expected_size <= 0:
+        raise ValueError("expected_size must be a positive integer")
+    if type(max_retries) is not int or max_retries < 0:
+        raise ValueError("max_retries must be a non-negative integer")
+
     digest = hashlib.sha256()
     total = 0
     retries = 0
@@ -76,11 +81,13 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
         try:
             with opener(request, timeout=TIMEOUT_SECONDS) as response:
                 last_status = getattr(response, "status", response.getcode())
+                response_limit = expected_size
                 if total == 0 and last_status == 200:
+                    # A full response is allowed only at offset zero.
                     pass
                 elif last_status == 206:
                     content_range = response.headers.get("Content-Range", "")
-                    match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+|\*)", content_range)
+                    match = re.fullmatch(r"bytes (\\d+)-(\\d+)/(\\d+|\\*)", content_range)
                     if (
                         not match
                         or int(match.group(1)) != total
@@ -93,16 +100,29 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
                             f"Unsafe/missing Content-Range for offset {total} "
                             f"and expected size {expected_size}: {content_range!r}"
                         )
+                    response_limit = int(match.group(2)) + 1
+                    declared_length = response.headers.get("Content-Length")
+                    if declared_length is not None and int(declared_length) != response_limit - total:
+                        raise RuntimeError(
+                            f"Content-Length does not match Content-Range: "
+                            f"{declared_length!r} vs {response_limit - total}"
+                        )
                 else:
                     raise RuntimeError(f"Unexpected HTTP status {last_status} at offset {total}")
 
-                while total < expected_size:
-                    chunk = response.read(min(CHUNK_SIZE, expected_size - total))
+                while total < response_limit:
+                    chunk = response.read(min(CHUNK_SIZE, response_limit - total))
                     if not chunk:
                         break
                     digest.update(chunk)
                     total += len(chunk)
+
                 if total == expected_size:
+                    # Reject a response that has bytes beyond the pinned representation.
+                    if response.read(1):
+                        raise RuntimeError(
+                            f"Response exceeded pinned size {expected_size} bytes"
+                        )
                     break
                 # EOF before expected size: reconnect at the exact byte offset.
                 retries += 1
