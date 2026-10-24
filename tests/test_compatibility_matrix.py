@@ -29,6 +29,16 @@ class CompatibilityMatrixTests(unittest.TestCase):
         self.assertTrue(any("HTTPS evidence_url" in error for error in errors))
         self.assertTrue(any("review notes" in error for error in errors))
 
+    def test_verified_claim_rejects_malformed_https_port_and_null_url(self):
+        for evidence_url in ("https://example.org:bad/source", None):
+            with self.subTest(evidence_url=evidence_url):
+                claim = CompatibilityClaim(
+                    device_family="iPhone 18 Pro", model_identifier="iPhone18,1",
+                    os_version="iOS 27.0.1", build="24A446", status="verified",
+                    evidence_url=evidence_url, notes="Reviewed evidence."
+                )
+                errors = claim.validate()
+                self.assertTrue(any("HTTPS evidence_url" in error for error in errors))
     def test_valid_research_claim_can_be_unverified_without_evidence(self):
         claim = CompatibilityClaim(
             device_family="iPhone 14",
