@@ -21,12 +21,12 @@ def inventory(build, components, product="iPhone17,4", verified=True):
 class CompareIpswManifestInventoriesTests(unittest.TestCase):
     def test_reports_manifest_metadata_changes_without_claiming_binary_diff(self):
         before = inventory("23G83", [
-            {"name": "KernelCache", "path": "kernel.old", "digest_sha1": "a" * 40,
+            {"name": "KernelCache", "path": "kernel.old", "digest_hex": "a" * 40,
              "is_encrypted": True},
             {"name": "OldComponent", "path": "old.bin"},
         ])
         after = inventory("24A437", [
-            {"name": "KernelCache", "path": "kernel.new", "digest_sha1": "b" * 40,
+            {"name": "KernelCache", "path": "kernel.new", "digest_hex": "b" * 40,
              "is_encrypted": True},
             {"name": "NewComponent", "path": "new.bin"},
         ])
