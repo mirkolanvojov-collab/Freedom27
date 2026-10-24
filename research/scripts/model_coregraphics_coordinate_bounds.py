@@ -16,6 +16,8 @@ SAFE_LIMIT = 0x3FFFF001
 
 def safe_fixed_coordinate(px: float) -> int:
     """Convert a pixel coordinate to a bounded 1/4096 fixed-point integer."""
+    if isinstance(px, bool) or not isinstance(px, (int, float)):
+        raise TypeError("coordinate must be a real number, not a boolean")
     scaled = 0.5 + 4096.0 * px
     if not math.isfinite(scaled):
         return 0
