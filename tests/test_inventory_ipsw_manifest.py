@@ -17,10 +17,10 @@ def make_ipsw(path: Path) -> bytes:
                 "Info": {"DeviceClass": "D48AP", "Variant": "Customer Erase Install",
                          "BuildTrain": "Example", "BuildVersion": "23G83"},
                 "Manifest": {
-                    "KernelCache": {"Path": "kernelcache.release", "Digest": bytes.fromhex("ab" * 20),
-                                    "IsEncrypted": True},
-                    "RestoreRamDisk": {"Path": "restore.dmg", "Digest": bytes.fromhex("cd" * 20),
-                                       "Trusted": True},
+                    "KernelCache": {"Digest": bytes.fromhex("ab" * 20),
+                                    "Info": {"Path": "kernelcache.release", "IsEncrypted": True}},
+                    "RestoreRamDisk": {"Digest": bytes.fromhex("cd" * 20),
+                                       "Info": {"Path": "restore.dmg", "Trusted": True}},
                 },
             },
             {
@@ -57,7 +57,11 @@ class InventoryIpswManifestTests(unittest.TestCase):
         self.assertEqual(result["product_type"], "iPhone17,4")
         self.assertEqual(result["device_class"], "D48AP")
         self.assertEqual([c["name"] for c in identity["components"]], ["KernelCache", "RestoreRamDisk"])
-        self.assertEqual(identity["components"][0]["digest_sha1"], "ab" * 20)
+        self.assertEqual(identity["components"][0]["digest_hex"], "ab" * 20)
+        self.assertEqual(identity["components"][0]["path"], "kernelcache.release")
+        self.assertTrue(identity["components"][0]["is_encrypted"])
+        self.assertEqual(identity["components"][1]["path"], "restore.dmg")
+        self.assertTrue(identity["components"][1]["trusted"])
         self.assertFalse(result["device_modified"])
         self.assertFalse(result["exploit_executed"])
 
