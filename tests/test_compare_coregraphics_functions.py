@@ -10,6 +10,12 @@ from research.scripts.compare_coregraphics_functions import (
 
 
 class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
+    def test_discovery_ignores_zero_address_unresolved_symbols(self):
+        from research.scripts import compare_coregraphics_functions as module
+        output = "SYMBOLS\\n0x00001000: S _aa_render\\n0x00000000: U _aa_path_iterator_create"
+        with patch.object(module, "run", return_value=output):
+            self.assertEqual(module.discover_symbols(Path("CoreGraphics")), ["_aa_render"])
+
     def test_normalizes_addresses_but_preserves_bounds_constants(self):
         output = """
 0x1000: 1f 20 03 d5 nop
