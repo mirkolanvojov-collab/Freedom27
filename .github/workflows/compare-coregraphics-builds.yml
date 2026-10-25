@@ -130,6 +130,13 @@ jobs:
               --target-load-commands diagnostics/target-coregraphics-load-commands.txt \
               --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
               --output coregraphics-function-diff.json
+
+            # Verify constants from the fixed binary against the public patch analysis.
+            python3 research/scripts/verify_coregraphics_constants.py \\
+              --binary "$fixed_binary" \\
+              --load-commands diagnostics/fixed-coregraphics-load-commands.txt \\
+              --function-diff coregraphics-function-diff.json \\
+              --output coregraphics-constant-validation.json
             echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } 2>&1 | tee diagnostics/coregraphics-comparison.log
 
