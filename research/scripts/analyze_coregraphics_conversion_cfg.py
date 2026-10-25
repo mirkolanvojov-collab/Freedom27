@@ -175,8 +175,8 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
             "dominating_clamp_loads": [{"address": r["address"], "instruction": r["instruction"]} for r in clamp_loads],
             "dominating_float_compares": [{"address": r["address"], "instruction": r["instruction"]} for r in float_compares],
             "structural_nan_guard_in_dominators": bool(self_compares and nan_branches),
-            "path_sensitive_nan_guard_coverage": path_guard_coverage,
-            "path_nan_guard_branches": [
+            "cfg_nan_guard_cutset_coverage": path_guard_coverage,
+            "cfg_nan_guard_branches": [
                 {"address": records[j]["address"], "instruction": records[j]["instruction"]}
                 for j in path_guard_nodes
             ],
@@ -217,7 +217,7 @@ def analyze_document(document: dict[str, Any]) -> dict[str, Any]:
         "limitations": [
             "Branch structure is reconstructed from disassembler text and direct branch labels.",
             "Dominance is structural; it does not prove the compared value is the converted value.",
-            "Path-sensitive NaN guard coverage only checks CFG paths through an adjacent self-compare/b.vs or self-compare/b.vc pair whose branch target cannot reach the conversion; it does not prove flag/register dataflow or sentinel correctness.",
+            "CFG guard-cutset coverage removes candidate self-compare/b.vs or self-compare/b.vc branch nodes and checks reachability; it does not prove flag/register dataflow or sentinel correctness. Loop-back edges may revisit the same conversion with a later value, so false coverage is not proof of a missing guard and true coverage is not proof of safety.",
             "A dominating conditional branch does not alone prove the unsafe branch is excluded.",
             "No full register/flag data-flow, alias analysis, or symbolic execution is performed.",
             "No binary was executed and no device was accessed or modified.",
