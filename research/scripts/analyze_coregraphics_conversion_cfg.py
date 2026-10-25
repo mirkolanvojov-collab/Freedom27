@@ -51,7 +51,7 @@ def build_cfg(records: list[dict[str, str]]) -> tuple[list[set[int]], list[dict[
                                    "reason": "indirect control transfer"})
             continue
 
-        unconditional = mnemonic == "b"
+        unconditional = mnemonic in {"b", "b.al"}
         conditional = bool(CONDITIONAL.match(text))
         if unconditional or conditional:
             target = _target_address(text)
