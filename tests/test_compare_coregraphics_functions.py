@@ -3,10 +3,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 from research.scripts.compare_coregraphics_functions import (
+    classify_address,
     digest_instructions,
     disassemble,
     extract_relocation_sites,
     normalize_disassembly,
+    parse_macho_sections,
 )
 
 
