@@ -49,6 +49,17 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
         self.assertEqual(sites[0]["address"], "0x1000")
         self.assertEqual(sites[0]["instruction"], "adrp x9, 0x180000000")
         self.assertEqual(sites[0]["context"][1]["instruction"], "ldr x9, [x9, #0x20]")
+        self.assertEqual(
+            sites[0]["derived_references"],
+            [{
+                "access_address": "0x1004",
+                "access_instruction": "ldr x9, [x9, #0x20]",
+                "base_page_address": "0x180000000",
+                "offset": "0x20",
+                "effective_address": "0x180000020",
+                "derivation": "ADRP page target + explicit memory operand offset",
+            }],
+        )
 
     def test_normalizes_layout_addresses_and_comments(self):
         first = normalize_disassembly(
