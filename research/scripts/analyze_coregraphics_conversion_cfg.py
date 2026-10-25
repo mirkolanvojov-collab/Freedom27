@@ -211,13 +211,13 @@ def analyze_document(document: dict[str, Any]) -> dict[str, Any]:
             reports.append({"status": "analyzed", **analyze_function(symbol, side, records)})
     return {
         "schema_version": 1,
-        "mode": "static_control_flow_dominator_audit",
+        "mode": "static_cfg_nan_guard_coverage_audit",
         "source_schema_version": document.get("schema_version"),
         "functions": reports,
         "limitations": [
             "Branch structure is reconstructed from disassembler text and direct branch labels.",
             "Dominance is structural; it does not prove the compared value is the converted value.",
-            "Path-sensitive NaN guard coverage only checks CFG paths through an adjacent self-compare/b.vs pair whose branch target cannot reach the conversion; it does not prove flag/register dataflow or sentinel correctness.",
+            "Path-sensitive NaN guard coverage only checks CFG paths through an adjacent self-compare/b.vs or self-compare/b.vc pair whose branch target cannot reach the conversion; it does not prove flag/register dataflow or sentinel correctness.",
             "A dominating conditional branch does not alone prove the unsafe branch is excluded.",
             "No full register/flag data-flow, alias analysis, or symbolic execution is performed.",
             "No binary was executed and no device was accessed or modified.",
