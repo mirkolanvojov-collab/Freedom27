@@ -122,23 +122,29 @@ def _path_nan_guard_nodes(records: list[dict[str, str]], successors: list[set[in
                           conversion_index: int) -> list[int]:
     """Find structural NaN-guard branches relevant to a conversion.
 
-    A candidate must immediately follow a floating-point self-compare, and its
-    taken branch target must not have a CFG path to the conversion. This does
-    not track NZCV flags or prove register/data-flow semantics.
+    Recognizes both b.vs (unordered/NaN takes the branch) and b.vc
+    (ordered takes the branch, so NaN falls through). The NaN successor must
+    have no CFG path to the conversion. This does not track NZCV or data flow.
     """
     index = {int(record["address"], 16): i for i, record in enumerate(records)}
     guards: list[int] = []
     for i, record in enumerate(records):
         text = record["instruction"].strip()
-        if i == 0 or not re.match(r"^b\.vs\b", text):
+        if i == 0:
             continue
         if not SELF_COMPARE.match(records[i - 1]["instruction"].strip()):
             continue
-        target = _target_address(text)
-        target_index = index.get(target) if target is not None else None
-        if target_index is None:
+        if re.match(r"^b\.vs\b", text):
+            target = _target_address(text)
+            nan_successor = index.get(target) if target is not None else None
+        elif re.match(r"^b\.vc\b", text):
+            # b.vc is taken for ordered values; unordered/NaN falls through.
+            nan_successor = i + 1 if i + 1 < len(records) else None
+        else:
             continue
-        if conversion_index not in _reachable_from(target_index, successors):
+        if nan_successor is None:
+            continue
+        if conversion_index not in _reachable_from(nan_successor, successors):
             guards.append(i)
     return guards
 
