@@ -88,5 +88,15 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         self.assertEqual(conversion["cfg_nan_guard_branches"][0]["address"], "0x6004")
 
 
+    def test_bal_is_unconditional_branch_without_fallthrough(self):
+        records = [
+            {"address": "0x7000", "instruction": "b.al loc_7008"},
+            {"address": "0x7004", "instruction": "fcvtzs w0, d0"},
+            {"address": "0x7008", "instruction": "ret"},
+        ]
+        report = analyze_function("_aa_moveto", "target", records)
+        self.assertFalse(report["conversions"][0]["reachable_in_cfg"])
+        self.assertEqual(report["unresolved_control_transfers"], [])
+
 if __name__ == "__main__":
     unittest.main()
