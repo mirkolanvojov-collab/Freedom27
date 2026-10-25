@@ -197,7 +197,51 @@ def digest_instructions(instructions: list[str]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
+def parse_macho_sections(load_commands: str) -> list[dict[str, Any]]:
+    """Parse section virtual-address ranges from `otool -l` output."""
+    sections: list[dict[str, Any]] = []
+    for block in re.split(r"(?m)^\s*Section\s*$", load_commands)[1:]:
+        fields: dict[str, str] = {}
+        for key in ("sectname", "segname", "addr", "size"):
+            match = re.search(rf"(?m)^\s*{key}\s+(\S+)", block)
+            if match:
+                fields[key] = match.group(1)
+        if not all(key in fields for key in ("sectname", "segname", "addr", "size")):
+            continue
+        try:
+            address, size = int(fields["addr"], 0), int(fields["size"], 0)
+        except ValueError:
+            continue
+        if size > 0:
+            sections.append({"segment": fields["segname"], "section": fields["sectname"], "address": address, "size": size})
+    return sections
+
+
+def classify_address(address: int, sections: list[dict[str, Any]]) -> dict[str, Any]:
+    """Classify an effective address against parsed Mach-O section ranges."""
+    for section in sections:
+        start = section["address"]
+        if start <= address < start + section["size"]:
+            return {"classification": "inside_section", "segment": section["segment"],
+                    "section": section["section"], "section_offset": hex(address - start)}
+    return {"classification": "outside_listed_sections"}
+
+
+def annotate_references(report: dict[str, Any], target_sections: list[dict[str, Any]],
+                        fixed_sections: list[dict[str, Any]]) -> None:
+    """Add conservative section-relative labels to explicit ADRP+memory references."""
+    for symbol in report.get("symbols", []):
+        for side, sections in (("target", target_sections), ("fixed", fixed_sections)):
+            for site in symbol.get(f"{side}_relocation_sensitive_sites", []):
+                for reference in site.get("derived_references", []):
+                    try:
+                        address = int(reference["effective_address"], 0)
+                    except (KeyError, ValueError):
+                        continue
+                    reference["section_resolution"] = classify_address(address, sections)
+
+
+def compare(target_binary: Path, fixed_binary: Path, target_sections: list[dict[str, Any]] | None = None, fixed_sections: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     if not target_binary.is_file() or not fixed_binary.is_file():
         raise FileNotFoundError("both CoreGraphics Mach-O paths must exist")
     target_symbols = discover_symbols(target_binary)
@@ -232,7 +276,7 @@ def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
         results.append(item)
 
     changed = [item for item in results if not item["instruction_stream_identical"]]
-    return {
+    report = {
         "schema_version": 3,
         "mode": "read_only_symbol_scoped_disassembly_comparison",
         "target_binary": str(target_binary),
@@ -261,16 +305,33 @@ def compare(target_binary: Path, fixed_binary: Path) -> dict[str, Any]:
             "No binary was executed; no crafted input or device was used.",
         ],
     }
+    if target_sections is not None and fixed_sections is not None:
+        annotate_references(report, target_sections, fixed_sections)
+        report["section_resolution_note"] = (
+            "Effective addresses are classified only against supplied otool section ranges. "
+            "Addresses outside listed sections may belong to another image or unresolved shared-cache mapping; "
+            "section membership does not establish data semantics or vulnerability attribution."
+        )
+    return report
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target-binary", type=Path, required=True)
     parser.add_argument("--fixed-binary", type=Path, required=True)
+    parser.add_argument("--target-load-commands", type=Path, help="otool -l output for the target binary")
+    parser.add_argument("--fixed-load-commands", type=Path, help="otool -l output for the fixed binary")
     parser.add_argument("--output", type=Path, default=Path("coregraphics-function-diff.json"))
     args = parser.parse_args()
     try:
-        report = compare(args.target_binary, args.fixed_binary)
+        if bool(args.target_load_commands) != bool(args.fixed_load_commands):
+            raise RuntimeError("both load-command files must be supplied together")
+        if args.target_load_commands and args.fixed_load_commands:
+            target_sections = parse_macho_sections(args.target_load_commands.read_text(encoding="utf-8"))
+            fixed_sections = parse_macho_sections(args.fixed_load_commands.read_text(encoding="utf-8"))
+            report = compare(args.target_binary, args.fixed_binary, target_sections, fixed_sections)
+        else:
+            report = compare(args.target_binary, args.fixed_binary)
     except (OSError, RuntimeError) as exc:
         print(f"function comparison failed: {exc}", file=sys.stderr)
         return 2
