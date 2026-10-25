@@ -17,7 +17,7 @@ SYMBOLS = (
     "_aa_moveto", "_aa_lineto", "_aa_clip_edge", "_aa_clipping",
     "_aa_cubeto", "_aa_quadto", "_aa_rectat",
 )
-BRANCH_TARGET = re.compile(r"(?:loc_)?(0x[0-9a-fA-F]+|[0-9a-fA-F]{8,})$")
+BRANCH_TARGET = re.compile(r"(?:loc_)?(0x[0-9a-fA-F]+|[0-9a-fA-F]+)$")
 CONDITIONAL = re.compile(r"^(?:b\.(?!al\b)[a-z]+|cbz|cbnz|tbz|tbnz)\b")
 SELF_COMPARE = re.compile(r"^fcmp\s+([sd]\d+),\s*\1$")
 CLAMP_LOAD = re.compile(r"\[(?:x\d+|sp),\s*#0x(?:6f8|700)\]")
