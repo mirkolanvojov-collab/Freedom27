@@ -98,5 +98,15 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         self.assertFalse(report["conversions"][0]["reachable_in_cfg"])
         self.assertEqual(report["unresolved_control_transfers"], [])
 
+
+    def test_retaa_is_a_terminal_return(self):
+        records = [
+            {"address": "0x8000", "instruction": "retaa"},
+            {"address": "0x8004", "instruction": "fcvtzs w0, d0"},
+        ]
+        report = analyze_function("_aa_moveto", "target", records)
+        self.assertFalse(report["conversions"][0]["reachable_in_cfg"])
+        self.assertEqual(report["unresolved_control_transfers"], [])
+
 if __name__ == "__main__":
     unittest.main()
