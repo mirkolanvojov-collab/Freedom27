@@ -26,6 +26,28 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
                 ["_aa_path_iterate", "_aa_render"],
             )
 
+    def test_parses_and_classifies_macho_sections(self):
+        output = """Load command 0
+      cmd LC_SEGMENT_64
+   Section
+     sectname __const
+      segname __TEXT
+         addr 0x1847c1200
+         size 0x00001000
+   Section
+     sectname __text
+      segname __TEXT
+         addr 0x1847c0000
+         size 0x00001000
+"""
+        sections = parse_macho_sections(output)
+        self.assertEqual(len(sections), 2)
+        self.assertEqual(classify_address(0x1847c1720, sections),
+                         {"classification": "inside_section", "segment": "__TEXT",
+                          "section": "__const", "section_offset": "0x520"})
+        self.assertEqual(classify_address(0x1e5d9ec30, sections),
+                         {"classification": "outside_listed_sections"})
+
     def test_normalizes_addresses_but_preserves_bounds_constants(self):
         output = """
 0x1000: 1f 20 03 d5 nop
