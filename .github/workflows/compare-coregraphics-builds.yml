@@ -9,8 +9,10 @@ on:
       - "research/scripts/compare_coregraphics.py"
       - "research/scripts/compare_coregraphics_functions.py"
       - "research/scripts/verify_coregraphics_constants.py"
+      - "research/scripts/analyze_coregraphics_conversion_cfg.py"
       - "tests/test_compare_coregraphics_functions.py"
       - "tests/test_verify_coregraphics_constants.py"
+      - "tests/test_analyze_coregraphics_conversion_cfg.py"
 
 permissions:
   contents: read
@@ -137,6 +139,11 @@ jobs:
               --load-commands diagnostics/fixed-coregraphics-load-commands.txt \
               --function-diff coregraphics-function-diff.json \
               --output coregraphics-constant-validation.json
+
+            # Reconstruct direct-branch CFGs and report structural dominators.
+            python3 research/scripts/analyze_coregraphics_conversion_cfg.py \
+              --function-diff coregraphics-function-diff.json \
+              --output coregraphics-conversion-cfg-audit.json
             echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } 2>&1 | tee diagnostics/coregraphics-comparison.log
 
@@ -158,6 +165,7 @@ jobs:
             coregraphics-comparison.json
             coregraphics-function-diff.json
             coregraphics-constant-validation.json
+            coregraphics-conversion-cfg-audit.json
           if-no-files-found: error
 
       - name: Remove downloaded firmware and extracted binaries
