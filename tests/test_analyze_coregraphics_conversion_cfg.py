@@ -74,5 +74,19 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
 
 
 
+    def test_bvc_nan_fallthrough_guard(self):
+        records = [
+            {"address": "0x6000", "instruction": "fcmp d4, d4"},
+            {"address": "0x6004", "instruction": "b.vc loc_6010"},
+            {"address": "0x6008", "instruction": "mov w10, #0"},
+            {"address": "0x600c", "instruction": "ret"},
+            {"address": "0x6010", "instruction": "fcvtzs w10, d4"},
+            {"address": "0x6014", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_clip_edge", "fixed", records)["conversions"][0]
+        self.assertTrue(conversion["path_sensitive_nan_guard_coverage"])
+        self.assertEqual(conversion["path_nan_guard_branches"][0]["address"], "0x6004")
+
+
 if __name__ == "__main__":
     unittest.main()
