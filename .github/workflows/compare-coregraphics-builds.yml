@@ -19,7 +19,7 @@ permissions:
 
 concurrency:
   group: coregraphics-build-comparison-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   compare:
