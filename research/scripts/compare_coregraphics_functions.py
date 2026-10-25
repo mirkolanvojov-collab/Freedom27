@@ -273,6 +273,13 @@ def compare(target_binary: Path, fixed_binary: Path, target_sections: list[dict[
             item["fixed_instructions"] = fixed_ins
             item["target_relocation_sensitive_sites"] = extract_relocation_sites(target_raw)
             item["fixed_relocation_sensitive_sites"] = extract_relocation_sites(fixed_raw)
+            # Preserve address-bearing records for the conversion/bounds functions.
+            # Normalized streams intentionally erase branch destinations, so they
+            # are unsuitable for control-flow tracing on their own.
+            if symbol in {"_aa_moveto", "_aa_lineto", "_aa_clip_edge", "_aa_clipping",
+                          "_aa_cubeto", "_aa_quadto", "_aa_rectat"}:
+                item["target_addressed_instructions"] = parse_instruction_records(target_raw)
+                item["fixed_addressed_instructions"] = parse_instruction_records(fixed_raw)
         results.append(item)
 
     changed = [item for item in results if not item["instruction_stream_identical"]]
