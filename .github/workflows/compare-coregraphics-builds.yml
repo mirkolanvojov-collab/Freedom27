@@ -145,31 +145,47 @@ jobs:
               --function-diff coregraphics-function-diff.json \
               --output coregraphics-conversion-cfg-audit.json
 
-            # Read-only caller discovery scoped to the image containing each
-            # address (CoreGraphics). Avoid --all: scanning every dylib in the
-            # shared cache exceeded this step's timeout. Xref may still fail if
-            # ipsw cannot parse unrelated Objective-C metadata; preserve logs.
+            # Read-only xref discovery is experimental and can stall while ipsw
+            # builds its shared-cache symbol/Objective-C metadata. Bound each scan
+            # independently, retain partial output, and continue so completed
+            # comparison evidence is uploaded even when caller discovery times out.
             for spec in \
               "target|$target_cache|0x184694e60|aa_path_iterate" \
               "target|$target_cache|0x18430ab5c|aa_lineto" \
-              "target|$target_cache|0x18430a5bc|aa_moveto" \
               "fixed|$fixed_cache|0x1846bc428|aa_path_iterate" \
-              "fixed|$fixed_cache|0x184331be0|aa_lineto" \
-              "fixed|$fixed_cache|0x1843315bc|aa_moveto"; do
+              "fixed|$fixed_cache|0x184331be0|aa_lineto"; do
               IFS='|' read -r side cache address symbol <<< "$spec"
               log="diagnostics/${side}-xref-${symbol}.txt"
-              {
-                echo "side=$side"
-                echo "cache=$cache"
-                echo "address=$address"
-                echo "command=ipsw dyld xref <cache> <address> --all"
-                ipsw dyld xref "$cache" "$address"
-                status=$?
-                echo "xref_exit_status=$status"
-              } > "$log" 2>&1 || {
-                status=$?
-                echo "xref_shell_status=$status" >> "$log"
-              }
+              echo "side=$side" > "$log"
+              echo "address=$address" >> "$log"
+              echo "command=ipsw dyld xref <cache> <address> (120-second limit)" >> "$log"
+              python3 - "$cache" "$address" "$log" <<'PYXREF'
+import os
+import signal
+import subprocess
+import sys
+
+cache, address, log_path = sys.argv[1:]
+with open(log_path, "a", encoding="utf-8") as log:
+    proc = subprocess.Popen(
+        ["ipsw", "dyld", "xref", cache, address],
+        stdout=log,
+        stderr=subprocess.STDOUT,
+        start_new_session=True,
+    )
+    try:
+        status = proc.wait(timeout=120)
+    except subprocess.TimeoutExpired:
+        log.write("\\nxref_status=timed_out_after_120_seconds\\n")
+        log.flush()
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        proc.wait()
+        status = 124
+    log.write(f"\\nxref_exit_status={status}\\n")
+PYXREF
             done
             echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } 2>&1 | tee diagnostics/coregraphics-comparison.log
