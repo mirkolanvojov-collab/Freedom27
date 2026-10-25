@@ -45,7 +45,7 @@ def build_cfg(records: list[dict[str, str]]) -> tuple[list[set[int]], list[dict[
         mnemonic = text.split(maxsplit=1)[0] if text else ""
         next_index = i + 1 if i + 1 < len(records) else None
 
-        if mnemonic in {"ret", "retab", "eret"} or mnemonic == "br" or mnemonic.startswith(("braa", "brab")):
+        if mnemonic in {"ret", "retaa", "retab", "eret"} or mnemonic == "br" or mnemonic.startswith(("braa", "brab")):
             if mnemonic == "br" or mnemonic.startswith(("braa", "brab")):
                 unresolved.append({"address": record["address"], "instruction": text,
                                    "reason": "indirect control transfer"})
