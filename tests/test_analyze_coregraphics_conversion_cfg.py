@@ -56,8 +56,8 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
             {"address": "0x4014", "instruction": "ret"},
         ]
         conversion = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]
-        self.assertTrue(conversion["path_sensitive_nan_guard_coverage"])
-        self.assertEqual(conversion["path_nan_guard_branches"][0]["address"], "0x4004")
+        self.assertTrue(conversion["cfg_nan_guard_cutset_coverage"])
+        self.assertEqual(conversion["cfg_nan_guard_branches"][0]["address"], "0x4004")
 
     def test_path_guard_coverage_false_when_entry_bypasses_guard(self):
         records = [
@@ -70,7 +70,7 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
             {"address": "0x5018", "instruction": "ret"},
         ]
         conversion = analyze_function("_aa_moveto", "target", records)["conversions"][0]
-        self.assertFalse(conversion["path_sensitive_nan_guard_coverage"])
+        self.assertFalse(conversion["cfg_nan_guard_cutset_coverage"])
 
 
 
@@ -84,8 +84,8 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
             {"address": "0x6014", "instruction": "ret"},
         ]
         conversion = analyze_function("_aa_clip_edge", "fixed", records)["conversions"][0]
-        self.assertTrue(conversion["path_sensitive_nan_guard_coverage"])
-        self.assertEqual(conversion["path_nan_guard_branches"][0]["address"], "0x6004")
+        self.assertTrue(conversion["cfg_nan_guard_cutset_coverage"])
+        self.assertEqual(conversion["cfg_nan_guard_branches"][0]["address"], "0x6004")
 
 
 if __name__ == "__main__":
