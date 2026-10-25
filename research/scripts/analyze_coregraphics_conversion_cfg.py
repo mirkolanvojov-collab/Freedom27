@@ -105,6 +105,44 @@ def compute_dominators(successors: list[set[int]]) -> tuple[list[set[int]], set[
     return dominators, reachable
 
 
+def _reachable_from(start: int, successors: list[set[int]], blocked: set[int] | None = None) -> set[int]:
+    blocked = blocked or set()
+    seen: set[int] = set()
+    pending = [] if start in blocked else [start]
+    while pending:
+        node = pending.pop()
+        if node in seen or node in blocked:
+            continue
+        seen.add(node)
+        pending.extend(successors[node] - seen - blocked)
+    return seen
+
+
+def _path_nan_guard_nodes(records: list[dict[str, str]], successors: list[set[int]],
+                          conversion_index: int) -> list[int]:
+    """Return b.vs nodes whose self-compare NaN edge cannot reach this conversion.
+
+    This is a conservative CFG property, not register/flag symbolic execution.
+    A guard node is accepted only when its immediately preceding instruction is
+    a self-compare and the branch target has no CFG path to the conversion.
+    """
+    index = {int(record["address"], 16): i for i, record in enumerate(records)}
+    guards = []
+    for i, record in enumerate(records):
+        text = record["instruction"].strip()
+        if i == 0 or not re.match(r"^b\\.vs\\b", text):
+            continue
+        if not SELF_COMPARE.match(records[i - 1]["instruction"].strip()):
+            continue
+        target = _target_address(text)
+        target_index = index.get(target) if target is not None else None
+        if target_index is None:
+            continue
+        if conversion_index not in _reachable_from(target_index, successors):
+            guards.append(i)
+    return guards
+
+
 def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> dict[str, Any]:
     successors, unresolved = build_cfg(records)
     dominators, reachable = compute_dominators(successors)
@@ -127,6 +165,11 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
             "dominating_clamp_loads": [{"address": r["address"], "instruction": r["instruction"]} for r in clamp_loads],
             "dominating_float_compares": [{"address": r["address"], "instruction": r["instruction"]} for r in float_compares],
             "structural_nan_guard_in_dominators": bool(self_compares and nan_branches),
+            "path_sensitive_nan_guard_coverage": i not in bypass_reachable if i in reachable else False,
+            "path_nan_guard_branches": [
+                {"address": records[j]["address"], "instruction": records[j]["instruction"]}
+                for j in path_guard_nodes
+            ],
             "structural_clamp_reference_in_dominators": bool(clamp_loads and float_compares),
         })
     return {
@@ -164,6 +207,7 @@ def analyze_document(document: dict[str, Any]) -> dict[str, Any]:
         "limitations": [
             "Branch structure is reconstructed from disassembler text and direct branch labels.",
             "Dominance is structural; it does not prove the compared value is the converted value.",
+            "Path-sensitive NaN guard coverage only checks CFG paths through an adjacent self-compare/b.vs pair whose branch target cannot reach the conversion; it does not prove flag/register dataflow or sentinel correctness.",
             "A dominating conditional branch does not alone prove the unsafe branch is excluded.",
             "No full register/flag data-flow, alias analysis, or symbolic execution is performed.",
             "No binary was executed and no device was accessed or modified.",
