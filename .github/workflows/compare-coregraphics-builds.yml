@@ -145,10 +145,10 @@ jobs:
               --function-diff coregraphics-function-diff.json \
               --output coregraphics-conversion-cfg-audit.json
 
-            # Read-only caller discovery: ask ipsw's dyld-cache xref index for
-            # references to the path dispatcher and conversion routines. This
-            # is best-effort because xref support varies by ipsw version/cache.
-            # Keep stdout/stderr as artifacts even if the command is unsupported.
+            # Read-only caller discovery scoped to the image containing each
+            # address (CoreGraphics). Avoid --all: scanning every dylib in the
+            # shared cache exceeded this step's timeout. Xref may still fail if
+            # ipsw cannot parse unrelated Objective-C metadata; preserve logs.
             for spec in \
               "target|$target_cache|0x184694e60|aa_path_iterate" \
               "target|$target_cache|0x18430ab5c|aa_lineto" \
@@ -163,7 +163,7 @@ jobs:
                 echo "cache=$cache"
                 echo "address=$address"
                 echo "command=ipsw dyld xref <cache> <address> --all"
-                ipsw dyld xref "$cache" "$address" --all
+                ipsw dyld xref "$cache" "$address"
                 status=$?
                 echo "xref_exit_status=$status"
               } > "$log" 2>&1 || {
