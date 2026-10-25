@@ -61,6 +61,17 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
             ["nop", "b <branch-target>", "mov x0, #0x3ffff001"],
         )
 
+    def test_addressed_instruction_records_preserve_branch_destinations(self):
+        from research.scripts.compare_coregraphics_functions import parse_instruction_records
+        output = (
+            "0x1000: 00 00 00 54 b.eq #0x1010\\n"
+            "0x1004: 1f 20 03 d5 nop\\n"
+            "0x1010: c0 03 5f d6 ret\\n"
+        )
+        records = parse_instruction_records(output)
+        self.assertEqual(records[0], {"address": "0x1000", "instruction": "b.eq #0x1010"})
+        self.assertEqual(records[2], {"address": "0x1010", "instruction": "ret"})
+
     def test_relocation_audit_preserves_raw_addresses_and_nearby_instructions(self):
         output = (
             "0x1000: 09 00 00 90 adrp x9, 0x180000000\n"
