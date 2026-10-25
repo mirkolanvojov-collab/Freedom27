@@ -133,6 +133,29 @@ jobs:
               --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
               --output coregraphics-function-diff.json
 
+            # Capture bounded disassembly for the known direct-reference candidates.
+            # This is a read-only supplement to the symbol-scoped aa_* comparison.
+            for side in target fixed; do
+              if [ "$side" = target ]; then binary="$target_binary"; else binary="$fixed_binary"; fi
+              for symbol in _aa_path_iterate _RIPRenderRectangles _ripr_path_fill _ripr_stroke_iterate; do
+                report="diagnostics/${side}-caller-${symbol#_}.txt"
+                if ipsw macho disass --force --symbol "$symbol" "$binary" > "$report" 2>&1; then
+                  echo "caller_disassembly_status=success side=$side symbol=$symbol"
+                else
+                  echo "caller_disassembly_status=unavailable side=$side symbol=$symbol"
+                fi
+              done
+            done
+            # The local/private _process_path_element.15286 name is absent from
+            # the Mach-O symbol table; capture a small target-side window around
+            # the recorded callsite without assuming it is a stable symbol.
+            if ipsw macho disass --force --vaddr 0x1846952c4 --count 16 "$target_binary" \
+              > diagnostics/target-process-path-element-callsite.txt 2>&1; then
+              echo "local_caller_context_status=captured"
+            else
+              echo "local_caller_context_status=unavailable"
+            fi
+
             # Verify constants from the fixed binary against the public patch analysis.
             python3 research/scripts/verify_coregraphics_constants.py \
               --binary "$fixed_binary" \
