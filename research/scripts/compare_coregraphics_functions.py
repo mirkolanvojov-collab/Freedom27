@@ -23,8 +23,11 @@ RECORD_LINE_RE = re.compile(r"^\s*(0x[0-9a-fA-F]+):\s*(.*)$")
 HEX_BYTES_RE = re.compile(r"^(?:(?:[0-9a-fA-F]{2})\s+){4}(.*)$")
 BRANCH_RE = re.compile(r"^(?:b(?:\.[a-z]+)?|bl|cbz|cbnz|tbz|tbnz)\s+(.+)$", re.I)
 ADDRESS_PRESERVED_SYMBOLS = {
+    # Coordinate conversion and its direct consumers.
     "_aa_moveto", "_aa_lineto", "_aa_clip_edge", "_aa_clipping",
     "_aa_cubeto", "_aa_quadto", "_aa_rectat", "_aa_add_edges",
+    # Preserve dispatch/initialization context for a caller-side invariant trace.
+    "_aa_path_iterate", "_aa_path_begin", "_aa_create", "_aa_render_shape",
 }
 
 
