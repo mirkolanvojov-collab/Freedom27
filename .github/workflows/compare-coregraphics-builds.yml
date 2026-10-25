@@ -8,7 +8,9 @@ on:
       - ".github/workflows/compare-coregraphics-builds.yml"
       - "research/scripts/compare_coregraphics.py"
       - "research/scripts/compare_coregraphics_functions.py"
+      - "research/scripts/verify_coregraphics_constants.py"
       - "tests/test_compare_coregraphics_functions.py"
+      - "tests/test_verify_coregraphics_constants.py"
 
 permissions:
   contents: read
@@ -148,6 +150,7 @@ jobs:
           path: |
             coregraphics-comparison.json
             coregraphics-function-diff.json
+            coregraphics-constant-validation.json
           if-no-files-found: error
 
       - name: Remove downloaded firmware and extracted binaries
