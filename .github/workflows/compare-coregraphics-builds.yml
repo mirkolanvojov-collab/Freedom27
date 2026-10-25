@@ -145,48 +145,11 @@ jobs:
               --function-diff coregraphics-function-diff.json \
               --output coregraphics-conversion-cfg-audit.json
 
-            # Read-only xref discovery is experimental and can stall while ipsw
-            # builds its shared-cache symbol/Objective-C metadata. Bound each scan
-            # independently, retain partial output, and continue so completed
-            # comparison evidence is uploaded even when caller discovery times out.
-            for spec in \
-              "target|$target_cache|0x184694e60|aa_path_iterate" \
-              "target|$target_cache|0x18430ab5c|aa_lineto" \
-              "fixed|$fixed_cache|0x1846bc428|aa_path_iterate" \
-              "fixed|$fixed_cache|0x184331be0|aa_lineto"; do
-              IFS='|' read -r side cache address symbol <<< "$spec"
-              log="diagnostics/${side}-xref-${symbol}.txt"
-              echo "side=$side" > "$log"
-              echo "address=$address" >> "$log"
-              echo "command=ipsw dyld xref <cache> <address> (120-second limit)" >> "$log"
-              python3 - "$cache" "$address" "$log" <<'PYXREF'
-import os
-import signal
-import subprocess
-import sys
-
-cache, address, log_path = sys.argv[1:]
-with open(log_path, "a", encoding="utf-8") as log:
-    proc = subprocess.Popen(
-        ["ipsw", "dyld", "xref", cache, address],
-        stdout=log,
-        stderr=subprocess.STDOUT,
-        start_new_session=True,
-    )
-    try:
-        status = proc.wait(timeout=120)
-    except subprocess.TimeoutExpired:
-        log.write("\\nxref_status=timed_out_after_120_seconds\\n")
-        log.flush()
-        try:
-            os.killpg(proc.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-        proc.wait()
-        status = 124
-    log.write(f"\\nxref_exit_status={status}\\n")
-PYXREF
-            done
+            # Shared-cache xref parsing has timed out on this runner and is
+            # not required to generate the verified binary/function comparison.
+            # Caller discovery is intentionally kept out of this critical path;
+            # use the preserved comparison artifacts and separate bounded tooling.
+            echo "caller_xref_status=deferred_experimental_shared_cache_scan"
             echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } 2>&1 | tee diagnostics/coregraphics-comparison.log
 
