@@ -83,10 +83,43 @@ def extract_relocation_sites(output: str, context_size: int = 4) -> list[dict[st
             continue
         start = max(0, index - 1)
         stop = min(len(records), index + context_size + 1)
+        instruction = record["instruction"]
+        adrp_match = re.match(
+            r"^adrp\\s+(x[0-9]+),\\s*#?(0x[0-9a-fA-F]+)$",
+            instruction,
+            re.I,
+        )
+        derived_references: list[dict[str, str]] = []
+        if adrp_match:
+            base_register = adrp_match.group(1).lower()
+            page_address = int(adrp_match.group(2), 16)
+            # Only derive addresses from an explicit following memory operand
+            # that uses this ADRP destination as its base. Do not guess at
+            # chained loads, pointer authentication, or dynamic relocation.
+            for candidate in records[index + 1:min(len(records), index + context_size + 1)]:
+                access = re.match(
+                    r"^(ldr|str|ldur|stur|ldrsw|prfm)\\s+.*?\\["
+                    + re.escape(base_register)
+                    + r",\\s*#?(0x[0-9a-fA-F]+|[0-9]+)\\]$",
+                    candidate["instruction"],
+                    re.I,
+                )
+                if access:
+                    offset = int(access.group(2), 0)
+                    derived_references.append({
+                        "access_address": candidate["address"],
+                        "access_instruction": candidate["instruction"],
+                        "base_page_address": hex(page_address),
+                        "offset": hex(offset),
+                        "effective_address": hex(page_address + offset),
+                        "derivation": "ADRP page target + explicit memory operand offset",
+                    })
+                    break
         sites.append({
             "instruction_index": index,
             "address": record["address"],
-            "instruction": record["instruction"],
+            "instruction": instruction,
+            "derived_references": derived_references,
             "context": records[start:stop],
         })
     return sites
