@@ -46,5 +46,33 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         self.assertFalse(report["conversions"][0]["reachable_in_cfg"])
 
 
+    def test_path_guard_coverage_when_all_paths_pass_guard(self):
+        records = [
+            {"address": "0x4000", "instruction": "fcmp d0, d0"},
+            {"address": "0x4004", "instruction": "b.vs loc_4010"},
+            {"address": "0x4008", "instruction": "fcvtzs w0, d0"},
+            {"address": "0x400c", "instruction": "ret"},
+            {"address": "0x4010", "instruction": "mov w0, #0"},
+            {"address": "0x4014", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]
+        self.assertTrue(conversion["path_sensitive_nan_guard_coverage"])
+        self.assertEqual(conversion["path_nan_guard_branches"][0]["address"], "0x4004")
+
+    def test_path_guard_coverage_false_when_entry_bypasses_guard(self):
+        records = [
+            {"address": "0x5000", "instruction": "cbz w1, loc_500c"},
+            {"address": "0x5004", "instruction": "fcmp d0, d0"},
+            {"address": "0x5008", "instruction": "b.vs loc_5014"},
+            {"address": "0x500c", "instruction": "fcvtzs w0, d0"},
+            {"address": "0x5010", "instruction": "ret"},
+            {"address": "0x5014", "instruction": "mov w0, #0"},
+            {"address": "0x5018", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_moveto", "target", records)["conversions"][0]
+        self.assertFalse(conversion["path_sensitive_nan_guard_coverage"])
+
+
+
 if __name__ == "__main__":
     unittest.main()
