@@ -120,17 +120,17 @@ def _reachable_from(start: int, successors: list[set[int]], blocked: set[int] | 
 
 def _path_nan_guard_nodes(records: list[dict[str, str]], successors: list[set[int]],
                           conversion_index: int) -> list[int]:
-    """Return b.vs nodes whose self-compare NaN edge cannot reach this conversion.
+    """Find structural NaN-guard branches relevant to a conversion.
 
-    This is a conservative CFG property, not register/flag symbolic execution.
-    A guard node is accepted only when its immediately preceding instruction is
-    a self-compare and the branch target has no CFG path to the conversion.
+    A candidate must immediately follow a floating-point self-compare, and its
+    taken branch target must not have a CFG path to the conversion. This does
+    not track NZCV flags or prove register/data-flow semantics.
     """
     index = {int(record["address"], 16): i for i, record in enumerate(records)}
-    guards = []
+    guards: list[int] = []
     for i, record in enumerate(records):
         text = record["instruction"].strip()
-        if i == 0 or not re.match(r"^b\\.vs\\b", text):
+        if i == 0 or not re.match(r"^b\.vs\b", text):
             continue
         if not SELF_COMPARE.match(records[i - 1]["instruction"].strip()):
             continue
@@ -156,6 +156,10 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
         nan_branches = [r for r in dom_records if re.match(r"^b\.vs\b", r["instruction"].strip())]
         clamp_loads = [r for r in dom_records if CLAMP_LOAD.search(r["instruction"])]
         float_compares = [r for r in dom_records if re.match(r"^fcmp\b", r["instruction"].strip())]
+
+        path_guard_nodes = _path_nan_guard_nodes(records, successors, i)
+        bypass_reachable = i in _reachable_from(0, successors, blocked=set(path_guard_nodes))
+        path_guard_coverage = (not bypass_reachable) if i in reachable else False
         conversions.append({
             "address": record["address"],
             "instruction": text,
@@ -165,7 +169,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
             "dominating_clamp_loads": [{"address": r["address"], "instruction": r["instruction"]} for r in clamp_loads],
             "dominating_float_compares": [{"address": r["address"], "instruction": r["instruction"]} for r in float_compares],
             "structural_nan_guard_in_dominators": bool(self_compares and nan_branches),
-            "path_sensitive_nan_guard_coverage": i not in bypass_reachable if i in reachable else False,
+            "path_sensitive_nan_guard_coverage": path_guard_coverage,
             "path_nan_guard_branches": [
                 {"address": records[j]["address"], "instruction": records[j]["instruction"]}
                 for j in path_guard_nodes
