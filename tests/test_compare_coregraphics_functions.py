@@ -13,10 +13,14 @@ from research.scripts.compare_coregraphics_functions import (
 
 
 class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
-    def test_address_preserved_symbols_include_downstream_edge_consumer(self):
+    def test_address_preserved_symbols_include_conversion_and_caller_trace(self):
         from research.scripts.compare_coregraphics_functions import ADDRESS_PRESERVED_SYMBOLS
-        self.assertIn("_aa_add_edges", ADDRESS_PRESERVED_SYMBOLS)
-        self.assertIn("_aa_lineto", ADDRESS_PRESERVED_SYMBOLS)
+        for symbol in (
+            "_aa_add_edges", "_aa_lineto", "_aa_moveto", "_aa_path_iterate",
+            "_aa_path_begin", "_aa_create", "_aa_render_shape",
+        ):
+            with self.subTest(symbol=symbol):
+                self.assertIn(symbol, ADDRESS_PRESERVED_SYMBOLS)
 
     def test_discovery_keeps_only_executable_text_symbols(self):
         from research.scripts import compare_coregraphics_functions as module
