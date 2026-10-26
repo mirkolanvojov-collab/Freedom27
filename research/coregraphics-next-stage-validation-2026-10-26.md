@@ -7,7 +7,7 @@
 
 ## Current evidence baseline
 
-The preserved run 169 comparison reports 25 shared `aa_*` symbols compared successfully, 15 normalized instruction streams changed, and zero disassembly failures. The target and reference CoreGraphics file hashes differ. These results establish a reproducible binary difference, not CVE attribution.
+The preserved run 169 comparison reports 25 shared `aa_*` symbols compared successfully, 15 normalized instruction streams changed, and zero disassembly failures. The target and reference CoreGraphics file hashes differ. These results establish a reproducible binary difference, not CVE attribution. Note that this comparison spans iOS 26.6.1 to 26.7.1, while the cited public patch analysis focuses on 26.7 to 26.7.1; unrelated intervening changes are possible.
 
 Within the reviewed subset:
 
@@ -15,6 +15,7 @@ Within the reviewed subset:
 - The target has a vector float-to-integer conversion and narrowing sequence without a structurally dominating NaN self-compare or the audited clamp-constant load.
 - The fixed reference has scalar conversion paths with NaN/range-handling patterns on some non-clipping paths. The clipping path differs, and the existing CFG audit is structural rather than a register/flags data-flow proof.
 - `_aa_add_edges` has matching normalized streams (138 instructions each); the reviewed path supplies one coordinate record. This does not prove all allocation, count, pointer, or bounds invariants.
+- **Correction from artifact reinspection:** `_aa_cache_render` is 664 instructions in each build, but its normalized streams are *not* identical. The saved JSON marks `instruction_stream_identical: false` and contains 9 differing normalized instruction positions. Some are immediate offsets or memory operands that may reflect data-layout changes; their semantic impact is not established. Earlier wording that called this stream identical was inaccurate.
 - Captured caller excerpts show path-data loads and float narrowing before some `_aa_lineto` branches. They do not establish untrusted-input provenance or the validity of the source buffer/element count.
 
 ## Highest-value next checks
