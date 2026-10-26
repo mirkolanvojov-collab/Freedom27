@@ -166,9 +166,25 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
         path_guard_nodes = _path_nan_guard_nodes(records, successors, i)
         bypass_reachable = i in _reachable_from(0, successors, blocked=set(path_guard_nodes))
         path_guard_coverage = (not bypass_reachable) if i in reachable else False
+        next_record = records[i + 1] if i + 1 < len(records) else None
+        next_text = next_record["instruction"].strip() if next_record else ""
+        vector_narrow = re.match(r"^xtn\\s+v(\\d+)\\.2s,\\s*v(\\d+)\\.2d$", next_text)
+        source_vector = re.match(r"^fcvtzs\\s+v(\\d+)\\.2d,\\s*v(\\d+)\\.2d$", text)
+        narrows_64_to_32 = bool(
+            vector_narrow and source_vector
+            and vector_narrow.group(1) == source_vector.group(1)
+            and vector_narrow.group(2) == source_vector.group(2)
+        )
         conversions.append({
             "address": record["address"],
             "instruction": text,
+            "followed_by_same_register_xtn_2d_to_2s": narrows_64_to_32,
+            "narrowing_instruction": next_text if narrows_64_to_32 else None,
+            "narrowing_address": next_record["address"] if narrows_64_to_32 else None,
+            "narrowing_semantics_note": (
+                "XTN keeps the low 32 bits of each 64-bit lane; it does not clamp to signed 32-bit range."
+                if narrows_64_to_32 else None
+            ),
             "reachable_in_cfg": i in reachable,
             "dominating_self_compares": [{"address": r["address"], "instruction": r["instruction"]} for r in self_compares],
             "dominating_nan_branches": [{"address": r["address"], "instruction": r["instruction"]} for r in nan_branches],
