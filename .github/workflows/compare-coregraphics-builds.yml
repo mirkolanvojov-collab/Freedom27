@@ -120,10 +120,13 @@ jobs:
               # Apple may stop listing an older full OTA in current live metadata.
               # Fall back to a catalog redirect, then accept only the final Apple CDN URL.
               resolver = "https://api.applesn.info/v4/ota/download/iPhone17%2C4/23H24"
+              # /dev/null discards the response body but does not prevent curl from
+              # downloading the full OTA. Request only one byte and enforce a hard timeout.
               result = subprocess.run(
                   ["curl", "--fail", "--location", "--silent", "--show-error",
-                   "--output", "/dev/null", "--write-out", "%{url_effective}", resolver],
-                  check=False, capture_output=True, text=True, timeout=90,
+                   "--range", "0-0", "--output", "/dev/null",
+                   "--write-out", "%{url_effective}", "--max-time", "90", resolver],
+                  check=False, capture_output=True, text=True, timeout=95,
               )
               candidate = result.stdout.strip()
               if result.returncode == 0 and urlparse(candidate).scheme == "https" and urlparse(candidate).hostname == "updates.cdn-apple.com":
