@@ -15,7 +15,7 @@ The “position mismatches” column counts unequal normalized instruction strin
 
 | Symbol | Target / fixed instructions | Position mismatches | Initial triage |
 |---|---:|---:|---|
-| `_aa_cache_render` | 664 / 664 | 9 | Same length; changes are primarily memory operands/immediates. Resolve data-layout/relocation effects before attributing a logic change. |
+| `_aa_cache_render` | 664 / 664 | 9 | Same length; all nine position mismatches need operand/data-layout reconciliation before attributing a logic change. |
 | `_aa_clip_edge` | 162 / 280 | 154 | Major control-flow and conversion changes; split clipping and non-clipping paths. |
 | `_aa_clipping` | 120 / 178 | 69 | Context flag and clipping-state initialization candidate. |
 | `_aa_close` | 69 / 66 | 49 | Length and stack-frame differences; trace end-of-path edge finalization. |
@@ -35,8 +35,24 @@ The “position mismatches” column counts unequal normalized instruction strin
 
 - `_aa_cache_render` is **not** an identical normalized stream. Its artifact record has `instruction_stream_identical: false` and nine position-wise mismatches despite equal instruction counts. Earlier research-note wording that called it identical was corrected in commit `746c588` and the validation checklist was corrected in commit `349c8be`.
 - `_aa_add_edges` has 138 instructions in each build and its normalized streams match. This does not rule out the documented signed-delta/bounds failure when upstream values differ.
+- `_aa_new_edge` is present in the comparison artifact with 37 instructions in each build and matching normalized instruction hashes. Its stream is available only as a hash/count in this artifact, so this record alone cannot be used to audit its allocation-size or write-width details.
 - `_aa_path_iterate` has 221 instructions in each build and its normalized streams match. That alone does not establish identical runtime behavior for every caller or context.
 - The fixed-reference constant verifier confirms the expected clamp constants at the audited section-relative locations, but constant identity alone does not establish reachability or effective guard coverage.
+
+## Detailed `_aa_cache_render` mismatch triage
+
+The preserved artifact records the following nine position-wise differences (instruction indices are zero-based in the normalized arrays):
+
+| Index | Target instruction | Fixed-reference instruction | Initial interpretation |
+|---:|---|---|---|
+| 11 | `ldr x8, [x8, #0xc30]` | `ldr x8, [x8, #0xc58]` | Loads through an address outside the artifact's listed Mach-O sections; likely requires symbol/cache metadata to resolve. Do not assume equivalent. |
+| 53, 79 | `add x17, x17, #0xfe8` | `add x17, x17, #0x118` | Followed by `ldr x16, [x17]` and `blraa x16, x17`; indirect-call dispatch slot differs. Determine resolved target and pointer-authentication context before judging behavior. |
+| 122 | `ldr q1, [x8, #0x740]` | `ldr q1, [x8, #0xd00]` | The artifact maps both derived references to `__TEXT,__const` section offset `0x5080`; that is evidence for a likely same section-relative constant, but confirm the section bytes/relocation before asserting equivalence. |
+| 247, 279 | `add x23, x23, #0x591` / `#0x57b` | `add x23, x23, #0xb51` / `#0xb3b` | Relative addresses into a different mapped region; investigate the table/object layout. |
+| 249, 281 | `add x26, x26, #0x550` | `add x26, x26, #0xb10` | Same repeated base-relative target pattern as above; likely data-layout sensitive, not enough evidence to classify as harmless. |
+| 633 | `ldr x9, [x9, #0xc30]` | `ldr x9, [x9, #0xc58]` | Repeats the earlier out-of-listed-sections load and should be resolved together with index 11. |
+
+This narrows the next check: resolve the two indirect-call slots and the two repeated `0xc30`/`0xc58` loads against the exact shared-cache metadata, then compare the bytes behind the `__const` reference. Until that is done, the safest conclusion is **same function length, nine normalized differences of unresolved semantic significance**—not “relocation-only” and not “changed allocation logic.”
 
 ## Recommended order
 
