@@ -26,8 +26,10 @@ concurrency:
 
 jobs:
   compare:
-    # OTA cryptex patching requires macOS on iOS 16+.
-    runs-on: macos-15
+    # OTA cryptex patching requires macOS on iOS 16+. Use the Intel
+    # macOS 15 pool (14 GB RAM) for the multi-GB OTA/dyld extraction job.
+    # The firmware being analyzed remains arm64e; host architecture is not target architecture.
+    runs-on: macos-15-intel
     timeout-minutes: 120
     steps:
       - name: Check out repository
