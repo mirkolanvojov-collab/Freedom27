@@ -64,7 +64,7 @@ def extract(cache: Path, out_dir: Path) -> Path:
     return find_coregraphics(out_dir)
 
 
-def compare(target_cache: Path, fixed_cache: Path, output: Path) -> dict[str, object]:
+def compare(\n    target_cache: Path,\n    fixed_cache: Path,\n    output: Path,\n    target_build: str = "23G83",\n    fixed_build: str = "23H30",\n    target_device: str = "iPhone17,4",\n    fixed_device: str = "iPhone17,4",\n) -> dict[str, object]:
     work = output.parent / (output.stem + "-components")
     target_binary = extract(target_cache, work / "target")
     fixed_binary = extract(fixed_cache, work / "fixed")
@@ -73,8 +73,8 @@ def compare(target_cache: Path, fixed_cache: Path, output: Path) -> dict[str, ob
     report = {
         "schema_version": 1,
         "mode": "read_only_binary_metadata_comparison",
-        "target": {"build": "23G83", "device": "iPhone17,4", **target},
-        "fixed_reference": {"build": "23H30", "device": "iPhone17,4", **fixed},
+        "target": {"build": target_build, "device": target_device, **target},
+        "fixed_reference": {"build": fixed_build, "device": fixed_device, **fixed},
         "byte_identical": target["sha256"] == fixed["sha256"],
         "interpretation": (
             "Identical bytes for these extracted files."
