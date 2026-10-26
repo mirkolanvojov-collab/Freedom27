@@ -70,6 +70,20 @@ The run-169 JSON includes addressed instructions for these conversion candidates
 
 These instructions strengthen the local correspondence to the public patch hypothesis, but they do not alone prove which input reaches each path, the exact runtime context flags, or an out-of-bounds write. The local target is 26.6.1, whereas the public analysis describes the 26.7-to-26.7.1 patch interval.
 
+## Follow-up: surrounding semantics for `_aa_cache_render`
+
+A context-window review of the preserved normalized instruction arrays adds several useful constraints to the nine-mismatch triage:
+
+1. **The `0xc30` / `0xc58` loads participate in a stack-protection pattern.** At function entry, each build loads a pointer through a global/shared-cache reference, dereferences it, and saves the value in the stack frame (`stur x8, [fp, #-0x70]`). Near the epilogue, each reloads the reference and compares the current value with the saved value before returning. This strongly resembles a stack-canary check. The two effective addresses fall outside the extracted Mach-O's listed sections, so the exact global symbol is not resolved by this artifact; treat this as a stack-protection-pattern inference, not a symbol identification. It is not evidence of the coverage-buffer bound itself.
+2. **The `0xfe8` / `0x118` references are indirect calls in dynamic stack-allocation paths.** Both builds compute an aligned size from a register (`sbfiz`, add 15, align down), load a function pointer from the derived slot, and call it using `blraa`. The surrounding operation is consistent with a stack-allocation/probing helper, but the called symbol is unresolved. The target and fixed builds use different shared-cache slots; this alone does not establish a change in allocation semantics.
+3. **The `0x740` / `0xd00` vector loads resolve to the same section-relative offset.** The saved section annotation maps both references to `__TEXT,__const` offset `0x5080`. This narrows the difference to address/layout encoding, but equivalence still requires comparing the actual constant bytes and relevant relocations, which are not contained in this JSON artifact.
+4. **The `0x591`/`0x57b` versus `0xb51`/`0xb3b` and `0x550` versus `0xb10` immediates are used with `adrp` bases.** Their full derived addresses are in the same broad shared-cache region as the respective function's data references, but the artifact does not resolve their object identities. No reliable semantic conclusion can be drawn from the immediates alone.
+5. **The visible record-count arithmetic in `_aa_cache_render` is not itself a proof of an overflow.** In both builds, a value loaded from `[x25, #0xc]` is decremented, multiplied by `0x60` with `umull`, and used in address calculation. This is a concrete count/stride candidate for a separate bounds audit. The current artifact does not establish what object the count represents, whether the count is validated, the allocated extent, or the destination width of later stores.
+
+### Current interpretation
+
+The contextual disassembly suggests that some `_aa_cache_render` mismatches may be attributable to shared-cache/global layout or function-slot relocation, while the record-count/stride sequence merits a separate data-flow review. It is premature to call all nine differences relocation-only, and equally premature to call them a coverage-buffer allocation fix. To resolve them, the next comparison needs exact-build shared-cache symbol/relocation metadata and the relevant constant bytes, then a trace from the count source through allocation size to the writes that consume the allocated region.
+
 ## Recommended order
 
 1. Reconcile `_aa_lineto` and `_aa_moveto` conversion behavior with the public analysis at the instruction level.
