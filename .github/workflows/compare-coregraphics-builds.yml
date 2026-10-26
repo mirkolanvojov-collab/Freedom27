@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/compare-coregraphics-builds.yml"
       - "research/scripts/compare_coregraphics.py"
+      - "tests/test_compare_coregraphics.py"
       - "research/scripts/compare_coregraphics_functions.py"
       - "research/scripts/verify_coregraphics_constants.py"
       - "research/scripts/analyze_coregraphics_conversion_cfg.py"
@@ -95,6 +96,56 @@ jobs:
           } 2>&1 | tee diagnostics/fixed-ota-extraction.log
           test -n "$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
 
+      - name: Resolve and download iOS 26.7 OTA for direct patch attribution
+        shell: bash
+        timeout-minutes: 45
+        run: |
+          set -euo pipefail
+          mkdir -p out/26.7-ota diagnostics
+          {
+            echo "stage=resolve_23H24_ota"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            # Resolve the direct URL from live OTA metadata; never synthesize an Apple CDN path.
+            docker run --rm blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H24 --urls | tee diagnostics/ios-26.7-23H24-ota-metadata.txt
+            python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse
+          lines = [line.strip() for line in Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").read_text().splitlines() if line.strip()]
+          urls = [line for line in lines if line.startswith("https://") and urlparse(line).hostname == "updates.cdn-apple.com"]
+          if not urls:
+              raise SystemExit("No direct Apple CDN URL resolved for iPhone17,4 build 23H24; refusing to guess a URL.")
+          Path("ios-26.7-23H24-ota-url.txt").write_text(urls[0] + "\n", encoding="utf-8")
+          print(f"validated_apple_cdn_url={urls[0]}")
+          PY
+            ota_url="$(cat ios-26.7-23H24-ota-url.txt)"
+            ota_file="$PWD/ios-26.7-23H24-iPhone17,4.aea"
+            curl --fail --location --show-error --retry 5 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
+            actual_size="$(stat -f '%z' "$ota_file")"
+            echo "download_size_bytes=$actual_size"
+            test "$actual_size" -eq 8724152320
+            actual_sha256="$(shasum -a 256 "$ota_file" | awk '{print $1}')"
+            echo "download_sha256=$actual_sha256"
+            echo "digest_kind=locally_computed_sha256_not_published_apple_checksum"
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/ios-26.7-23H24-ota-download.log
+
+      - name: Extract iOS 26.7 (23H24) dyld cache
+        shell: bash
+        timeout-minutes: 20
+        run: |
+          set -euo pipefail
+          mkdir -p out/26.7-cache diagnostics
+          ota_file="$PWD/ios-26.7-23H24-iPhone17,4.aea"
+          {
+            echo "stage=extract_23H24_dyld_cache"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            ipsw ota extract --key-val 'Nsc4CePIkIJyP8wCRmF/FllWT3yZDH9NWM9MNor1IVE=' "$ota_file" --dyld --dyld-arch arm64e --output out/26.7-cache --json > out/26.7-ota-extraction.json
+            cat out/26.7-ota-extraction.json
+            find out/26.7-cache -type f -name 'dyld_shared_cache_arm64e' -print
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/ios-26.7-23H24-extraction.log
+          test -n "$(find out/26.7-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+
       - name: Extract CoreGraphics and compare function instructions
         shell: bash
         timeout-minutes: 15
@@ -178,6 +229,57 @@ jobs:
             echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           } 2>&1 | tee diagnostics/coregraphics-comparison.log
 
+      - name: Compare CoreGraphics directly across 23H24 and 23H30
+        shell: bash
+        timeout-minutes: 20
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          {
+            echo "stage=direct_23H24_to_23H30_coregraphics_comparison"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            old_cache="$(find out/26.7-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+            fixed_cache="$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+            test -n "$old_cache"
+            test -n "$fixed_cache"
+
+            python3 research/scripts/compare_coregraphics.py \
+              --target-cache "$old_cache" \
+              --fixed-cache "$fixed_cache" \
+              --target-build 23H24 \
+              --fixed-build 23H30 \
+              --target-device iPhone17,4 \
+              --fixed-device iPhone17,4 \
+              --output coregraphics-26-7-patch-comparison.json
+
+            old_binary="coregraphics-26-7-patch-comparison-components/target/CoreGraphics"
+            fixed_binary="coregraphics-26-7-patch-comparison-components/fixed/CoreGraphics"
+            test -f "$old_binary"
+            test -f "$fixed_binary"
+            ipsw macho info --symbols "$old_binary" > diagnostics/23H24-coregraphics-symbols.txt
+            ipsw macho info --symbols "$fixed_binary" > diagnostics/23H30-coregraphics-symbols.txt
+            otool -l "$old_binary" > diagnostics/23H24-coregraphics-load-commands.txt
+            otool -l "$fixed_binary" > diagnostics/23H30-coregraphics-load-commands.txt
+
+            python3 research/scripts/compare_coregraphics_functions.py \
+              --target-binary "$old_binary" \
+              --fixed-binary "$fixed_binary" \
+              --target-load-commands diagnostics/23H24-coregraphics-load-commands.txt \
+              --fixed-load-commands diagnostics/23H30-coregraphics-load-commands.txt \
+              --output coregraphics-26-7-function-diff.json
+
+            python3 research/scripts/verify_coregraphics_constants.py \
+              --binary "$fixed_binary" \
+              --load-commands diagnostics/23H30-coregraphics-load-commands.txt \
+              --function-diff coregraphics-26-7-function-diff.json \
+              --output coregraphics-26-7-constant-validation.json
+
+            python3 research/scripts/analyze_coregraphics_conversion_cfg.py \
+              --function-diff coregraphics-26-7-function-diff.json \
+              --output coregraphics-26-7-conversion-cfg-audit.json
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/direct-23H24-to-23H30-comparison.log
+
       - name: Upload diagnostic logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -197,10 +299,14 @@ jobs:
             coregraphics-function-diff.json
             coregraphics-constant-validation.json
             coregraphics-conversion-cfg-audit.json
+            coregraphics-26-7-patch-comparison.json
+            coregraphics-26-7-function-diff.json
+            coregraphics-26-7-constant-validation.json
+            coregraphics-26-7-conversion-cfg-audit.json
           if-no-files-found: error
 
       - name: Remove downloaded firmware and extracted binaries
         if: always()
         shell: bash
         run: |
-          rm -rf out coregraphics-comparison-components fixed-23H30-iPhone17,4.aea
+          rm -rf out coregraphics-comparison-components coregraphics-26-7-patch-comparison-components fixed-23H30-iPhone17,4.aea ios-26.7-23H24-iPhone17,4.aea
