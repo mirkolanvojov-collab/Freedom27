@@ -16,7 +16,7 @@ class CoreGraphicsFunctionComparisonTests(unittest.TestCase):
     def test_address_preserved_symbols_include_conversion_and_caller_trace(self):
         from research.scripts.compare_coregraphics_functions import ADDRESS_PRESERVED_SYMBOLS
         for symbol in (
-            "_aa_add_edges", "_aa_lineto", "_aa_moveto", "_aa_path_iterate",
+            "_aa_add_edges", "_aa_new_edge", "_aa_lineto", "_aa_moveto", "_aa_path_iterate",
             "_aa_path_begin", "_aa_create", "_aa_render_shape",
         ):
             with self.subTest(symbol=symbol):
