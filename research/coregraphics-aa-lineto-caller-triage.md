@@ -56,3 +56,21 @@ The successful read-only comparison artifact from [workflow run 160](https://git
 This is a concrete static difference consistent with additional non-finite-value handling and clamping in the fixed reference's `_aa_lineto`. It is not, by itself, proof that this change is the fix for CVE-2026-86950, nor that the target path is reachable with attacker-controlled NaN or out-of-range coordinates. The CFG tool does not establish register/flag data flow, loop invariants, pointer validity, allocation bounds, or semantic equivalence of the constants after relocation.
 
 Next checks should establish (1) how `_aa_lineto` obtains its coordinate values and context, (2) whether those values can be influenced by an untrusted document or image through a supported parser/API path, (3) how the conversion results flow into `_aa_add_edges` and its count/index/allocation invariants, and (4) whether the changed fixed-reference instructions are attributable to the cited CVE using a primary Apple advisory or patch source. Until those are established, record this as a high-priority static lead, not a confirmed vulnerability or exploit chain.
+
+
+## Follow-up: bounded caller disassembly from workflow run 169
+
+The newer successful comparison run [169](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40240737732) captured symbol-scoped disassembly for `_aa_path_iterate`, `_RIPRenderRectangles`, `_ripr_path_fill`, and `_ripr_stroke_iterate` in both builds, plus a small target-side window at the recorded private call site. All eight symbol captures reported success, and the local window was captured. The absolute address `0x1846952c4` did resolve in this extracted target Mach-O: the window shows the epilogue guard followed by a branch at `0x1846952e4` to `_aa_lineto`. This validates that particular capture, but the address remains build-specific and must not be reused for another binary without resolving its image mapping.
+
+### Confirmed call-site patterns
+
+- Target `_ripr_path_fill` at `0x1843171a4` loads two doubles from the path-data pointer (`ldp d0, d1, [x8]`), narrows them to single precision (`fcvt s0, d0`, `fcvt s1, d1`), then tail-branches to `_aa_lineto` at `0x1843171b0`. The fixed reference shows the same instruction pattern at relocated addresses `0x18433e678`–`0x18433e684`.
+- Target `_ripr_stroke_iterate` similarly loads two doubles from `[x2]`, narrows them to single precision, and branches to `_aa_lineto` at `0x18433d95c`; the fixed reference has the same pattern at `0x184364e24`–`0x184364e3c`.
+- Target `_RIPRenderRectangles` has direct calls to `_aa_lineto`, including `0x1842fc91c`, after arithmetic on coordinates and float narrowing. The fixed reference contains corresponding call sites at `0x18432391c` and nearby offsets.
+- In target `_aa_path_iterate`, the confirmed tail branch at `0x184694f4c` follows transform and ordered SIMD bound comparisons/selects; the fixed reference has the corresponding branch at `0x1846bc514`. This is consistent with the previously observed matching normalized `_aa_path_iterate` body.
+
+### What this narrows—and what it does not
+
+The captured call sites support that multiple internal path/rendering routes pass coordinates into `_aa_lineto`, and the sampled caller instruction patterns are substantially alike across the target and fixed builds. The strongest observed target/fixed difference remains inside `_aa_lineto` itself, where the conversion/clamp logic differs. The caller excerpts do not establish that any particular input is untrusted, that NaN or extreme values survive all upstream processing, or that the downstream edge builder violates a memory-safety invariant.
+
+Next, trace the path-data pointer and command-count/length validation back to the public document or image parsing entry points, then inspect the complete `_aa_add_edges` implementation and its allocation/count checks. Keep all conclusions static and evidence-scoped until those links are established.
