@@ -29,3 +29,14 @@ The prior research note said the target-device 23H24 image/OTA was still unverif
 ## Safety and interpretation
 
 All planned analysis is static and read-only. Do not execute exploit code or modify a device. A valid firmware match and changed instructions are evidence leads, not proof of exploitability.
+
+## Repository automation update — 2026-10-26
+
+The CoreGraphics comparison workflow now has a separate direct 23H24-to-23H30 lane while retaining the existing 23G83-to-23H30 baseline. It resolves the 23H24 OTA URL from live `ipsw` metadata, rejects URLs whose hostname is not exactly `updates.cdn-apple.com`, verifies the published package size, computes and logs the downloaded file's SHA-256, extracts the 23H24 dyld cache with the published key, and emits separate binary/function/constant/CFG artifacts. The binary comparison helper now accepts explicit build/device labels so the report cannot silently label the 23H24 cache as 23G83.
+
+- Workflow change commit: `5f1258ac569efe8bd7b7b6b39e431e83a62a3606`
+- Comparison run for that commit: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40340793267
+- Build-label parameterization fix: `f03d9c5170e4ebae374dab5b4219c979850673da`
+- Tests for the latest script fix: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40340852177
+
+The first test attempt exposed a syntax error in the new helper edit; it was corrected in `f03d9c5`. The new test run was still in progress at the time of this note, and the macOS comparison run remained queued. Therefore, the workflow design is committed but the new end-to-end comparison is **not yet verified successful**.
