@@ -71,7 +71,7 @@ jobs:
           {
             echo "stage=fixed_ota_download_and_verification"
             echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            curl --fail --location --show-error --retry 5 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
+            curl --fail --location --show-error --continue-at - --retry 10 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
             actual_size="$(stat -f '%z' "$ota_file")"
             echo "download_size_bytes=$actual_size"
             test "$actual_size" -eq 8724152320
@@ -121,7 +121,7 @@ jobs:
           PY
             ota_url="$(cat ios-26.7-23H24-ota-url.txt)"
             ota_file="$PWD/ios-26.7-23H24-iPhone17,4.aea"
-            curl --fail --location --show-error --retry 5 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
+            curl --fail --location --show-error --continue-at - --retry 10 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
             actual_size="$(stat -f '%z' "$ota_file")"
             echo "download_size_bytes=$actual_size"
             test "$actual_size" -eq 8724152320
