@@ -36,6 +36,29 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         conversion = report["conversions"][0]
         self.assertFalse(conversion["structural_nan_guard_in_dominators"])
 
+    def test_vector_fcvtzs_followed_by_xtn_reports_narrowing(self):
+        records = [
+            {"address": "0x3500", "instruction": "fmla v0.2d, v17.2d, v1.2d"},
+            {"address": "0x3504", "instruction": "fcvtzs v0.2d, v0.2d"},
+            {"address": "0x3508", "instruction": "xtn v0.2s, v0.2d"},
+            {"address": "0x350c", "instruction": "str d0, [sp, #0x38]"},
+            {"address": "0x3510", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_lineto", "target", records)["conversions"][0]
+        self.assertTrue(conversion["followed_by_same_register_xtn_2d_to_2s"])
+        self.assertEqual(conversion["narrowing_address"], "0x3508")
+        self.assertIn("low 32 bits", conversion["narrowing_semantics_note"])
+
+    def test_scalar_conversion_is_not_misclassified_as_vector_narrowing(self):
+        records = [
+            {"address": "0x3600", "instruction": "fcvtzs w9, d1"},
+            {"address": "0x3604", "instruction": "csel w8, w8, w9, gt"},
+            {"address": "0x3608", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_lineto", "fixed", records)["conversions"][0]
+        self.assertFalse(conversion["followed_by_same_register_xtn_2d_to_2s"])
+        self.assertIsNone(conversion["narrowing_address"])
+
     def test_unresolved_indirect_branch_is_reported(self):
         records = [
             {"address": "0x3000", "instruction": "br x9"},
