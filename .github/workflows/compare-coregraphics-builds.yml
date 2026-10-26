@@ -28,9 +28,11 @@ on:
 permissions:
   contents: read
 
+# Keep only the newest PR comparison active. Older runs use large firmware downloads
+# and can otherwise leave stale pending work competing with the current commit.
 concurrency:
   group: coregraphics-build-comparison-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   compare:
