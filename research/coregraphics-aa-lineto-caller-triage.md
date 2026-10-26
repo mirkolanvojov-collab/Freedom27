@@ -74,3 +74,15 @@ The newer successful comparison run [169](https://github.com/mirkolanvojov-colla
 The captured call sites support that multiple internal path/rendering routes pass coordinates into `_aa_lineto`, and the sampled caller instruction patterns are substantially alike across the target and fixed builds. The strongest observed target/fixed difference remains inside `_aa_lineto` itself, where the conversion/clamp logic differs. The caller excerpts do not establish that any particular input is untrusted, that NaN or extreme values survive all upstream processing, or that the downstream edge builder violates a memory-safety invariant.
 
 Next, trace the path-data pointer and command-count/length validation back to the public document or image parsing entry points, then inspect the complete `_aa_add_edges` implementation and its allocation/count checks. Keep all conclusions static and evidence-scoped until those links are established.
+
+
+## Follow-up: `_aa_add_edges` contract and target/reference parity
+
+The same run 169 comparison reports `_aa_add_edges` as 138 instructions in both binaries with identical normalized instruction streams. Its captured instruction flow provides several useful checks:
+
+- It returns early when the supplied count in `x2` is zero.
+- For a nonzero count, it loads the pair of 32-bit values at the supplied coordinate pointer, advances that pointer by eight bytes per iteration, and decrements the remaining count until zero.
+- It calls `_aa_new_edge` and checks the returned pointer for null before writing edge fields. This is evidence of an allocation-failure check, not a complete proof of all allocation invariants.
+- In the target `_aa_lineto` conversion path, the shown sequence stores the packed converted coordinate pair to a stack slot, sets `x2 = 1`, passes that stack address as `x1`, and calls `_aa_add_edges`. At the instruction level, this is consistent with one two-coordinate record being supplied to a one-item loop.
+
+No immediate target/reference divergence was found in `_aa_add_edges`, and the visible count/pointer sequence does not by itself establish an out-of-bounds condition. Remaining uncertainty is concentrated upstream: whether the floating-point values can reach the differing `_aa_lineto` conversion with non-finite or extreme values, and what upstream API/parser constraints apply. A full proof would still require validating the relevant structure layout, count provenance, all `_aa_new_edge` allocation paths, and the source of the path records.
