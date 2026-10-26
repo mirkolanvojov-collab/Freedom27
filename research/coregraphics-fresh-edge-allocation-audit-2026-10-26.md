@@ -35,7 +35,7 @@ The target and reference normalized instruction streams are identical (138 instr
 - `stp w21, w26, [x0, #0x10]` or the reversed-endpoint variant
 - `stp w22, w28, [x0, #0x18]` or the reversed-endpoint variant
 
-The highest directly observed byte written here is offset `0x2f), within a `0x60)-byte stride if the record pointer and allocation layout are as inferred. The instruction stream alone does not prove the backing allocation remains valid in all states.
+The highest directly observed byte written here is offset `0x2f`, within a `0x60`-byte stride if the record pointer and allocation layout are as inferred. The instruction stream alone does not prove the backing allocation remains valid in all states.
 
 ### `_aa_lineto` conversion path
 
