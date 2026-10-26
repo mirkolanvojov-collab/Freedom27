@@ -64,7 +64,15 @@ def extract(cache: Path, out_dir: Path) -> Path:
     return find_coregraphics(out_dir)
 
 
-def compare(\n    target_cache: Path,\n    fixed_cache: Path,\n    output: Path,\n    target_build: str = "23G83",\n    fixed_build: str = "23H30",\n    target_device: str = "iPhone17,4",\n    fixed_device: str = "iPhone17,4",\n) -> dict[str, object]:
+def compare(
+    target_cache: Path,
+    fixed_cache: Path,
+    output: Path,
+    target_build: str = "23G83",
+    fixed_build: str = "23H30",
+    target_device: str = "iPhone17,4",
+    fixed_device: str = "iPhone17,4",
+) -> dict[str, object]:
     work = output.parent / (output.stem + "-components")
     target_binary = extract(target_cache, work / "target")
     fixed_binary = extract(fixed_cache, work / "fixed")
@@ -97,9 +105,16 @@ def main() -> int:
     parser.add_argument("--target-cache", type=Path, required=True, help="dyld_shared_cache for target build 23G83")
     parser.add_argument("--fixed-cache", type=Path, required=True, help="dyld_shared_cache for fixed reference build 23H30")
     parser.add_argument("--output", type=Path, default=Path("coregraphics-comparison.json"))
+    parser.add_argument("--target-build", default="23G83", help="build label for the target cache")
+    parser.add_argument("--fixed-build", default="23H30", help="build label for the reference cache")
+    parser.add_argument("--target-device", default="iPhone17,4", help="product identifier for the target cache")
+    parser.add_argument("--fixed-device", default="iPhone17,4", help="product identifier for the reference cache")
     args = parser.parse_args()
     try:
-        report = compare(args.target_cache, args.fixed_cache, args.output)
+        report = compare(
+            args.target_cache, args.fixed_cache, args.output,
+            args.target_build, args.fixed_build, args.target_device, args.fixed_device,
+        )
     except (OSError, RuntimeError, subprocess.CalledProcessError) as exc:
         print(f"comparison failed: {exc}", file=sys.stderr)
         return 2
