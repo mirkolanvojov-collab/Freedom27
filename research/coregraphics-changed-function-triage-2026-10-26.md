@@ -54,6 +54,22 @@ The preserved artifact records the following nine position-wise differences (ins
 
 This narrows the next check: resolve the two indirect-call slots and the two repeated `0xc30`/`0xc58` loads against the exact shared-cache metadata, then compare the bytes behind the `__const` reference. Until that is done, the safest conclusion is **same function length, nine normalized differences of unresolved semantic significance**—not “relocation-only” and not “changed allocation logic.”
 
+## Conversion-path evidence from the saved disassembly
+
+The run-169 JSON includes addressed instructions for these conversion candidates. Addresses are build-specific shared-cache virtual addresses and must not be reused as cross-build identities.
+
+### `_aa_moveto`
+
+- **Target build:** `fcvtzs w8, d0` at `0x18430a6f0`, then `fcvtzs w9, d0` at `0x18430a6f8`; the results are stored at context offsets `0x18/0x10` at `0x18430a6fc` and `0x18430a700`. The reviewed target sequence has no preceding NaN self-compare or clamp-constant load in this conversion window.
+- **Fixed reference:** one path at `0x1843316ec` computes a converted coordinate, checks `fcmp d0, d0` and branches on `b.vs` at `0x1843316f0–0x1843316f8`, then loads the lower clamp constant at context-relative code `0x1843316fc` (`ldr d3, [x8, #0x6f8]`), checks range, and reaches `fcvtzs w9, d0` at `0x18433172c` only after those checks. The second coordinate has the same broad pattern around `0x184331740–0x184331778`.
+
+### `_aa_lineto`
+
+- **Target build:** the direct path loads transform values at `0x18430ac00`, performs vector multiply-add at `0x18430acc4`, then `fcvtzs v0.2d, v0.2d` at `0x18430acc8` and `xtn v0.2s, v0.2d` at `0x18430accc` before storing the packed result.
+- **Fixed reference:** the reviewed non-clipping paths include NaN self-checks and range-constant loads before scalar conversions, e.g. `fcmp d1, d1` / `b.vs` at `0x184331d20–0x184331d24`, lower-bound load at `0x184331d2c`, and a scalar conversion at `0x184331d80`; a second coordinate is guarded around `0x184331d94–0x184331de4`. The function has distinct branches, including a clipping path, so this evidence must not be generalized to every path.
+
+These instructions strengthen the local correspondence to the public patch hypothesis, but they do not alone prove which input reaches each path, the exact runtime context flags, or an out-of-bounds write. The local target is 26.6.1, whereas the public analysis describes the 26.7-to-26.7.1 patch interval.
+
 ## Recommended order
 
 1. Reconcile `_aa_lineto` and `_aa_moveto` conversion behavior with the public analysis at the instruction level.
