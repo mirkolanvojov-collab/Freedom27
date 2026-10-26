@@ -112,14 +112,34 @@ jobs:
             python3 - <<'PY'
           from pathlib import Path
           from urllib.parse import urlparse
+          import subprocess
+
           lines = [line.strip() for line in Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").read_text().splitlines() if line.strip()]
           urls = [line for line in lines if line.startswith("https://") and urlparse(line).hostname == "updates.cdn-apple.com"]
           if not urls:
+              # Apple may stop listing an older full OTA in current live metadata.
+              # Fall back to a catalog redirect, then accept only the final Apple CDN URL.
+              resolver = "https://api.applesn.info/v4/ota/download/iPhone17%2C4/23H24"
+              result = subprocess.run(
+                  ["curl", "--fail", "--location", "--silent", "--show-error",
+                   "--output", "/dev/null", "--write-out", "%{url_effective}", resolver],
+                  check=False, capture_output=True, text=True, timeout=90,
+              )
+              candidate = result.stdout.strip()
+              if result.returncode == 0 and urlparse(candidate).scheme == "https" and urlparse(candidate).hostname == "updates.cdn-apple.com":
+                  urls = [candidate]
+                  Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").write_text(
+                      Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").read_text()
+                      + "\nresolver_source=" + resolver + "\nresolved_apple_cdn_url=" + candidate + "\n",
+                      encoding="utf-8",
+                  )
+                  print(f"fallback_catalog_resolved_apple_cdn_url={candidate}")
+          if not urls:
               Path("ios-26.7-23H24-ota-unavailable.txt").write_text(
-                  "No matching public OTA URL was returned by live Apple metadata for iPhone17,4 build 23H24.\n",
+                  "Neither live ipsw metadata nor the catalog redirect resolved an Apple CDN URL for iPhone17,4 build 23H24.\n",
                   encoding="utf-8",
               )
-              print("direct_patch_attribution_status=unavailable_no_live_ota_record")
+              print("direct_patch_attribution_status=unavailable_no_verified_apple_cdn_url")
               raise SystemExit(0)
           Path("ios-26.7-23H24-ota-url.txt").write_text(urls[0] + "\n", encoding="utf-8")
           print(f"validated_apple_cdn_url={urls[0]}")
