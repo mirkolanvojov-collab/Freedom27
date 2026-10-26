@@ -108,7 +108,7 @@ jobs:
             echo "stage=resolve_23H24_ota"
             echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             # Resolve the direct URL from live OTA metadata; never synthesize an Apple CDN path.
-            docker run --rm blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H24 --urls | tee diagnostics/ios-26.7-23H24-ota-metadata.txt
+            ipsw download ota --platform ios --device iPhone17,4 --build 23H24 --urls | tee diagnostics/ios-26.7-23H24-ota-metadata.txt
             python3 - <<'PY'
           from pathlib import Path
           from urllib.parse import urlparse
