@@ -1,8 +1,9 @@
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
-from research.scripts.compare_coregraphics import binary_record, find_coregraphics, sha256_file
+from research.scripts.compare_coregraphics import binary_record, compare, find_coregraphics, sha256_file
 
 
 class CoreGraphicsComparisonToolTests(unittest.TestCase):
@@ -24,6 +25,33 @@ class CoreGraphicsComparisonToolTests(unittest.TestCase):
             (root / "nested" / "CoreGraphics").write_bytes(b"binary")
             with self.assertRaises(RuntimeError):
                 find_coregraphics(root)
+
+    @patch("research.scripts.compare_coregraphics.extract")
+    def test_compare_records_explicit_build_and_device_labels(self, mocked_extract):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target_cache = root / "target-cache"
+            fixed_cache = root / "fixed-cache"
+            target_cache.write_bytes(b"cache")
+            fixed_cache.write_bytes(b"cache")
+            target_binary = root / "target-CoreGraphics"
+            fixed_binary = root / "fixed-CoreGraphics"
+            target_binary.write_bytes(b"target")
+            fixed_binary.write_bytes(b"fixed")
+            mocked_extract.side_effect = [target_binary, fixed_binary]
+            output = root / "comparison.json"
+
+            report = compare(
+                target_cache, fixed_cache, output,
+                target_build="23H24", fixed_build="23H30",
+                target_device="iPhone17,4", fixed_device="iPhone17,4",
+            )
+
+            self.assertEqual(report["target"]["build"], "23H24")
+            self.assertEqual(report["fixed_reference"]["build"], "23H30")
+            self.assertEqual(report["target"]["device"], "iPhone17,4")
+            self.assertEqual(report["fixed_reference"]["device"], "iPhone17,4")
+            self.assertTrue(output.is_file())
 
     def test_binary_record_reports_size_and_digest(self):
         with tempfile.TemporaryDirectory() as tmp:
