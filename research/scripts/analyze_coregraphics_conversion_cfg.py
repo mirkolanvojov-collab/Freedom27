@@ -168,8 +168,8 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
         path_guard_coverage = (not bypass_reachable) if i in reachable else False
         next_record = records[i + 1] if i + 1 < len(records) else None
         next_text = next_record["instruction"].strip() if next_record else ""
-        vector_narrow = re.match(r"^xtn\\s+v(\\d+)\\.2s,\\s*v(\\d+)\\.2d$", next_text)
-        source_vector = re.match(r"^fcvtzs\\s+v(\\d+)\\.2d,\\s*v(\\d+)\\.2d$", text)
+        vector_narrow = re.match(r"^xtn\s+v(\d+)\.2s,\s*v(\d+)\.2d$", next_text)
+        source_vector = re.match(r"^fcvtzs\s+v(\d+)\.2d,\s*v(\d+)\.2d$", text)
         narrows_64_to_32 = bool(
             vector_narrow and source_vector
             and vector_narrow.group(1) == source_vector.group(1)
