@@ -115,10 +115,19 @@ jobs:
           lines = [line.strip() for line in Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").read_text().splitlines() if line.strip()]
           urls = [line for line in lines if line.startswith("https://") and urlparse(line).hostname == "updates.cdn-apple.com"]
           if not urls:
-              raise SystemExit("No direct Apple CDN URL resolved for iPhone17,4 build 23H24; refusing to guess a URL.")
+              Path("ios-26.7-23H24-ota-unavailable.txt").write_text(
+                  "No matching public OTA URL was returned by live Apple metadata for iPhone17,4 build 23H24.\n",
+                  encoding="utf-8",
+              )
+              print("direct_patch_attribution_status=unavailable_no_live_ota_record")
+              raise SystemExit(0)
           Path("ios-26.7-23H24-ota-url.txt").write_text(urls[0] + "\n", encoding="utf-8")
           print(f"validated_apple_cdn_url={urls[0]}")
           PY
+            if [ ! -f ios-26.7-23H24-ota-url.txt ]; then
+              echo "Skipping optional 23H24 direct patch-attribution comparison; primary 23G83-to-23H30 comparison can continue."
+              exit 0
+            fi
             ota_url="$(cat ios-26.7-23H24-ota-url.txt)"
             ota_file="$PWD/ios-26.7-23H24-iPhone17,4.aea"
             curl --fail --location --show-error --continue-at - --retry 10 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
@@ -137,6 +146,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out/26.7-cache diagnostics
+          if [ ! -f ios-26.7-23H24-iPhone17,4.aea ]; then
+            echo "Skipping 23H24 dyld extraction: the optional OTA was unavailable from live metadata."
+            exit 0
+          fi
           ota_file="$PWD/ios-26.7-23H24-iPhone17,4.aea"
           {
             echo "stage=extract_23H24_dyld_cache"
@@ -237,6 +250,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p diagnostics
+          if [ ! -f out/26.7-cache/23H24__iPhone17,4/System/Library/Caches/com.apple.dyld/dyld_shared_cache_arm64e ] && [ -z "$(find out/26.7-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit 2>/dev/null)" ]; then
+            echo "Skipping optional direct 23H24-to-23H30 comparison: the 23H24 dyld cache is unavailable."
+            exit 0
+          fi
           {
             echo "stage=direct_23H24_to_23H30_coregraphics_comparison"
             echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
