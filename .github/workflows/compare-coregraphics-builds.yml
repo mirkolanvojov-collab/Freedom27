@@ -237,6 +237,22 @@ jobs:
                 fi
               done
             done
+
+            # Capture bounded public-API candidate bodies to help trace the
+            # provenance of path elements into the rasterization callbacks.
+            # Symbol presence/body alone does not prove a call edge or reachability.
+            for side in target fixed; do
+              if [ "$side" = target ]; then binary="$target_binary"; else binary="$fixed_binary"; fi
+              for symbol in _CGPathAddLineToPoint _CGPathCreateWithData _CGPathApply _CGContextAddLineToPoint _CGContextStrokePath _CGContextFillPath; do
+                report="diagnostics/${side}-api-candidate-${symbol#_}.txt"
+                if ipsw macho disass --force --symbol "$symbol" "$binary" > "$report" 2>&1; then
+                  echo "api_candidate_disassembly_status=success side=$side symbol=$symbol"
+                else
+                  echo "api_candidate_disassembly_status=unavailable side=$side symbol=$symbol"
+                fi
+              done
+            done
+
             # The local/private _process_path_element.15286 name is absent from
             # the Mach-O symbol table; capture a small target-side window around
             # the recorded callsite without assuming it is a stable symbol.
