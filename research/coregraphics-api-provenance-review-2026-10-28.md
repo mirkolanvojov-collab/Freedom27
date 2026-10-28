@@ -61,3 +61,28 @@ The draw-path dispatcher’s block setup and `_draw_path` call are visible, but 
 **Next capture added:** the workflow will now attempt bounded disassembly of `_path_coordinates_are_safe`, `_draw_path`, and `___CGContextDrawPath_block_invoke` in both builds. Successful capture will be treated as evidence only; call relationships and guard semantics must be read from the instructions. The caller-xref scan remains deferred, as recorded in the workflow log.
 
 **Assessment:** a concrete pre-draw safety gate exists in both versions, and direct path-point insertion has bounds-selection logic. The unresolved questions are what coordinate classes the helper accepts, whether decoded points pass through equivalent validation, and which callback path feeds the changed rasterization conversion. No binary or crafted file was executed, and no device was accessed or modified.
+
+
+## Safety-helper and callback captures (workflow run 40740516479)
+
+The updated read-only workflow [40740516479](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40740516479) completed successfully on commit `a040f0d807c5acfa115866dca1101a6d8c86012c`; the associated test workflow [40740517208](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40740517208) passed. The diagnostic artifact now contains bounded disassembly for `_path_coordinates_are_safe`, `_draw_path`, `___CGContextDrawPath_block_invoke`, both `___draw_path_block_invoke` callbacks, and the adaptive/automatic context draw-path functions in both builds. The internal add-line C++ symbol candidate was unavailable under the exact mangled spelling used by the capture loop; that individual capture needs its symbol spelling corrected or its alternate symbol name resolved.
+
+### What the safety helper checks
+
+In both 23G83 and 23H30, `_path_coordinates_are_safe` calls `_CGPathGetBoundingBox`, takes absolute values of the returned rectangle's origin coordinates, compares them with a loaded threshold, rejects negative width/height, checks width/height against the same threshold, then checks the absolute values of the two far-edge sums. The helper returns a boolean-like result. The target and fixed bodies have the same observed instruction-level control-flow structure, with relocated addresses and different constant-pool locations. This is a real bounding-box gate in both builds, but this comparison does not show a new guard added to this helper in 23H30.
+
+A numeric caveat remains: the observed floating-point branches use ordered-condition tests such as `b.gt` and `b.mi`, rather than an explicit unordered/NaN rejection branch. On ARM64, an unordered `FCMP` does not satisfy those conditions. The final `fmaxnm` ignores one NaN operand when the other operand is numeric, so the instruction sequence alone does not prove that every rectangle containing a NaN is rejected. This is a static semantic observation, not a demonstrated reachable bypass: the behavior of `_CGPathGetBoundingBox`, path invariants, and all construction routes must be established before concluding that a NaN rectangle can reach this helper.
+
+### Callback/data-flow status
+
+`_draw_path` calls `_CGPathApplyWithBlock2` with a block whose implementation is captured as `___draw_path_block_invoke`; a second callback, `___draw_path_block_invoke_2`, handles a path-element case that reads a point pair and appends it to temporary path storage, with batching into `_CGPathAddLines` once the stored point count reaches its threshold. The corresponding target and fixed callback bodies have highly similar visible control flow. These captures strengthen the evidence that draw-path callback logic iterates and copies path elements, but do not by themselves prove the callback ultimately reaches `_ripr_path_fill` or the differing `_aa_lineto` conversion.
+
+The new artifact confirms successful disassembly for the safety helper and callback candidates in both builds. Shared-cache cross-reference analysis remains deferred (`caller_xref_status=deferred_experimental_shared_cache_scan`), so the end-to-end caller chain remains unresolved. The comparison and tests passing validate the research workflow, not a vulnerability.
+
+### Next technical gate
+
+1. Resolve the correct mangled symbol (or alternate symbol-table entry) for `CG::Path::add_line_to_point` and capture it in both builds.
+2. Trace the captured callback into the context draw-path backend and establish whether it reaches `_ripr_path_fill` / `_aa_path_iterate`, using bounded caller/xref analysis rather than symbol-name inference.
+3. Verify how `_CGPathGetBoundingBox` handles non-finite coordinates and whether all decoded/constructed points are constrained before this gate.
+
+No binaries or crafted inputs were executed, no device was accessed or modified, and CVE-2026-86950 remains unconfirmed by this static review.
