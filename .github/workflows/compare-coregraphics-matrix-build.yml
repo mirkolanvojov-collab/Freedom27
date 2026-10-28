@@ -1,0 +1,210 @@
+name: Compare additional iPhone 16 Plus CoreGraphics builds
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_build:
+        description: iPhone17,4 build to compare with the 23H30 reference
+        type: choice
+        required: true
+        default: 23H128
+        options:
+          - 23H128
+          - 24B119
+          - 24A446
+          - 23G90
+          - 24A437
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coregraphics-matrix-${{ inputs.target_build || '23H128' }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: macos-15-intel
+    timeout-minutes: 150
+    env:
+      TARGET_BUILD: ${{ inputs.target_build || '23H128' }}
+      FIXED_BUILD: 23H30
+      DEVICE: iPhone17,4
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install ipsw
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew trust --formula blacktop/tap/ipsw-frida
+          brew install blacktop/tap/ipsw
+          ipsw version
+
+      - name: Resolve target-device restore image from firmware catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics out/target
+          ipsw download ipsw --device "$DEVICE" --build "$TARGET_BUILD" --urls 2>&1 | tee diagnostics/target-ipsw-metadata.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          lines = Path("diagnostics/target-ipsw-metadata.txt").read_text(encoding="utf-8").splitlines()
+          urls = []
+          for line in lines:
+              for token in line.split():
+                  candidate = token.strip("(),'\"")
+                  parsed = urlparse(candidate)
+                  if parsed.scheme == "https" and parsed.hostname == "updates.cdn-apple.com" and candidate.endswith(".ipsw"):
+                      urls.append(candidate)
+          if not urls:
+              raise SystemExit("No verified Apple CDN restore URL was returned for the selected device/build; refusing to guess a URL.")
+          url = urls[0]
+          Path("target-ipsw-url.txt").write_text(url + "\n", encoding="utf-8")
+          print(f"validated_target_restore_url={url}")
+          PY
+
+      - name: Extract selected target dyld cache remotely
+        shell: bash
+        timeout-minutes: 35
+        run: |
+          set -euo pipefail
+          target_url="$(cat target-ipsw-url.txt)"
+          {
+            echo "stage=target_dyld_extraction"
+            echo "device=$DEVICE"
+            echo "build=$TARGET_BUILD"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            ipsw extract --dyld --dyld-arch arm64e --device "$DEVICE" --remote --output out/target "$target_url"
+            find out/target -type f -name 'dyld_shared_cache_arm64e' -print
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/target-extraction.log
+          test -n "$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+
+      - name: Download and verify fixed reference OTA
+        shell: bash
+        timeout-minutes: 50
+        run: |
+          set -euo pipefail
+          ota_url='https://updates.cdn-apple.com/2026FallFCS/5ef51a7b-0f58-4585-8cdf-14afa18e9622/com_apple_MobileAsset_SoftwareUpdate/818080afd3f2204f9cf3c8da075752ee6e05c420554a0b076e7c9f5d2378d203.aea'
+          ota_file="$PWD/fixed-23H30-iPhone17,4.aea"
+          {
+            echo "stage=fixed_ota_download_and_verification"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            curl --fail --location --show-error --continue-at - --retry 10 --retry-all-errors --connect-timeout 30 --max-time 2700 --output "$ota_file" "$ota_url"
+            actual_size="$(stat -f '%z' "$ota_file")"
+            echo "download_size_bytes=$actual_size"
+            test "$actual_size" -eq 8724152320
+            actual_sha256="$(shasum -a 256 "$ota_file" | awk '{print $1}')"
+            echo "download_sha256=$actual_sha256"
+            test "$actual_sha256" = '0078dc02b647fbc5c6efb8fd4e3fe0fc79d02af5f798f2e7981e069bd6987d92'
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/fixed-ota-download.log
+
+      - name: Extract fixed reference dyld cache
+        shell: bash
+        timeout-minutes: 25
+        run: |
+          set -euo pipefail
+          mkdir -p out/fixed-cache
+          ota_file="$PWD/fixed-23H30-iPhone17,4.aea"
+          {
+            echo "stage=fixed_ota_dyld_extraction"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            ipsw ota extract --key-val 'YSWzwfZFdAFfs7gP222NfRfnN9lb1riyeL3bzwMlkEs=' "$ota_file" --dyld --dyld-arch arm64e --output out/fixed-cache --json > out/fixed-ota-extraction.json
+            cat out/fixed-ota-extraction.json
+            find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/fixed-extraction.log
+          test -n "$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+
+      - name: Compare CoreGraphics metadata and symbol-scoped instruction streams
+        shell: bash
+        timeout-minutes: 30
+        run: |
+          set -euo pipefail
+          target_cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          fixed_cache="$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$target_cache"
+          test -n "$fixed_cache"
+
+          python3 research/scripts/compare_coregraphics.py \
+            --target-cache "$target_cache" \
+            --fixed-cache "$fixed_cache" \
+            --target-build "$TARGET_BUILD" \
+            --fixed-build "$FIXED_BUILD" \
+            --target-device "$DEVICE" \
+            --fixed-device "$DEVICE" \
+            --output "coregraphics-$TARGET_BUILD-comparison.json"
+
+          target_binary="coregraphics-$TARGET_BUILD-comparison-components/target/CoreGraphics"
+          fixed_binary="coregraphics-$TARGET_BUILD-comparison-components/fixed/CoreGraphics"
+          test -f "$target_binary"
+          test -f "$fixed_binary"
+          ipsw macho info --symbols "$target_binary" > diagnostics/target-coregraphics-symbols.txt
+          ipsw macho info --symbols "$fixed_binary" > diagnostics/fixed-coregraphics-symbols.txt
+          otool -l "$target_binary" > diagnostics/target-coregraphics-load-commands.txt
+          otool -l "$fixed_binary" > diagnostics/fixed-coregraphics-load-commands.txt
+
+          python3 research/scripts/compare_coregraphics_functions.py \
+            --target-binary "$target_binary" \
+            --fixed-binary "$fixed_binary" \
+            --target-load-commands diagnostics/target-coregraphics-load-commands.txt \
+            --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+            --output "coregraphics-$TARGET_BUILD-function-diff.json"
+
+          python3 research/scripts/verify_coregraphics_constants.py \
+            --binary "$fixed_binary" \
+            --load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+            --function-diff "coregraphics-$TARGET_BUILD-function-diff.json" \
+            --output "coregraphics-$TARGET_BUILD-constant-validation.json"
+
+          python3 research/scripts/analyze_coregraphics_conversion_cfg.py \
+            --function-diff "coregraphics-$TARGET_BUILD-function-diff.json" \
+            --output "coregraphics-$TARGET_BUILD-conversion-cfg-audit.json"
+
+          for side in target fixed; do
+            if [ "$side" = target ]; then binary="$target_binary"; else binary="$fixed_binary"; fi
+            for symbol in _CGContextDrawPath _path_coordinates_are_safe _draw_path _ripc_DrawPath _RIPRenderPath _ripc_Render _ripr_path_fill _ripr_path_stroke; do
+              report="diagnostics/${side}-${symbol#_}.txt"
+              if ipsw macho disass --force --symbol "$symbol" "$binary" > "$report" 2>&1; then
+                echo "disassembly_status=success side=$side symbol=$symbol"
+              else
+                echo "disassembly_status=unavailable side=$side symbol=$symbol"
+              fi
+            done
+          done
+          echo "target_build=$TARGET_BUILD" | tee diagnostics/matrix-result.txt
+          echo "reference_build=$FIXED_BUILD" | tee -a diagnostics/matrix-result.txt
+          echo "device=$DEVICE" | tee -a diagnostics/matrix-result.txt
+          echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a diagnostics/matrix-result.txt
+
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coregraphics-matrix-${{ inputs.target_build || '23H128' }}-diagnostics
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload comparison evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coregraphics-matrix-${{ inputs.target_build || '23H128' }}-evidence
+          path: |
+            coregraphics-${{ inputs.target_build || '23H128' }}-comparison.json
+            coregraphics-${{ inputs.target_build || '23H128' }}-function-diff.json
+            coregraphics-${{ inputs.target_build || '23H128' }}-constant-validation.json
+            coregraphics-${{ inputs.target_build || '23H128' }}-conversion-cfg-audit.json
+          if-no-files-found: error
+
+      - name: Remove downloaded firmware and extracted binaries
+        if: always()
+        shell: bash
+        run: |
+          rm -rf out coregraphics-*-comparison-components fixed-23H30-iPhone17,4.aea target-ipsw-url.txt
