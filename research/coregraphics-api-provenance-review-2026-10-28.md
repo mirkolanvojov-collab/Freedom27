@@ -45,3 +45,19 @@ The best-supported static conclusion is now narrower: a direct public line-to-po
 Next, inspect `_CGContextDrawPath`, the relevant `CG::Path::apply`/element callback implementations, and the point-decoding helper with the same-build address/section mapping. Establish a supported call/data-flow chain into the saved `_ripr_path_fill` or `_aa_path_iterate` call sites, and compare numeric checks on that exact path. Do not infer a call graph from symbol names alone.
 
 The CVE-2026-86950 attribution remains unconfirmed at function level. No binary or crafted file was executed, no device was accessed or modified, and this review is not evidence of a reproduced out-of-bounds write or exploit.
+
+
+## Draw-path safety gate and internal path mutation (workflow run 40730463450)
+
+The expanded comparison workflow [40730463450](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40730463450) completed successfully on commit `1c5615160c6279504d8f325890b17af7138a185c`; the corresponding test workflow [40730463431](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40730463431) also passed.
+
+The new bounded disassembly provides two concrete control-flow observations:
+
+- In both target 23G83 and fixed 23H30, `_CGContextDrawPath` rejects a null context and validates a context type marker, checks whether the current path is empty, and then calls `_path_coordinates_are_safe` on the current path before proceeding to `_draw_path`. The return value controls whether drawing is skipped/cleaned up or continues. The helper is therefore a real pre-draw gate on this public context-drawing path, not merely a symbol inferred from its name.
+- The captured internal `CG::Path::add_line_to_point` body clamps a pair of coordinates against stored bounds using SIMD greater-than comparisons and bit-select operations before reserving path storage and writing the point pair. This supports a bounded internal path-mutation route for the observed direct API implementation. It does not prove that serialized decoding, every other path-construction route, or rasterizer inputs obey the same invariant.
+
+The draw-path dispatcher’s block setup and `_draw_path` call are visible, but this artifact does not include the body of `_path_coordinates_are_safe` or the block-invoke implementation. The `CG::Path::apply` implementation also uses an indirect block callback, so symbol presence alone does not establish a callback edge into `_ripr_path_fill` or `_aa_path_iterate`. Thus this run narrows the next audit to the safety helper and draw callback, but does not yet close the end-to-end data-flow question.
+
+**Next capture added:** the workflow will now attempt bounded disassembly of `_path_coordinates_are_safe`, `_draw_path`, and `___CGContextDrawPath_block_invoke` in both builds. Successful capture will be treated as evidence only; call relationships and guard semantics must be read from the instructions. The caller-xref scan remains deferred, as recorded in the workflow log.
+
+**Assessment:** a concrete pre-draw safety gate exists in both versions, and direct path-point insertion has bounds-selection logic. The unresolved questions are what coordinate classes the helper accepts, whether decoded points pass through equivalent validation, and which callback path feeds the changed rasterization conversion. No binary or crafted file was executed, and no device was accessed or modified.
