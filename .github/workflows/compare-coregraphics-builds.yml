@@ -241,9 +241,12 @@ jobs:
             # Capture bounded public-API candidate bodies to help trace the
             # provenance of path elements into the rasterization callbacks.
             # Symbol presence/body alone does not prove a call edge or reachability.
+            # Also capture the path callback, decoder, transform decoder, and
+            # internal add-line implementation to test the proposed data-flow
+            # chain. Successful disassembly is not proof of a call edge.
             for side in target fixed; do
               if [ "$side" = target ]; then binary="$target_binary"; else binary="$fixed_binary"; fi
-              for symbol in _CGPathAddLineToPoint _CGPathCreateWithData _CGPathApply _CGContextAddLineToPoint _CGContextStrokePath _CGContextFillPath; do
+              for symbol in _CGPathAddLineToPoint _CGPathCreateWithData _CGPathApply _CGContextAddLineToPoint _CGContextStrokePath _CGContextFillPath _CGContextDrawPath __ZNK2CG4Path5applyEU13block_pointerFv17CGPathElementTypePK7CGPointPbE __ZL14decode_CGPointP15DecodingContextP7CGPoint __ZL24decode_CGAffineTransformP15DecodingContextP17CGAffineTransform __ZN2CG4Path17add_line_to_pointERK7CGPointPK17CGAffineTransform; do
                 report="diagnostics/${side}-api-candidate-${symbol#_}.txt"
                 if ipsw macho disass --force --symbol "$symbol" "$binary" > "$report" 2>&1; then
                   echo "api_candidate_disassembly_status=success side=$side symbol=$symbol"
