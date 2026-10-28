@@ -86,3 +86,23 @@ The new artifact confirms successful disassembly for the safety helper and callb
 3. Verify how `_CGPathGetBoundingBox` handles non-finite coordinates and whether all decoded/constructed points are constrained before this gate.
 
 No binaries or crafted inputs were executed, no device was accessed or modified, and CVE-2026-86950 remains unconfirmed by this static review.
+
+
+## Corrected internal add-line capture verified (workflow run 40750705815)
+
+The corrected workflow run [40750705815](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40750705815) completed successfully on commit `9109310453cafc33ec58fb3abb770472d7dbb953`; the associated test workflow [40750706065](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40750706065) also passed. The diagnostic artifact reports successful disassembly of the corrected `__ZN2CG4Path17add_line_to_pointERK7CGPointPK17CGAffineTransform` symbol in both target 23G83 and fixed 23H30. This resolves the prior symbol-spelling/capture blocker.
+
+### Comparison of the captured internal method
+
+Both captured bodies are 3,459 characters in the diagnostic text and show the same instruction sequence after accounting for relocated addresses. The method optionally applies an affine transform to the input point, stores the point temporarily, handles path storage modes/capacity, uses SIMD greater-than comparisons and bit-selects against bounds stored in the path object, reserves storage, and writes the point pair. The target and fixed captures show no obvious new clamp/control-flow guard in this method in 23H30.
+
+This finding narrows the patch-localization lead: the visible internal add-line method does not, by itself, explain the changed `_aa_lineto` stream. It does not establish that all construction routes share this method or that every point reaching rasterization has these bounds. In particular, the current artifact does not prove the serialized decoder's points pass through this exact method, nor does it establish the callback-to-rasterizer edge.
+
+### Run verification details and remaining limits
+
+- The comparison job and all listed steps completed successfully, including extraction of target 23G83, fixed 23H30, and intermediate 23H24 caches; primary and direct 23H24-to-23H30 comparisons; and diagnostic/evidence artifact upload.
+- The comparison still reports 25 common `aa_*` symbols, 15 normalized instruction streams differing, and zero disassembly failures. The fixed-reference constant validation still reports both expected clamp constants matching.
+- All 18 API/helper/callback candidate disassembly attempts in each build report success in the workflow log, including the corrected internal add-line method.
+- `caller_xref_status=deferred_experimental_shared_cache_scan` remains in the log. End-to-end callback/caller provenance is still unresolved.
+
+**Assessment:** the corrected symbol-capture blocker is fixed and verified. The static evidence still does not confirm CVE-2026-86950 or demonstrate a reachable out-of-bounds write. The next research gate is to establish the actual draw-callback-to-rasterizer path and reconcile the coordinate invariants on that path. No binary or crafted input was executed, and no device was accessed or modified.
