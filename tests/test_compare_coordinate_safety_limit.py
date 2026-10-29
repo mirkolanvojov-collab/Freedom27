@@ -81,11 +81,11 @@ class CoordinateSafetyLimitTests(unittest.TestCase):
             target_dis = root / "target.dis"
             fixed_dis = root / "fixed.dis"
             target_dis.write_text(
-                "0x1000: adrp x8, 0x100000\\n0x1004: ldr d4, [x8, #0x80]\\n",
+                "0x1000: adrp x8, 0x100000\n0x1004: ldr d4, [x8, #0x80]\n",
                 encoding="utf-8",
             )
             fixed_dis.write_text(
-                "0x2000: adrp x8, 0x200000\\n0x2004: ldr d4, [x8, #0x90]\\n",
+                "0x2000: adrp x8, 0x200000\n0x2004: ldr d4, [x8, #0x90]\n",
                 encoding="utf-8",
             )
             report = compare(target_binary, target_load, fixed_binary, fixed_load,
