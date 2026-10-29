@@ -57,11 +57,11 @@ def read_limit(binary_path: Path, load_commands_path: Path,
         adrp_pages: dict[str, int] = {}
         effective_address = None
         for line in disassembly.splitlines():
-            adrp = re.search(r"\\badrp\\s+(x\\d+),\\s*(0x[0-9a-fA-F]+)", line)
+            adrp = re.search(r"\badrp\s+(x\d+),\s*(0x[0-9a-fA-F]+)", line)
             if adrp:
                 adrp_pages[adrp.group(1)] = int(adrp.group(2), 16)
                 continue
-            load = re.search(r"\\bldr\\s+d4,\\s*\\[(x\\d+),\\s*#(0x[0-9a-fA-F]+)\\]", line)
+            load = re.search(r"\bldr\s+d4,\s*\[(x\d+),\s*#(0x[0-9a-fA-F]+)\]", line)
             if load and load.group(1) in adrp_pages:
                 candidate = adrp_pages[load.group(1)] + int(load.group(2), 16)
                 if section["address"] <= candidate and candidate + WIDTH <= section["address"] + section["size"]:
