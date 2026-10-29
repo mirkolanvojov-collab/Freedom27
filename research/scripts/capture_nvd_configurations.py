@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -25,6 +26,7 @@ CVE_IDS = [
 BASE = "https://services.nvd.nist.gov/rest/json"
 DEFAULT_OUT = Path("research/nvd_api_capture")
 DEFAULT_TIMEOUT = 45
+CVE_ID_RE = re.compile(r"^CVE-20\d{2}-\d{4,7}$")
 
 
 def get_json(url: str, api_key: str = "", timeout: int = DEFAULT_TIMEOUT) -> tuple[int, dict | None, str | None]:
@@ -74,7 +76,7 @@ def capture_records(
     save_json(summary_path, summary)
 
     for index, cve_id in enumerate(cve_ids):
-        if not isinstance(cve_id, str) or not cve_id.startswith("CVE-"):
+        if not isinstance(cve_id, str) or CVE_ID_RE.fullmatch(cve_id) is None:
             raise ValueError(f"invalid CVE identifier: {cve_id!r}")
         print(f"[{index + 1}/{len(cve_ids)}] Capturing {cve_id}", flush=True)
         encoded_id = urllib.parse.quote(cve_id, safe="-")

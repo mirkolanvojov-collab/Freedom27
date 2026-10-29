@@ -28,15 +28,22 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
                    product_type: str, device_class: str, hash_components: list[str] | None = None) -> dict[str, Any]:
     """Verify full IPSW bytes, then inventory matching BuildManifest identities."""
     image = Path(path)
+    if not isinstance(expected_sha256, str):
+        raise ValueError("expected_sha256 must be a string of 64 hexadecimal characters")
     expected_sha256 = expected_sha256.strip().lower()
     if len(expected_sha256) != 64 or any(c not in "0123456789abcdef" for c in expected_sha256):
         raise ValueError("expected_sha256 must be 64 hexadecimal characters")
-    if expected_size <= 0:
-        raise ValueError("expected_size must be positive")
-    if not product_type or not product_type.strip():
+    if type(expected_size) is not int or expected_size <= 0:
+        raise ValueError("expected_size must be a positive integer")
+    if not isinstance(product_type, str) or not product_type.strip():
         raise ValueError("product_type is required")
-    if not device_class or not device_class.strip():
+    if not isinstance(device_class, str) or not device_class.strip():
         raise ValueError("device_class is required")
+    if hash_components is not None and (
+        not isinstance(hash_components, list)
+        or any(not isinstance(name, str) or not name.strip() for name in hash_components)
+    ):
+        raise ValueError("hash_components must be a list of non-empty strings")
     if not image.is_file():
         raise FileNotFoundError(str(image))
 
@@ -64,7 +71,11 @@ def inventory_ipsw(path: str | Path, expected_sha256: str, expected_size: int,
             raise ValueError("BuildManifest.plist exceeds 64 MiB safety limit")
         manifest = plistlib.loads(archive.read(info))
 
+    if not isinstance(manifest, dict):
+        raise ValueError("BuildManifest.plist root must be a dictionary")
     supported_products = manifest.get("SupportedProductTypes", [])
+    if not isinstance(supported_products, list) or any(not isinstance(item, str) for item in supported_products):
+        raise ValueError("BuildManifest.plist SupportedProductTypes must be a list of strings")
     if product_type not in supported_products:
         raise ValueError(f"product type {product_type!r} is not listed in SupportedProductTypes")
 

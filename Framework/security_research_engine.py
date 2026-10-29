@@ -93,7 +93,13 @@ class Hypothesis:
     def _is_web_url(value: str) -> bool:
         try:
             parsed = urlparse(value.strip())
-            return parsed.scheme in ("http", "https") and bool(parsed.netloc)
+            valid = (
+                parsed.scheme in ("http", "https") and bool(parsed.hostname)
+                and not parsed.username and not parsed.password
+            )
+            if valid:
+                _ = parsed.port  # Reject malformed port values.
+            return valid
         except (AttributeError, ValueError):
             return False
 

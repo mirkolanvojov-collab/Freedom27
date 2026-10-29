@@ -1,0 +1,383 @@
+name: Compare CoreGraphics across target and fixed iOS builds
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/compare-coregraphics-builds.yml"
+      - "research/scripts/compare_coregraphics.py"
+      - "tests/test_compare_coregraphics.py"
+      - "research/scripts/compare_coregraphics_functions.py"
+      - "research/scripts/verify_coregraphics_constants.py"
+      - "research/scripts/compare_coordinate_safety_limit.py"
+      - "tests/test_compare_coordinate_safety_limit.py"
+      - "research/scripts/analyze_coregraphics_conversion_cfg.py"
+      - "tests/test_compare_coregraphics_functions.py"
+      - "tests/test_verify_coregraphics_constants.py"
+      - "tests/test_analyze_coregraphics_conversion_cfg.py"
+
+permissions:
+  contents: read
+
+# Keep only the newest PR comparison active. Older runs use large firmware downloads
+# and can otherwise leave stale pending work competing with the current commit.
+concurrency:
+  group: coregraphics-build-comparison-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compare:
+    # OTA cryptex patching requires macOS on iOS 16+. Use the Intel
+    # macOS 15 pool (14 GB RAM) for the multi-GB OTA/dyld extraction job.
+    # The firmware being analyzed remains arm64e; host architecture is not target architecture.
+    runs-on: macos-15-intel
+    timeout-minutes: 120
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install ipsw
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew trust --formula blacktop/tap/ipsw-frida
+          brew install blacktop/tap/ipsw
+          ipsw version
+
+      - name: Extract target dyld cache (iOS 26.6.1 / 23G83)
+        shell: bash
+        timeout-minutes: 25
+        run: |
+          set -euo pipefail
+          mkdir -p out/target diagnostics
+          target_url='https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75160/D83A8969-3179-4D59-9F72-37FFC825CD9A/iPhone17,4_26.6.1_23G83_Restore.ipsw'
+          {
+            echo "stage=target_dyld_extraction"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "runner=$(sw_vers -productVersion)"
+            ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --remote --output out/target "$target_url"
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            find out/target -type f -name 'dyld_shared_cache_arm64e' -print
+          } 2>&1 | tee diagnostics/target-extraction.log
+          test -n "$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+
+      - name: Download and verify fixed-build OTA
+        shell: bash
+        timeout-minutes: 45
+        run: |
+          set -euo pipefail
+          mkdir -p out diagnostics
+          ota_url='https://updates.cdn-apple.com/2026FallFCS/5ef51a7b-0f58-4585-8cdf-14afa18e9622/com_apple_MobileAsset_SoftwareUpdate/818080afd3f2204f9cf3c8da075752ee6e05c420554a0b076e7c9f5d2378d203.aea'
+          ota_file="$PWD/fixed-23H30-iPhone17,4.aea"
+          {
+            echo "stage=fixed_ota_download_and_verification"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            curl --fail --location --show-error --continue-at - --retry 10 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
+            actual_size="$(stat -f '%z' "$ota_file")"
+            echo "download_size_bytes=$actual_size"
+            test "$actual_size" -eq 8724152320
+            actual_sha256="$(shasum -a 256 "$ota_file" | awk '{print $1}')"
+            echo "download_sha256=$actual_sha256"
+            test "$actual_sha256" = '0078dc02b647fbc5c6efb8fd4e3fe0fc79d02af5f798f2e7981e069bd6987d92'
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/fixed-ota-download.log
+
+      - name: Extract fixed dyld cache (iOS 26.7.1 / 23H30)
+        shell: bash
+        timeout-minutes: 20
+        run: |
+          set -euo pipefail
+          mkdir -p out/fixed-cache diagnostics
+          ota_file="$PWD/fixed-23H30-iPhone17,4.aea"
+          {
+            echo "stage=fixed_ota_dyld_extraction"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            ipsw ota extract --key-val 'YSWzwfZFdAFfs7gP222NfRfnN9lb1riyeL3bzwMlkEs=' "$ota_file" --dyld --dyld-arch arm64e --output out/fixed-cache --json > out/fixed-ota-extraction.json
+            cat out/fixed-ota-extraction.json
+            find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/fixed-ota-extraction.log
+          test -n "$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+
+      - name: Resolve and download iOS 26.7 OTA for direct patch attribution
+        shell: bash
+        timeout-minutes: 45
+        run: |
+          set -euo pipefail
+          mkdir -p out/26.7-ota diagnostics
+          {
+            echo "stage=resolve_23H24_ota"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            # Resolve the direct URL from live OTA metadata; never synthesize an Apple CDN path.
+            ipsw download ota --platform ios --device iPhone17,4 --build 23H24 --urls | tee diagnostics/ios-26.7-23H24-ota-metadata.txt
+            python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse
+          import subprocess
+
+          lines = [line.strip() for line in Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").read_text().splitlines() if line.strip()]
+          urls = [line for line in lines if line.startswith("https://") and urlparse(line).hostname == "updates.cdn-apple.com"]
+          if not urls:
+              # Apple may stop listing an older full OTA in current live metadata.
+              # Fall back to a catalog redirect, then accept only the final Apple CDN URL.
+              resolver = "https://api.applesn.info/v4/ota/download/iPhone17%2C4/23H24"
+              # /dev/null discards the response body but does not prevent curl from
+              # downloading the full OTA. Request only one byte and enforce a hard timeout.
+              result = subprocess.run(
+                  ["curl", "--fail", "--location", "--silent", "--show-error",
+                   "--range", "0-0", "--output", "/dev/null",
+                   "--write-out", "%{url_effective}", "--max-time", "90", resolver],
+                  check=False, capture_output=True, text=True, timeout=95,
+              )
+              candidate = result.stdout.strip()
+              if result.returncode == 0 and urlparse(candidate).scheme == "https" and urlparse(candidate).hostname == "updates.cdn-apple.com":
+                  urls = [candidate]
+                  Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").write_text(
+                      Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").read_text()
+                      + "\nresolver_source=" + resolver + "\nresolved_apple_cdn_url=" + candidate + "\n",
+                      encoding="utf-8",
+                  )
+                  print(f"fallback_catalog_resolved_apple_cdn_url={candidate}")
+          if not urls:
+              Path("ios-26.7-23H24-ota-unavailable.txt").write_text(
+                  "Neither live ipsw metadata nor the catalog redirect resolved an Apple CDN URL for iPhone17,4 build 23H24.\n",
+                  encoding="utf-8",
+              )
+              print("direct_patch_attribution_status=unavailable_no_verified_apple_cdn_url")
+              raise SystemExit(0)
+          Path("ios-26.7-23H24-ota-url.txt").write_text(urls[0] + "\n", encoding="utf-8")
+          print(f"validated_apple_cdn_url={urls[0]}")
+          PY
+            if [ ! -f ios-26.7-23H24-ota-url.txt ]; then
+              echo "Skipping optional 23H24 direct patch-attribution comparison; primary 23G83-to-23H30 comparison can continue."
+              exit 0
+            fi
+            ota_url="$(cat ios-26.7-23H24-ota-url.txt)"
+            ota_file="$PWD/ios-26.7-23H24-iPhone17,4.aea"
+            curl --fail --location --show-error --continue-at - --retry 10 --retry-all-errors --connect-timeout 30 --max-time 2550 --output "$ota_file" "$ota_url"
+            actual_size="$(stat -f '%z' "$ota_file")"
+            echo "download_size_bytes=$actual_size"
+            test "$actual_size" -eq 8724152320
+            actual_sha256="$(shasum -a 256 "$ota_file" | awk '{print $1}')"
+            echo "download_sha256=$actual_sha256"
+            echo "digest_kind=locally_computed_sha256_not_published_apple_checksum"
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/ios-26.7-23H24-ota-download.log
+
+      - name: Extract iOS 26.7 (23H24) dyld cache
+        shell: bash
+        timeout-minutes: 20
+        run: |
+          set -euo pipefail
+          mkdir -p out/26.7-cache diagnostics
+          if [ ! -f ios-26.7-23H24-iPhone17,4.aea ]; then
+            echo "Skipping 23H24 dyld extraction: the optional OTA was unavailable from live metadata."
+            exit 0
+          fi
+          ota_file="$PWD/ios-26.7-23H24-iPhone17,4.aea"
+          {
+            echo "stage=extract_23H24_dyld_cache"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            ipsw ota extract --key-val 'Nsc4CePIkIJyP8wCRmF/FllWT3yZDH9NWM9MNor1IVE=' "$ota_file" --dyld --dyld-arch arm64e --output out/26.7-cache --json > out/26.7-ota-extraction.json
+            cat out/26.7-ota-extraction.json
+            find out/26.7-cache -type f -name 'dyld_shared_cache_arm64e' -print
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/ios-26.7-23H24-extraction.log
+          test -n "$(find out/26.7-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+
+      - name: Extract CoreGraphics and compare function instructions
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          {
+            echo "stage=coregraphics_comparison"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            target_cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+            fixed_cache="$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+            test -n "$target_cache"
+            test -n "$fixed_cache"
+
+            python3 research/scripts/compare_coregraphics.py \
+              --target-cache "$target_cache" \
+              --fixed-cache "$fixed_cache" \
+              --output coregraphics-comparison.json
+
+            target_binary="coregraphics-comparison-components/target/CoreGraphics"
+            fixed_binary="coregraphics-comparison-components/fixed/CoreGraphics"
+            test -f "$target_binary"
+            test -f "$fixed_binary"
+
+            # Preserve symbol and Mach-O function-start metadata for diagnosing
+            # symbols that ipsw cannot disassemble. These are read-only reports.
+            ipsw macho info --symbols "$target_binary" > diagnostics/target-coregraphics-symbols.txt
+            ipsw macho info --symbols "$fixed_binary" > diagnostics/fixed-coregraphics-symbols.txt
+            otool -l "$target_binary" > diagnostics/target-coregraphics-load-commands.txt
+            otool -l "$fixed_binary" > diagnostics/fixed-coregraphics-load-commands.txt
+
+            python3 research/scripts/compare_coordinate_safety_limit.py \
+              --target-binary "$target_binary" \
+              --target-load-commands diagnostics/target-coregraphics-load-commands.txt \
+              --fixed-binary "$fixed_binary" \
+              --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+              --output coordinate-safety-limit-validation.json
+
+            # Static comparison only; neither binary is executed.
+            # Let ipsw resolve the exact function extent from Mach-O metadata.
+            python3 research/scripts/compare_coregraphics_functions.py \
+              --target-binary "$target_binary" \
+              --fixed-binary "$fixed_binary" \
+              --target-load-commands diagnostics/target-coregraphics-load-commands.txt \
+              --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+              --output coregraphics-function-diff.json
+
+            # Capture bounded disassembly for the known direct-reference candidates.
+            # This is a read-only supplement to the symbol-scoped aa_* comparison.
+            for side in target fixed; do
+              if [ "$side" = target ]; then binary="$target_binary"; else binary="$fixed_binary"; fi
+              for symbol in _aa_path_iterate _RIPRenderRectangles _ripr_path_fill _ripr_stroke_iterate; do
+                report="diagnostics/${side}-caller-${symbol#_}.txt"
+                if ipsw macho disass --force --symbol "$symbol" "$binary" > "$report" 2>&1; then
+                  echo "caller_disassembly_status=success side=$side symbol=$symbol"
+                else
+                  echo "caller_disassembly_status=unavailable side=$side symbol=$symbol"
+                fi
+              done
+            done
+
+            # Capture bounded public-API candidate bodies to help trace the
+            # provenance of path elements into the rasterization callbacks.
+            # Symbol presence/body alone does not prove a call edge or reachability.
+            # Also capture the path callback, decoder, transform decoder, and
+            # internal add-line implementation to test the proposed data-flow
+            # chain. Successful disassembly is not proof of a call edge.
+            for side in target fixed; do
+              if [ "$side" = target ]; then binary="$target_binary"; else binary="$fixed_binary"; fi
+              for symbol in _CGPathAddLineToPoint _CGPathCreateWithData _CGPathApply _CGPathGetBoundingBox _CGPathApplyWithBlock2 _CGContextAddLineToPoint _CGContextStrokePath _CGContextFillPath _CGContextDrawPath _CGContextDrawPathDirect _CGContextDelegateDrawPath _ripc_DrawPath _RIPRenderPath _ripc_Render _path_coordinates_are_safe _draw_path ___CGContextDrawPath_block_invoke ___CGContextDrawPathDirect_block_invoke ___draw_path_block_invoke ___draw_path_block_invoke_2 _rip_adaptive_bitmap_context_draw_path _rip_auto_context_draw_path _CGPDFDrawingContextDrawPath __ZNK2CG4Path5applyEU13block_pointerFv17CGPathElementTypePK7CGPointPbE __ZL14decode_CGPointP15DecodingContextP7CGPoint __ZL24decode_CGAffineTransformP15DecodingContextP17CGAffineTransform __ZN2CG4Path17add_line_to_pointERK7CGPointPK17CGAffineTransform; do
+                report="diagnostics/${side}-api-candidate-${symbol#_}.txt"
+                if ipsw macho disass --force --symbol "$symbol" "$binary" > "$report" 2>&1; then
+                  echo "api_candidate_disassembly_status=success side=$side symbol=$symbol"
+                else
+                  echo "api_candidate_disassembly_status=unavailable side=$side symbol=$symbol"
+                fi
+              done
+            done
+
+            # The local/private _process_path_element.15286 name is absent from
+            # the Mach-O symbol table; capture a small target-side window around
+            # the recorded callsite without assuming it is a stable symbol.
+            if ipsw macho disass --force --vaddr 0x1846952c4 --count 16 "$target_binary" \
+              > diagnostics/target-process-path-element-callsite.txt 2>&1; then
+              echo "local_caller_context_status=captured"
+            else
+              echo "local_caller_context_status=unavailable"
+            fi
+
+            # Verify constants from the fixed binary against the public patch analysis.
+            python3 research/scripts/verify_coregraphics_constants.py \
+              --binary "$fixed_binary" \
+              --load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+              --function-diff coregraphics-function-diff.json \
+              --output coregraphics-constant-validation.json
+
+            # Reconstruct direct-branch CFGs and report structural dominators.
+            python3 research/scripts/analyze_coregraphics_conversion_cfg.py \
+              --function-diff coregraphics-function-diff.json \
+              --output coregraphics-conversion-cfg-audit.json
+
+            # Shared-cache xref parsing has timed out on this runner and is
+            # not required to generate the verified binary/function comparison.
+            # Caller discovery is intentionally kept out of this critical path;
+            # use the preserved comparison artifacts and separate bounded tooling.
+            echo "caller_xref_status=deferred_experimental_shared_cache_scan"
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/coregraphics-comparison.log
+
+      - name: Compare CoreGraphics directly across 23H24 and 23H30
+        shell: bash
+        timeout-minutes: 20
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          if [ ! -f out/26.7-cache/23H24__iPhone17,4/System/Library/Caches/com.apple.dyld/dyld_shared_cache_arm64e ] && [ -z "$(find out/26.7-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit 2>/dev/null)" ]; then
+            echo "Skipping optional direct 23H24-to-23H30 comparison: the 23H24 dyld cache is unavailable."
+            exit 0
+          fi
+          {
+            echo "stage=direct_23H24_to_23H30_coregraphics_comparison"
+            echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            old_cache="$(find out/26.7-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+            fixed_cache="$(find out/fixed-cache -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+            test -n "$old_cache"
+            test -n "$fixed_cache"
+
+            python3 research/scripts/compare_coregraphics.py \
+              --target-cache "$old_cache" \
+              --fixed-cache "$fixed_cache" \
+              --target-build 23H24 \
+              --fixed-build 23H30 \
+              --target-device iPhone17,4 \
+              --fixed-device iPhone17,4 \
+              --output coregraphics-26-7-patch-comparison.json
+
+            old_binary="coregraphics-26-7-patch-comparison-components/target/CoreGraphics"
+            fixed_binary="coregraphics-26-7-patch-comparison-components/fixed/CoreGraphics"
+            test -f "$old_binary"
+            test -f "$fixed_binary"
+            ipsw macho info --symbols "$old_binary" > diagnostics/23H24-coregraphics-symbols.txt
+            ipsw macho info --symbols "$fixed_binary" > diagnostics/23H30-coregraphics-symbols.txt
+            otool -l "$old_binary" > diagnostics/23H24-coregraphics-load-commands.txt
+            otool -l "$fixed_binary" > diagnostics/23H30-coregraphics-load-commands.txt
+
+            python3 research/scripts/compare_coregraphics_functions.py \
+              --target-binary "$old_binary" \
+              --fixed-binary "$fixed_binary" \
+              --target-load-commands diagnostics/23H24-coregraphics-load-commands.txt \
+              --fixed-load-commands diagnostics/23H30-coregraphics-load-commands.txt \
+              --output coregraphics-26-7-function-diff.json
+
+            python3 research/scripts/verify_coregraphics_constants.py \
+              --binary "$fixed_binary" \
+              --load-commands diagnostics/23H30-coregraphics-load-commands.txt \
+              --function-diff coregraphics-26-7-function-diff.json \
+              --output coregraphics-26-7-constant-validation.json
+
+            python3 research/scripts/analyze_coregraphics_conversion_cfg.py \
+              --function-diff coregraphics-26-7-function-diff.json \
+              --output coregraphics-26-7-conversion-cfg-audit.json
+            echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } 2>&1 | tee diagnostics/direct-23H24-to-23H30-comparison.log
+
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coregraphics-comparison-diagnostics
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload comparison evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coregraphics-build-comparison
+          path: |
+            coregraphics-comparison.json
+            coregraphics-function-diff.json
+            coregraphics-constant-validation.json
+            coordinate-safety-limit-validation.json
+            coregraphics-conversion-cfg-audit.json
+            coregraphics-26-7-patch-comparison.json
+            coregraphics-26-7-function-diff.json
+            coregraphics-26-7-constant-validation.json
+            coregraphics-26-7-conversion-cfg-audit.json
+          if-no-files-found: error
+
+      - name: Remove downloaded firmware and extracted binaries
+        if: always()
+        shell: bash
+        run: |
+          rm -rf out coregraphics-comparison-components coregraphics-26-7-patch-comparison-components fixed-23H30-iPhone17,4.aea ios-26.7-23H24-iPhone17,4.aea

@@ -19,10 +19,13 @@ class TestStep:
 def valid_https_source(url: str) -> bool:
     try:
         parsed = urlparse(url)
-        return (
+        valid = (
             parsed.scheme == "https" and bool(parsed.hostname)
             and not parsed.username and not parsed.password
         )
+        if valid:
+            _ = parsed.port  # Reject malformed port values.
+        return valid
     except (AttributeError, ValueError):
         return False
 

@@ -7,12 +7,15 @@ from urllib.parse import urlparse
 def _valid_https_url(value: str) -> bool:
     try:
         parsed = urlparse(value.strip())
-        return (
+        valid = (
             parsed.scheme == "https"
             and bool(parsed.hostname)
             and not parsed.username
             and not parsed.password
         )
+        if valid:
+            _ = parsed.port  # Reject malformed port values.
+        return valid
     except (AttributeError, ValueError):
         return False
 

@@ -20,6 +20,8 @@ def validate_entry(entry: dict) -> list[str]:
                 parsed.scheme == "https" and bool(parsed.hostname)
                 and not parsed.username and not parsed.password
             )
+            if valid_url:
+                _ = parsed.port  # Reject malformed port values.
         except ValueError:
             valid_url = False
         if not valid_url:

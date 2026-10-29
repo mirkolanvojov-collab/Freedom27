@@ -2,12 +2,16 @@ name: Tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, research/cve-source-reconciliation-2026-10-24]
   pull_request:
-    branches: [main]
+    branches: [main, research/cve-source-reconciliation-2026-10-24]
 
 permissions:
   contents: read
+
+concurrency:
+  group: freedom27-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   unit-tests:
@@ -19,6 +23,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # Unit tests must not depend on live Apple OTA metadata/network availability.
+      # The comparison workflow separately verifies fixed-build artifact size and SHA-256.
       - name: Compile all Python source and test files
         run: python -m compileall -q Framework tests research/scripts
 

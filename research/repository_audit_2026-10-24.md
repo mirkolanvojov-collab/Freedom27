@@ -30,3 +30,41 @@ This is a repository/tooling audit. It is not a binary audit of Apple firmware a
 ## Follow-up
 
 Continue with non-invasive evidence review and tests only. Before any future device-testing phase, require a source-pinned implementation review, a dedicated recoverable test device, independently checked backup/recovery procedure, and a narrowly scoped test plan. Do not run an unverified payload on the daily-use phone.
+
+## Follow-up audit — research branch (2026-10-24)
+
+Rechecked the current branch against `main` after the CoreGraphics comparison work. The branch contains 184 tracked files: 73 Python files, 86 Markdown files, 19 JSON files, and 6 GitHub Actions workflow files. All 19 JSON files were parsed successfully and their fetched blob SHAs matched the Git tree. The new CoreGraphics scripts, synthetic bounds model, related tests, workflow definitions, changed evidence-gate code, and changed verification scripts received focused review.
+
+Additional issues fixed in this follow-up:
+
+1. **Chain evidence scope:** `Framework/chain_readiness.py` now requires `scope_confirmed=true` in addition to a source-pinned exact-target record and independent reproduction. Regression tests cover missing scope confirmation.
+2. **Exact-target identity and malformed fields:** `Framework/compatibility_status.py` now matches the device marketing name as well as identifier/version/build, rejects malformed or credentialed HTTPS evidence URLs, and treats JSON `null` as missing rather than converting it to the string `None`. The compatibility matrix mapper has the same null-handling fix.
+3. **Firmware stream source validation:** `research/scripts/verify_ipsw_stream.py` now rejects non-HTTPS URLs, embedded credentials, and malformed ports before opening a connection; regression tests verify the opener is not called.
+4. **NVD capture input validation:** `research/scripts/capture_nvd_configurations.py` now validates the complete CVE identifier format instead of accepting any string with a `CVE-` prefix.
+5. **Fixed OTA digest enforcement:** `.github/workflows/resolve-fixed-ota-metadata.yml` now compares the downloaded OTA SHA-256 with the pinned expected digest, rather than merely printing the computed digest after checking the size.
+6. **Research-document consistency:** updated the CoreGraphics evidence assessment and Priority 2 reports to reflect the completed 25-symbol static comparison and seven-function patch-pattern correlation, while keeping runtime reachability and jailbreak status unverified.
+7. **Empty comparison results:** the CoreGraphics function comparer now exits non-zero when there are no shared executable `aa_*` symbols, rather than returning a misleading success with zero coverage.
+8. **Malformed inventory/evidence inputs:** the IPSW manifest inventory rejects invalid argument types and non-dictionary plist roots; evidence checks no longer crash on unhashable registry IDs and reject malformed HTTPS ports. Compatibility URL validators also reject malformed ports and null fields instead of stringifying them.
+9. **Synthetic coordinate model:** finite values whose scaling overflows now saturate to the safe bound; non-finite inputs return the defined safe fallback, and booleans/non-numeric inputs are rejected. Regression tests cover these boundaries.
+10. **CI resource control:** the OTA download, CoreGraphics comparison, and unit-test workflows now cancel superseded runs for the same PR/ref, preventing each successive commit from starting another redundant multi-gigabyte firmware download.
+
+Validation after the code fixes: GitHub Actions test run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40116859478 completed successfully on commit `0f87efa3df8bb1848e3507c5612f8552be28a24b`, including the new regression tests for malformed evidence/inventory input, empty CoreGraphics comparisons, and coordinate bounds. The fixed-OTA digest workflow passed on commit `6a78d9811e53aecfeebea8fa82a1dfca22a43eb0`; the latest workflow revisions add concurrency controls without changing the pinned digest check. The final audit-document update is documentation-only and will trigger a fresh PR check.
+
+Remaining audit boundary: repository-level static review and tests do not prove Apple firmware behavior, exact-build exploitability, or a working jailbreak. The CoreGraphics comparison remains static, relocation-sensitive references are not fully resolved, and runtime reachability, privilege escalation, persistence, and independent reproduction remain open.
+
+
+## Follow-up audit — compatibility metadata edge cases (2026-10-24)
+
+A further pass over the compatibility claim helpers found two edge cases that could obscure conflicting or malformed evidence:
+
+1. **Conflicting rows for the same exact target:** the compatibility matrix duplicate key included the claim status, so the same model/version/build could appear once as `researching` and again as `verified` without a duplicate warning. The key now identifies the target tuple independent of status, and a regression test covers conflicting statuses.
+2. **Whitespace-normalized status leakage:** the exact-target status reader validated a trimmed status but returned the original untrimmed value, allowing padded status text to leak into output and conflict handling. Validated claims now store the normalized status; a regression test covers it.
+
+Validation: GitHub Actions test run https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40119295737 passed on commit `84ee2e969ccd2662297316a980073f12b19347c4`, including compilation, unit tests, advisory-source checks, evidence metadata checks, fail-closed safety preflight, and generated report validation. This follow-up did not test or modify a device and does not change the project's unverified jailbreak status.
+
+
+## Follow-up audit — URL validation edge cases (2026-10-24)
+
+The source URL validators in the test planner, registry, and hypothesis engine were inconsistent about malformed port syntax. The planner and registry now force port parsing (so malformed ports fail closed); the hypothesis engine now also rejects embedded URL credentials and malformed ports. Regression cases were added to each relevant test module.
+
+Validation: GitHub Actions unit-test job https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40119423047 completed successfully on code commit `89c6bde2707a6d7ed535147085bec8a7957dd849`. Compilation, unit tests, live primary-source metadata checks, evidence checks, safety preflight, and generated research-report validation all passed. The separate CoreGraphics comparison is static analysis only and is not needed to validate these URL-validator changes.

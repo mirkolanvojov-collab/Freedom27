@@ -29,6 +29,16 @@ class CompatibilityMatrixTests(unittest.TestCase):
         self.assertTrue(any("HTTPS evidence_url" in error for error in errors))
         self.assertTrue(any("review notes" in error for error in errors))
 
+    def test_verified_claim_rejects_malformed_https_port_and_null_url(self):
+        for evidence_url in ("https://example.org:bad/source", None):
+            with self.subTest(evidence_url=evidence_url):
+                claim = CompatibilityClaim(
+                    device_family="iPhone 18 Pro", model_identifier="iPhone18,1",
+                    os_version="iOS 27.0.1", build="24A446", status="verified",
+                    evidence_url=evidence_url, notes="Reviewed evidence."
+                )
+                errors = claim.validate()
+                self.assertTrue(any("HTTPS evidence_url" in error for error in errors))
     def test_valid_research_claim_can_be_unverified_without_evidence(self):
         claim = CompatibilityClaim(
             device_family="iPhone 14",
@@ -60,6 +70,32 @@ class CompatibilityMatrixTests(unittest.TestCase):
         errors = validate_claims([item, item])
         self.assertTrue(any("duplicate" in error for error in errors))
 
+    def test_same_target_with_different_statuses_is_rejected(self):
+        base = {
+            "device_family": "iPhone 16 Plus",
+            "model_identifier": "iPhone17,4",
+            "os_version": "iOS 26.6.1",
+            "build": "23G83",
+            "status": "researching",
+        }
+        conflicting = {**base, "status": "verified",
+                       "evidence_url": "https://example.org/evidence",
+                       "notes": "Reviewed evidence."}
+        errors = validate_claims([base, conflicting])
+        self.assertTrue(any("duplicate model/version/build tuple" in error for error in errors))
+
+    def test_null_fields_are_not_stringified_into_valid_metadata(self):
+        errors = validate_claims([{
+            "device_family": None,
+            "model_identifier": "example-model",
+            "os_version": "iOS 27.0.1",
+            "build": "24A446",
+            "status": "verified",
+            "evidence_url": "https://example.org/evidence",
+            "notes": None,
+        }])
+        self.assertTrue(any("device_family must not be empty" in error for error in errors))
+        self.assertTrue(any("review notes" in error for error in errors))
     def test_non_object_claim_is_reported_without_crashing(self):
         errors = validate_claims([None, {"device_family": "iPhone 14"}])
         self.assertTrue(any("claim[0]: must be an object" in error for error in errors))

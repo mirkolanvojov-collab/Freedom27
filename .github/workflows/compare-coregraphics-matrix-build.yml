@@ -148,11 +148,16 @@ jobs:
           otool -l "$target_binary" > diagnostics/target-coregraphics-load-commands.txt
           otool -l "$fixed_binary" > diagnostics/fixed-coregraphics-load-commands.txt
 
+          ipsw macho disass --force --symbol _path_coordinates_are_safe "$target_binary" > diagnostics/target-path_coordinates_are_safe.txt
+          ipsw macho disass --force --symbol _path_coordinates_are_safe "$fixed_binary" > diagnostics/fixed-path_coordinates_are_safe.txt
+
           python3 research/scripts/compare_coordinate_safety_limit.py \
             --target-binary "$target_binary" \
             --target-load-commands diagnostics/target-coregraphics-load-commands.txt \
+            --target-disassembly diagnostics/target-path_coordinates_are_safe.txt \
             --fixed-binary "$fixed_binary" \
             --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+            --fixed-disassembly diagnostics/fixed-path_coordinates_are_safe.txt \
             --output "coregraphics-$TARGET_BUILD-coordinate-safety-limit.json"
 
           python3 research/scripts/compare_coregraphics_functions.py \
