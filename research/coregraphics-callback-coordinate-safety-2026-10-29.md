@@ -35,7 +35,7 @@ The captured `_path_coordinates_are_safe` bodies have the same instruction seque
 5. Add origin and extent, take absolute values, compute `fmaxnm` of the two results, and compare that maximum against the limit.
 6. Return the comparison result.
 
-The apparent limit-address change is resolved as a section-relative layout difference. In 23G83, `ADRP 0x1847c2000 + 0xe8 = 0x1847c20e8`; in 23H30, `ADRP 0x1847e9000 + 0x6a8 = 0x1847e96a8`. Each address is at offset `0x5a28` from that binary's `__TEXT,__const` section base. Thus the instruction operand changed while the section-relative constant location stayed the same. The current artifact set independently validates the two clamp constants used by the antialiasing code in 23H30; it does **not** include a byte-level validation of this particular safety-limit constant in both binaries.
+The 23G83/23H30 pair resolves to the same section-relative limit location (`0x5a28`) in both binaries: 23G83 loads from `0x1847c20e8` (`ADRP 0x1847c2000 + 0xe8`) and 23H30 from `0x1847e96a8` (`ADRP 0x1847e9000 + 0x6a8`). A later matrix run added build 24B119, where the semantic load resolves instead to `0x184266070`, section-relative offset `0x1deb30`, file offset `0x750070`. The corrected checker reads the actual address referenced by `_path_coordinates_are_safe` rather than assuming the same section offset across builds. In 24B119 and 23H30, the loaded bytes are both `0000000065cdcd41`, decoding to `1,000,000,000.0`; the earlier 23G83/23H30 check also recorded these bytes at offset `0x5a28`. This validates the value for these analyzed binaries, but does not by itself prove the entire safety-check logic is equivalent.
 
 ### 3. Floating-point edge case to investigate, not a vulnerability finding
 
@@ -51,15 +51,9 @@ The captured `_ripc_Render` and `_ripr_path_fill` instruction streams are otherw
 
 ## Build-matrix extension and priority
 
-The device-specific firmware catalogs identify `iPhone17,4` images for `23G90`, `23H128`, `24A437`, `24A446`, and `24B119`. Apple’s release/security pages confirm iOS 26.7.2 (`23H128`) and iOS 27.2 (`24B119`) were released on 2026-10-26; device catalogs list the iPhone 16 Plus image for 27.2. The release matrix should prioritize:
+The device-specific firmware matrix has now completed a static CoreGraphics comparison for `24B119` vs `23H30` in [run 40904316027](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40904316027). That run compared 12 shared `aa_*` symbols, with all 12 normalized streams differing and zero disassembly failures; these differences are triage evidence only. The corrected safety-limit checker resolves the load address from each build's `_path_coordinates_are_safe` disassembly and confirms the loaded value matches `23H30` at `1,000,000,000.0`.
 
-1. **23H128 (iOS 26.7.2)** — newly released branch relative to the 23H30 reference; analyze for current code state.
-2. **24B119 (iOS 27.2)** — newest public release in this snapshot and a device-specific image is listed.
-3. **24A446 (iOS 27.0.1)** — current signed iOS 27 image for the target device.
-4. **23G90 (iOS 26.6.2)** — useful near-baseline comparison; catalog lists the target-device restore image.
-5. **24A437 (iOS 27.0)** — historical pre-27.0.1 comparison.
-
-These are availability/provenance leads, not analyzed binaries. Each remains “not analyzed” until the exact target-device image is obtained, extraction is verified, CoreGraphics SHA-256/UUID are recorded, comparison and safety-constant checks pass, and artifacts/tests are linked. The 26.7.2 release advisory discusses an Accelerate out-of-bounds-write fix; that fact alone does not attribute the change to CoreGraphics or CVE-2026-86950.
+The next planned device-specific comparison is **24A446 (iOS 27.0.1)**, followed by `23G90` (26.6.2, subject to image availability/signing), then `24A437` (27.0). Build `23H128` (26.7.2) is currently excluded from executable matrix runs because the workflow's device/build filter returned zero `iPhone17,4` IPSWs; do not mark it analyzed unless a compatible image is independently verified. The 26.7.2 release advisory discusses an Accelerate out-of-bounds-write fix; that fact alone does not attribute the change to CoreGraphics or CVE-2026-86950.
 
 ## Reproducibility references
 
@@ -68,7 +62,7 @@ These are availability/provenance leads, not analyzed binaries. Each remains “
 - Latest diagnostic disassembly artifact: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40787926888/artifacts/12860928451
 - Earlier comparison workflow and artifacts: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40782061277
 - The successful run confirms target and reference dyld-cache extraction, both symbol-scoped comparisons, diagnostic upload, and cleanup completed. It did **not** run the additional-build matrix workflow.
-- The existing constant validator checks the two antialiasing clamp constants; it does **not** byte-validate the separate `_path_coordinates_are_safe` limit at `__TEXT,__const` section offset `0x5a28`.
+- The semantic-address checker and regression test are now wired into the additional-build workflow. Run [40904316027](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40904316027) confirms the checker resolves the actual `d4` load and validates the `24B119` limit against `23H30`; this supersedes the earlier note that the safety-limit bytes were not yet validated for that build.
 - Apple iOS 26.7.2 security advisory: https://support.apple.com/en-us/149227
 - Apple iOS 27.2 security advisory: https://support.apple.com/en-us/149230
 - Device-specific 27.2 image listing: https://ipsw.me/install/iPhone17%2C4/24B119/
@@ -76,3 +70,12 @@ These are availability/provenance leads, not analyzed binaries. Each remains “
 ## Evidence boundaries
 
 This is static analysis of preserved disassembly and section metadata. It does not prove runtime reachability, exploitability, a working jailbreak, or behavior on builds not yet extracted and compared.
+
+
+## Follow-up update: semantic safety-limit verification (2026-10-29)
+
+The additional-build matrix run [40904316027](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40904316027) completed successfully for target build 24B119 against fixed reference 23H30. The target CoreGraphics SHA-256 is `0e9eedce7a9f09448dbd1deb19b94c95b1440e15fadfcbbb953e710a31b153d3`, Mach-O UUID `314A6344-864D-33EB-8A8C-F8279D3014C8`. Twelve common `aa_*` symbols were compared; all twelve normalized instruction streams differ, with zero disassembly failures.
+
+The safety-limit checker now receives the `_path_coordinates_are_safe` disassembly for each binary and resolves the actual `adrp`/ `ldr d4` address pair. For 24B119 the resolved address is `0x184266070` (section offset `0x1deb30`, file offset `0x750070`); for 23H30 it is `0x1847e96a8` (section offset `0x5a28`, file offset `0x4fe6a8`). Both locations contain `0000000065cdcd41`, float64 `1,000,000,000.0`. The earlier 24B119 lookup at offset `0x5a28` was not the operand used by the target function and is not evidence of a changed or missing limit.
+
+This closes the specific address-selection/value-validation blocker. It does not resolve the NaN/dataflow question, prove downstream guard semantics, attribute every changed `aa_*` stream to the CVE, or establish runtime reachability/exploitability. See [the target assessment](evidence/CVE-2026-86950-target-assessment.md) and the matrix evidence/diagnostics linked from the successful run.
