@@ -149,6 +149,13 @@ jobs:
           otool -l "$target_binary" > diagnostics/target-coregraphics-load-commands.txt
           otool -l "$fixed_binary" > diagnostics/fixed-coregraphics-load-commands.txt
 
+          python3 research/scripts/compare_coordinate_safety_limit.py \
+            --target-binary "$target_binary" \
+            --target-load-commands diagnostics/target-coregraphics-load-commands.txt \
+            --fixed-binary "$fixed_binary" \
+            --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+            --output "coregraphics-$TARGET_BUILD-coordinate-safety-limit.json"
+
           python3 research/scripts/compare_coregraphics_functions.py \
             --target-binary "$target_binary" \
             --fixed-binary "$fixed_binary" \
@@ -200,6 +207,7 @@ jobs:
             coregraphics-${{ inputs.target_build || '23H128' }}-comparison.json
             coregraphics-${{ inputs.target_build || '23H128' }}-function-diff.json
             coregraphics-${{ inputs.target_build || '23H128' }}-constant-validation.json
+            coregraphics-${{ inputs.target_build || '23H128' }}-coordinate-safety-limit.json
             coregraphics-${{ inputs.target_build || '23H128' }}-conversion-cfg-audit.json
           if-no-files-found: error
 
