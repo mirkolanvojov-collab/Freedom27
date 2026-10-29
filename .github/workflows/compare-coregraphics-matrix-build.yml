@@ -7,9 +7,8 @@ on:
         description: iPhone17,4 build to compare with the 23H30 reference
         type: choice
         required: true
-        default: 23H128
+        default: 24B119
         options:
-          - 23H128
           - 24B119
           - 24A446
           - 23G90
@@ -19,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: coregraphics-matrix-${{ inputs.target_build || '23H128' }}
+  group: coregraphics-matrix-${{ inputs.target_build || '24B119' }}
   cancel-in-progress: false
 
 jobs:
@@ -27,7 +26,7 @@ jobs:
     runs-on: macos-15-intel
     timeout-minutes: 150
     env:
-      TARGET_BUILD: ${{ inputs.target_build || '23H128' }}
+      TARGET_BUILD: ${{ inputs.target_build || '24B119' }}
       FIXED_BUILD: 23H30
       DEVICE: iPhone17,4
     steps:
@@ -193,7 +192,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coregraphics-matrix-${{ inputs.target_build || '23H128' }}-diagnostics
+          name: coregraphics-matrix-${{ inputs.target_build || '24B119' }}-diagnostics
           path: diagnostics/
           if-no-files-found: warn
           retention-days: 14
@@ -202,13 +201,13 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: coregraphics-matrix-${{ inputs.target_build || '23H128' }}-evidence
+          name: coregraphics-matrix-${{ inputs.target_build || '24B119' }}-evidence
           path: |
-            coregraphics-${{ inputs.target_build || '23H128' }}-comparison.json
-            coregraphics-${{ inputs.target_build || '23H128' }}-function-diff.json
-            coregraphics-${{ inputs.target_build || '23H128' }}-constant-validation.json
-            coregraphics-${{ inputs.target_build || '23H128' }}-coordinate-safety-limit.json
-            coregraphics-${{ inputs.target_build || '23H128' }}-conversion-cfg-audit.json
+            coregraphics-${{ inputs.target_build || '24B119' }}-comparison.json
+            coregraphics-${{ inputs.target_build || '24B119' }}-function-diff.json
+            coregraphics-${{ inputs.target_build || '24B119' }}-constant-validation.json
+            coregraphics-${{ inputs.target_build || '24B119' }}-coordinate-safety-limit.json
+            coregraphics-${{ inputs.target_build || '24B119' }}-conversion-cfg-audit.json
           if-no-files-found: error
 
       - name: Remove downloaded firmware and extracted binaries
