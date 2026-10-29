@@ -8,10 +8,7 @@ from research.scripts.compare_coordinate_safety_limit import compare
 
 class CoordinateSafetyLimitTests(unittest.TestCase):
     def _fixture(self, root: Path, name: str, value: float, section_address: int, file_offset: int):
-        blob = bytearray(0x300)
-        struct.pack_into("<d", blob, file_offset + 0x5A28 if file_offset + 0x5A28 + 8 <= len(blob) else 0x120, value)
-        # Use a small fixture-friendly section-relative offset by translating the
-        # production offset to the section start and allocating enough bytes.
+        # Allocate enough bytes for the production section-relative offset.
         section_size = 0x5A28 + 8
         actual_file_offset = 0x100
         blob = bytearray(actual_file_offset + section_size + 0x20)
