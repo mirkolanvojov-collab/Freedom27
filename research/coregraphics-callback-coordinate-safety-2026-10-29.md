@@ -63,9 +63,12 @@ These are availability/provenance leads, not analyzed binaries. Each remains “
 
 ## Reproducibility references
 
-- Prior comparison workflow: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40782061277
-- Comparison JSON artifact: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40782061277/artifacts/12858829605
-- Diagnostic disassembly artifact: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40782061277/artifacts/12859596888
+- Latest successful target/reference comparison workflow (run 40787926888, completed 2026-10-28): https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40787926888
+- Latest comparison JSON artifact: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40787926888/artifacts/12861297410
+- Latest diagnostic disassembly artifact: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40787926888/artifacts/12860928451
+- Earlier comparison workflow and artifacts: https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/40782061277
+- The successful run confirms target and reference dyld-cache extraction, both symbol-scoped comparisons, diagnostic upload, and cleanup completed. It did **not** run the additional-build matrix workflow.
+- The existing constant validator checks the two antialiasing clamp constants; it does **not** byte-validate the separate `_path_coordinates_are_safe` limit at `__TEXT,__const` section offset `0x5a28`.
 - Apple iOS 26.7.2 security advisory: https://support.apple.com/en-us/149227
 - Apple iOS 27.2 security advisory: https://support.apple.com/en-us/149230
 - Device-specific 27.2 image listing: https://ipsw.me/install/iPhone17%2C4/24B119/
