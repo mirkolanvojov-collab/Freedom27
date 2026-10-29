@@ -10,6 +10,8 @@ on:
       - "tests/test_compare_coregraphics.py"
       - "research/scripts/compare_coregraphics_functions.py"
       - "research/scripts/verify_coregraphics_constants.py"
+      - "research/scripts/compare_coordinate_safety_limit.py"
+      - "tests/test_compare_coordinate_safety_limit.py"
       - "research/scripts/analyze_coregraphics_conversion_cfg.py"
       - "tests/test_compare_coregraphics_functions.py"
       - "tests/test_verify_coregraphics_constants.py"
@@ -215,6 +217,13 @@ jobs:
             otool -l "$target_binary" > diagnostics/target-coregraphics-load-commands.txt
             otool -l "$fixed_binary" > diagnostics/fixed-coregraphics-load-commands.txt
 
+            python3 research/scripts/compare_coordinate_safety_limit.py \
+              --target-binary "$target_binary" \
+              --target-load-commands diagnostics/target-coregraphics-load-commands.txt \
+              --fixed-binary "$fixed_binary" \
+              --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+              --output coordinate-safety-limit-validation.json
+
             # Static comparison only; neither binary is executed.
             # Let ipsw resolve the exact function extent from Mach-O metadata.
             python3 research/scripts/compare_coregraphics_functions.py \
@@ -359,6 +368,7 @@ jobs:
             coregraphics-comparison.json
             coregraphics-function-diff.json
             coregraphics-constant-validation.json
+            coordinate-safety-limit-validation.json
             coregraphics-conversion-cfg-audit.json
             coregraphics-26-7-patch-comparison.json
             coregraphics-26-7-function-diff.json
