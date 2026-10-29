@@ -23,10 +23,10 @@ SECTION_FIELDS = ("sectname", "segname", "addr", "size", "offset")
 
 def parse_sections(load_commands: str) -> list[dict[str, Any]]:
     sections: list[dict[str, Any]] = []
-    for block in re.split(r"(?m)^\\s*Section\\s*$", load_commands)[1:]:
+    for block in re.split(r"(?m)^\s*Section\s*$", load_commands)[1:]:
         fields: dict[str, str] = {}
         for key in SECTION_FIELDS:
-            match = re.search(rf"(?m)^\\s*{key}\\s+(\\S+)", block)
+            match = re.search(rf"(?m)^\s*{key}\s+(\S+)", block)
             if match:
                 fields[key] = match.group(1)
         if all(key in fields for key in SECTION_FIELDS):
@@ -112,7 +112,7 @@ def main() -> int:
     except (OSError, ValueError, KeyError, struct.error) as exc:
         print(f"coordinate-safety limit comparison failed: {exc}", file=sys.stderr)
         return 2
-    args.output.write_text(json.dumps(report, indent=2) + "\\n", encoding="utf-8")
+    args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
     return 0
 
