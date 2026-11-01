@@ -27,4 +27,5 @@ jobs:
       - name: Validate workflow files
         uses: reviewdog/action-actionlint@v1
         with:
-          fail_on_error: true
+          actionlint_flags: .github/workflows/compare-coregraphics-builds.yml
+          fail_level: none

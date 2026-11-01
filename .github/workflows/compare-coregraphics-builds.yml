@@ -123,7 +123,7 @@ jobs:
             echo "target_restore_image_sha256=$(python3 -c 'import json; print(json.load(open("diagnostics/target-restore-manifest-verification.json"))["restore_image"]["sha256"])')"
             echo "target_restore_image_size_bytes=$(python3 -c 'import json; print(json.load(open("diagnostics/target-restore-manifest-verification.json"))["restore_image"]["size_bytes"])')"
           } 2>&1 | tee diagnostics/target-extraction.log
-          # Remove only after successful extraction from this exact local image.
+          # Delete only after successful extraction from the verified local image.
           rm -f "$ipsw_file"
           rmdir out/target-restore 2>/dev/null || true
           echo "disk_after_target_restore_cleanup:"
