@@ -51,17 +51,44 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out/target diagnostics
-          # Resolve the restore URL from the live IPSW catalog for the exact
-          # hardware identifier and build. Never construct an Apple CDN URL.
+          # Resolve the restore URL from the live IPSW catalog for exact hardware/build.
+          ipsw download ipsw --device iPhone17,4 --build 23G83 --urls 2>&1 | tee diagnostics/target-ipsw-metadata.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          metadata = Path("diagnostics/target-ipsw-metadata.txt").read_text(encoding="utf-8")
+          urls = []
+          for line in metadata.splitlines():
+              for token in line.split():
+                  candidate = token.strip("(),'")
+                  parsed = urlparse(candidate)
+                  if (parsed.scheme == "https"
+                          and parsed.hostname == "updates.cdn-apple.com"
+                          and candidate.endswith(".ipsw")
+                          and "iPhone17,4_26.6.1_23G83_Restore.ipsw" in parsed.path):
+                      urls.append(candidate)
+          if not urls:
+              raise SystemExit("No exact iPhone17,4 / 23G83 Apple CDN restore URL returned by live catalog")
+          url = urls[0]
+          Path("target-ipsw-url.txt").write_text(url + "\n", encoding="utf-8")
+          print("selected_device=iPhone17,4")
+          print("selected_build=23G83")
+          print(f"validated_target_restore_url={url}")
+          PY
+
+      - name: Extract and verify target restore BuildManifest (iOS 26.6.1 / 23G83)
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          mkdir -p out/target-manifest diagnostics
+          # Fetch only BuildManifest.plist from the exact device/build selected by
+          # the IPSW catalog; avoid a second multi-GB restore-image download.
           ipsw download ipsw --device iPhone17,4 --build 23G83 --pattern 'BuildManifest[.]plist$' --output out/target-manifest --confirm 2>&1 | tee diagnostics/target-buildmanifest-extraction.log
           manifest="$(find out/target-manifest -type f -name 'BuildManifest.plist' -print -quit)"
           test -n "$manifest"
-          python3 research/scripts/verify_restore_manifest.py \
-            --manifest "$manifest" \
-            --product-type iPhone17,4 \
-            --product-version 26.6.1 \
-            --build 23G83 \
-            --output diagnostics/target-restore-manifest-verification.json
+          python3 research/scripts/verify_restore_manifest.py --manifest "$manifest" --product-type iPhone17,4 --product-version 26.6.1 --build 23G83 --output diagnostics/target-restore-manifest-verification.json
           echo "manifest_catalog_selection=device:iPhone17,4 build:23G83"
           echo "manifest_file=$manifest"
 
