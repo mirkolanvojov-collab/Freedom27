@@ -62,7 +62,7 @@ jobs:
           urls = []
           for line in metadata.splitlines():
               for token in line.split():
-          candidate = token.strip("(),'")
+              candidate = token.strip("(),'")
                   parsed = urlparse(candidate)
                   if (parsed.scheme == "https"
                           and parsed.hostname == "updates.cdn-apple.com"
