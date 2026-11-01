@@ -75,7 +75,7 @@ jobs:
                   "was returned by the live catalog; refusing to extract."
               )
           url = urls[0]
-          Path("target-ipsw-url.txt").write_text(url + "\\n", encoding="utf-8")
+          Path("target-ipsw-url.txt").write_text(url + "\n", encoding="utf-8")
           print("selected_device=iPhone17,4")
           print("selected_build=23G83")
           print(f"validated_target_restore_url={url}")
