@@ -159,7 +159,9 @@ jobs:
             echo "stage=resolve_23H24_ota"
             echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             # Resolve the direct URL from live OTA metadata; never synthesize an Apple CDN path.
-            ipsw download ota --platform ios --device iPhone17,4 --build 23H24 --urls | tee diagnostics/ios-26.7-23H24-ota-metadata.txt
+            if ! ipsw download ota --platform ios --device iPhone17,4 --build 23H24 --urls 2>&1 | tee diagnostics/ios-26.7-23H24-ota-metadata.txt; then
+              echo "Live OTA metadata lookup failed; continue to bounded catalog fallback."
+            fi
             python3 - <<'PY'
           from pathlib import Path
           from urllib.parse import urlparse
@@ -173,14 +175,18 @@ jobs:
               resolver = "https://api.applesn.info/v4/ota/download/iPhone17%2C4/23H24"
               # /dev/null discards the response body but does not prevent curl from
               # downloading the full OTA. Request only one byte and enforce a hard timeout.
-              result = subprocess.run(
-                  ["curl", "--fail", "--location", "--silent", "--show-error",
-                   "--range", "0-0", "--output", "/dev/null",
-                   "--write-out", "%{url_effective}", "--max-time", "90", resolver],
-                  check=False, capture_output=True, text=True, timeout=95,
-              )
-              candidate = result.stdout.strip()
-              if result.returncode == 0 and urlparse(candidate).scheme == "https" and urlparse(candidate).hostname == "updates.cdn-apple.com":
+              try:
+                  result = subprocess.run(
+                      ["curl", "--fail", "--location", "--silent", "--show-error",
+                       "--range", "0-0", "--output", "/dev/null",
+                       "--write-out", "%{url_effective}", "--max-time", "30", resolver],
+                      check=False, capture_output=True, text=True, timeout=35,
+                  )
+              except (OSError, subprocess.TimeoutExpired) as exc:
+                  result = None
+                  print(f"bounded_catalog_fallback_unavailable={type(exc).__name__}: {exc}")
+              candidate = result.stdout.strip() if result is not None else ""
+              if result is not None and result.returncode == 0 and urlparse(candidate).scheme == "https" and urlparse(candidate).hostname == "updates.cdn-apple.com":
                   urls = [candidate]
                   Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").write_text(
                       Path("diagnostics/ios-26.7-23H24-ota-metadata.txt").read_text()
