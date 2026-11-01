@@ -45,17 +45,55 @@ jobs:
           brew install blacktop/tap/ipsw
           ipsw version
 
-      - name: Extract target dyld cache (iOS 26.6.1 / 23G83)
+      - name: Resolve exact target-device restore image (iOS 26.6.1 / 23G83)
         shell: bash
-        timeout-minutes: 25
+        timeout-minutes: 10
         run: |
           set -euo pipefail
           mkdir -p out/target diagnostics
-          target_url='https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75160/D83A8969-3179-4D59-9F72-37FFC825CD9A/iPhone17,4_26.6.1_23G83_Restore.ipsw'
+          # Resolve the restore URL from the live IPSW catalog for the exact
+          # hardware identifier and build. Never construct an Apple CDN URL.
+          ipsw download ipsw --device iPhone17,4 --build 23G83 --urls 2>&1 | tee diagnostics/target-ipsw-metadata.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          metadata = Path("diagnostics/target-ipsw-metadata.txt").read_text(encoding="utf-8")
+          urls = []
+          for line in metadata.splitlines():
+              for token in line.split():
+                  candidate = token.strip("(),'\\"")
+                  parsed = urlparse(candidate)
+                  if (parsed.scheme == "https"
+                          and parsed.hostname == "updates.cdn-apple.com"
+                          and candidate.endswith(".ipsw")
+                          and "iPhone17,4_26.6.1_23G83_Restore.ipsw" in parsed.path):
+                      urls.append(candidate)
+          if not urls:
+              raise SystemExit(
+                  "No Apple CDN restore URL whose filename matches iPhone17,4 / 23G83 "
+                  "was returned by the live catalog; refusing to extract."
+              )
+          url = urls[0]
+          Path("target-ipsw-url.txt").write_text(url + "\\n", encoding="utf-8")
+          print("selected_device=iPhone17,4")
+          print("selected_build=23G83")
+          print(f"validated_target_restore_url={url}")
+          PY
+
+      - name: Extract target dyld cache (iOS 26.6.1 / 23G83)
+        shell: bash
+        timeout-minutes: 35
+        run: |
+          set -euo pipefail
+          mkdir -p out/target diagnostics
+          target_url="$(cat target-ipsw-url.txt)"
           {
             echo "stage=target_dyld_extraction"
+            echo "device=iPhone17,4"
+            echo "build=23G83"
+            echo "restore_url=$target_url"
             echo "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "runner=$(sw_vers -productVersion)"
             ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --remote --output out/target "$target_url"
             echo "finished_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             find out/target -type f -name 'dyld_shared_cache_arm64e' -print
