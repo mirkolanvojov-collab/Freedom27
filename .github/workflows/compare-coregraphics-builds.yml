@@ -217,11 +217,19 @@ jobs:
             otool -l "$target_binary" > diagnostics/target-coregraphics-load-commands.txt
             otool -l "$fixed_binary" > diagnostics/fixed-coregraphics-load-commands.txt
 
+            # Resolve the semantic limit from the actual d4 load in each build.
+            # A fixed section-relative offset is not a stable identifier across Mach-O layouts.
+            ipsw macho disass --force --symbol _path_coordinates_are_safe "$target_binary" \
+              > diagnostics/target-path-coordinates-are-safe.txt
+            ipsw macho disass --force --symbol _path_coordinates_are_safe "$fixed_binary" \
+              > diagnostics/fixed-path-coordinates-are-safe.txt
             python3 research/scripts/compare_coordinate_safety_limit.py \
               --target-binary "$target_binary" \
               --target-load-commands diagnostics/target-coregraphics-load-commands.txt \
+              --target-disassembly diagnostics/target-path-coordinates-are-safe.txt \
               --fixed-binary "$fixed_binary" \
               --fixed-load-commands diagnostics/fixed-coregraphics-load-commands.txt \
+              --fixed-disassembly diagnostics/fixed-path-coordinates-are-safe.txt \
               --output coordinate-safety-limit-validation.json
 
             # Static comparison only; neither binary is executed.
