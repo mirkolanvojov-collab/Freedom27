@@ -5,7 +5,7 @@ Target device: iPhone 16 Plus (`iPhone17,4`, board `D48AP`). This is a release i
 | Priority | Release | Build | Target-device applicability / provenance | Current static CoreGraphics evidence |
 |---:|---|---|---|---|
 | Baseline | iOS 26.6.1 | 23G83 | Target-device restore image; baseline | Compared against 23H30; 25 shared `aa_*` symbols, 15 normalized streams differ |
-| 4 | iOS 26.6.2 | 23G90 | Target-device restore image (`iPhone17,4_26.6.2_23G90_Restore.ipsw`) remains listed and is unsigned per the exact-device catalog checked 2026-11-01; unsigned status blocks normal restore authorization, not read-only offline extraction | Not yet extracted or compared |
+| 4 | iOS 26.6.2 | 23G90 | Target-device restore image (`iPhone17,4_26.6.2_23G90_Restore.ipsw`) remains listed. Signing status is inconsistent across current catalogs: the exact-device IPSW.me page marks it unsigned, while AppleSN's current build catalog lists 23G90 as signed for 31 devices (checked 2026-11-01). Static offline extraction does not depend on restore authorization | Not yet extracted or compared |
 | Historical | iOS 26.7 | 23H24 | Target-device image listed | Compared against 23H30; 25 shared `aa_*` symbols, 15 normalized streams differ |
 | Reference | iOS 26.7.1 | 23H30 | Fixed-reference build | Reference CoreGraphics hash/UUID recorded; antialiasing clamp constants validated |
 | Excluded pending compatible firmware | iOS 26.7.2 | 23H128 | The matrix workflow's device/build filter returned zero iPhone17,4 IPSWs for this build; the previous attempt failed before extraction. Treat the advisory as release-level context only unless a compatible target-device image is independently verified. | Not analyzed; no binary-comparison evidence |
@@ -25,7 +25,8 @@ Target device: iPhone 16 Plus (`iPhone17,4`, board `D48AP`). This is a release i
 - Apple security releases: https://support.apple.com/en-us/100100
 - Apple Developer release feed: https://developer.apple.com/news/releases/
 - iPhone 16 Plus device firmware catalog: https://www.ipsw.dev/iPhone17%2C4
-- Exact iPhone17,4 / 23G90 image and signing status: https://ipsw.me/download/iPhone17%2C4/23G90/
+- Exact iPhone17,4 / 23G90 image and signing status (IPSW.me): https://ipsw.me/download/iPhone17%2C4/23G90/
+- Cross-catalog 23G90 signing status (AppleSN): https://applesn.info/firmware/ios/
 - iOS 26.7.2 Apple security advisory (released 2026-10-26): https://support.apple.com/en-us/149227
 - iOS 27.2 Apple security advisory (released 2026-10-26): https://support.apple.com/en-us/149230
 - Device-specific iOS 27.2 restore image listing: https://ipsw.me/install/iPhone17%2C4/24B119/
