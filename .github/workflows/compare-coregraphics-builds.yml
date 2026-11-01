@@ -81,14 +81,26 @@ jobs:
 
       - name: Extract and verify target restore BuildManifest (iOS 26.6.1 / 23G83)
         shell: bash
-        timeout-minutes: 15
+        timeout-minutes: 45
         run: |
           set -euo pipefail
-          mkdir -p out/target-manifest diagnostics
-          # Retain the separately retrieved manifest, then download the complete
-          # exact-device/build restore IPSW so its embedded manifest and bytes can
-          # be bound before any target dyld extraction.
-          ipsw download ipsw --device iPhone17,4 --build 23G83 --pattern 'BuildManifest[.]plist
+          mkdir -p out/target-manifest out/target-restore diagnostics
+          # Download the separate manifest first, then the complete exact-device
+          # restore image. The verifier binds them byte-for-byte and hashes the
+          # full IPSW before any target dyld extraction.
+          ipsw download ipsw --device iPhone17,4 --build 23G83 --pattern 'BuildManifest[.]plist$' --output out/target-manifest --confirm 2>&1 | tee diagnostics/target-buildmanifest-extraction.log
+          manifest="$(find out/target-manifest -type f -name 'BuildManifest.plist' -print -quit)"
+          test -n "$manifest"
+          echo "disk_before_full_restore_download:"
+          df -h
+          ipsw download ipsw --device iPhone17,4 --build 23G83 --output out/target-restore --confirm 2>&1 | tee diagnostics/target-full-ipsw-download.log
+          ipsw_file="$(find out/target-restore -type f -name '*.ipsw' -print -quit)"
+          test -n "$ipsw_file"
+          echo "restore_ipsw_file=$ipsw_file"
+          python3 research/scripts/verify_restore_manifest.py --manifest "$manifest" --ipsw "$ipsw_file" --product-type iPhone17,4 --product-version 26.6.1 --build 23G83 --output diagnostics/target-restore-manifest-verification.json
+          echo "manifest_catalog_selection=device:iPhone17,4 build:23G83"
+          echo "manifest_file=$manifest"
+          echo "restore_image_file=$ipsw_file"
 
       - name: Extract target dyld cache (iOS 26.6.1 / 23G83)
         shell: bash
