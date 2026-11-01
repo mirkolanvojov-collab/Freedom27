@@ -1,7 +1,10 @@
+import hashlib
 import plistlib
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
+
 from research.scripts.verify_restore_manifest import verify
 
 
@@ -28,6 +31,41 @@ class RestoreManifestTests(unittest.TestCase):
             self.assertEqual(report["manifest_identity"]["supported_product_types"], ["iPhone17,4"])
             self.assertEqual(len(report["manifest_identity"]["build_identities"]), 1)
             self.assertEqual(len(report["manifest_sha256"]), 64)
+            self.assertIsNone(report["restore_image"])
+
+    def test_binds_full_restore_image_digest_and_embedded_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self.fixture(root)
+            image = root / "fixture.ipsw"
+            with zipfile.ZipFile(image, "w", compression=zipfile.ZIP_STORED) as archive:
+                archive.write(manifest, "BuildManifest.plist")
+                archive.writestr("dummy.bin", b"firmware bytes")
+            report = verify(manifest, "iPhone17,4", "26.6.1", "23G83", image)
+            self.assertTrue(report["restore_image"]["archive_manifest_matches"])
+            self.assertEqual(report["restore_image"]["manifest_member"], "BuildManifest.plist")
+            self.assertEqual(report["restore_image"]["sha256"], hashlib.sha256(image.read_bytes()).hexdigest())
+            self.assertEqual(report["restore_image"]["size_bytes"], image.stat().st_size)
+
+    def test_rejects_embedded_manifest_mismatch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self.fixture(root)
+            image = root / "fixture.ipsw"
+            with zipfile.ZipFile(image, "w") as archive:
+                archive.writestr("BuildManifest.plist", b"not the verified manifest")
+            with self.assertRaisesRegex(ValueError, "differs byte-for-byte"):
+                verify(manifest, "iPhone17,4", "26.6.1", "23G83", image)
+
+    def test_rejects_missing_embedded_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self.fixture(root)
+            image = root / "fixture.ipsw"
+            with zipfile.ZipFile(image, "w") as archive:
+                archive.writestr("other.plist", b"x")
+            with self.assertRaisesRegex(ValueError, "no root BuildManifest"):
+                verify(manifest, "iPhone17,4", "26.6.1", "23G83", image)
 
     def test_rejects_wrong_build(self):
         with tempfile.TemporaryDirectory() as directory:
