@@ -113,3 +113,21 @@ The 23G83-labeled comparison JSON still reports CoreGraphics SHA-256 `9c2003a712
 The separate 23H24-to-23H30 stage completed successfully. Its 23H24 CoreGraphics is 9,294,928 bytes, SHA-256 `c2148f5b9ddfd03ba2989f4410ef5421c55814a5f2d2891c1b548d09234288ee`, UUID `4C04F0CB-7A29-3BE8-9B93-4E86FE0DEC4E`. It compared 25/25 common `aa_*` symbols, found 15 normalized instruction-stream differences, and had zero disassembly failures. Its conversion CFG audit reports 21 target conversion sites versus 24 in fixed 23H30; structural guard/clamp observations remain heuristic and are not proof of operand-level guarding or vulnerability.
 
 Artifacts: diagnostics ZIP [13096103717](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/41338740145/artifacts/13096103717); comparison evidence ZIP [13096018844](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/41338740145/artifacts/13096018844).
+
+
+## 23G83 BuildManifest verification — workflow run 41340835900 (2026-11-01)
+
+The workflow [41340835900](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/41340835900) successfully resolved the live catalog URL for iPhone17,4 / 23G83, retrieved BuildManifest.plist from that exact catalog selection, and passed the new fail-closed verifier before remote dyld extraction.
+
+- Manifest size: 471,784 bytes.
+- Manifest SHA-256: 0a1253579fffc40fb3353b9618fb8299190c48857b3af26734db2dbf63f3dfd6.
+- ProductVersion=26.6.1, ProductBuildVersion=23G83.
+- SupportedProductTypes=[iPhone17,4].
+- Three BuildIdentities; each reports DeviceClass=d48ap, ApChipID=0x8140, ApBoardID=0x0A, with erase, update, and recovery variants.
+- Remote dyld extraction for the resolved Apple CDN URL completed successfully.
+
+This strengthens catalog-to-manifest identity evidence, but does not close the full chain-of-custody issue: the workflow retrieves the manifest via a selective remote IPSW member request, then separately performs remote dyld extraction. It does not download and hash the complete IPSW or cryptographically bind the retrieved manifest bytes to the exact source bytes used by remote extraction. The historical CoreGraphics hash conflict is therefore still unresolved, and the new target binary remains quarantined from exact-build conclusions.
+
+The same run failed later in the optional 23H24 OTA-resolution step because ipsw download ota could not resolve gdmf.apple.com (DNS failure). The fixed 23H30 OTA had already downloaded and extracted successfully. No 23H24 or CoreGraphics comparison ran in this attempt. This is an external metadata-service availability failure, not a failure of the 23G83 manifest check.
+
+Diagnostics artifact: [13098420071](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/41340835900/artifacts/13098420071).
