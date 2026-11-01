@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/compare-coregraphics-builds.yml"
       - ".github/workflows/validate-workflow-syntax.yml"
+      - ".github/workflows/reconcile-coregraphics-23g83-23g90.yml"
   pull_request:
     branches:
       - main
