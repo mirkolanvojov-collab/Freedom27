@@ -32,6 +32,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p diagnostics
           brew trust --formula blacktop/tap/ipsw-frida
           brew install blacktop/tap/ipsw
           ipsw version | tee diagnostics-ipsw-version.txt
@@ -55,7 +56,11 @@ jobs:
               "23G83": ("101aed9c3d5513b598a2b22da7bda5843a051adbe0430f23faed546c1613bd0f", "26.6.1"),
               "23G90": ("3c8d4bb6bfe6273ea297c2571e0108e196ef0e1da28c6c98dd268d35a4527480", "26.6.2"),
           }
-          digest = hashlib.sha256(image.read_bytes()).hexdigest()
+          digest_obj = hashlib.sha256()
+          with image.open('rb') as stream:
+              for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                  digest_obj.update(chunk)
+          digest = digest_obj.hexdigest()
           expected_digest, version = expected[build]
           if digest != expected_digest:
               raise SystemExit(f"{build} IPSW SHA-256 mismatch: {digest}")
