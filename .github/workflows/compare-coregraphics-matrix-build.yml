@@ -14,11 +14,17 @@ on:
           - 23G90
           - 24A437
 
+push:
+  branches:
+    - research/cve-source-reconciliation-2026-10-24
+  paths:
+    - ".github/workflows/compare-coregraphics-matrix-build.yml"
+
 permissions:
   contents: read
 
 concurrency:
-  group: coregraphics-matrix-${{ inputs.target_build || '24B119' }}
+  group: coregraphics-matrix-${{ inputs.target_build || '24A437' }}
   cancel-in-progress: false
 
 jobs:
@@ -26,7 +32,7 @@ jobs:
     runs-on: macos-15-intel
     timeout-minutes: 150
     env:
-      TARGET_BUILD: ${{ inputs.target_build || '24B119' }}
+      TARGET_BUILD: ${{ inputs.target_build || '24A437' }}
       FIXED_BUILD: 23H30
       DEVICE: iPhone17,4
     steps:
@@ -138,6 +144,11 @@ jobs:
             --target-device "$DEVICE" \
             --fixed-device "$DEVICE" \
             --output "coregraphics-$TARGET_BUILD-comparison.json"
+          if [ "$TARGET_BUILD" = "24A437" ]; then
+            actual_target_sha="$(python3 -c 'import json; print(json.load(open("coregraphics-24A437-comparison.json"))["target"]["sha256"])')"
+            echo "locally_verified_restore_coregraphics_sha256=$actual_target_sha"
+            test "$actual_target_sha" = '5e87f6baa2c5f2d83d7e92cddd7d7c02ee852e8db8acab3887c4e7b5a81a0868'
+          fi
 
           target_binary="coregraphics-$TARGET_BUILD-comparison-components/target/CoreGraphics"
           fixed_binary="coregraphics-$TARGET_BUILD-comparison-components/fixed/CoreGraphics"
@@ -197,7 +208,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coregraphics-matrix-${{ inputs.target_build || '24B119' }}-diagnostics
+          name: coregraphics-matrix-${{ inputs.target_build || '24A437' }}-diagnostics
           path: diagnostics/
           if-no-files-found: warn
           retention-days: 14
@@ -206,13 +217,13 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: coregraphics-matrix-${{ inputs.target_build || '24B119' }}-evidence
+          name: coregraphics-matrix-${{ inputs.target_build || '24A437' }}-evidence
           path: |
-            coregraphics-${{ inputs.target_build || '24B119' }}-comparison.json
-            coregraphics-${{ inputs.target_build || '24B119' }}-function-diff.json
-            coregraphics-${{ inputs.target_build || '24B119' }}-constant-validation.json
-            coregraphics-${{ inputs.target_build || '24B119' }}-coordinate-safety-limit.json
-            coregraphics-${{ inputs.target_build || '24B119' }}-conversion-cfg-audit.json
+            coregraphics-${{ inputs.target_build || '24A437' }}-comparison.json
+            coregraphics-${{ inputs.target_build || '24A437' }}-function-diff.json
+            coregraphics-${{ inputs.target_build || '24A437' }}-constant-validation.json
+            coregraphics-${{ inputs.target_build || '24A437' }}-coordinate-safety-limit.json
+            coregraphics-${{ inputs.target_build || '24A437' }}-conversion-cfg-audit.json
           if-no-files-found: error
 
       - name: Remove downloaded firmware and extracted binaries
