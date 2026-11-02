@@ -143,6 +143,9 @@ def stream_url_sha256(url: str = URL, expected_size: int = EXPECTED_SIZE_BYTES,
                     digest.update(chunk)
                     total += len(chunk)
 
+                if last_status == 206 and total == response_limit and response.read(1):
+                    # A ranged response must end at its advertised Content-Range.
+                    raise RuntimeError("Ranged response exceeded declared Content-Range")
                 if total == expected_size:
                     # Reject a response that has bytes beyond the pinned representation.
                     if response.read(1):
