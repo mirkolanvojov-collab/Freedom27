@@ -104,7 +104,7 @@ jobs:
                   "Embedded BuildManifest identity is verified; no restore is attempted and no device is accessed."
               ]
           }
-          Path("diagnostics/24A437-restore-verification.json").write_text(json.dumps(report, indent=2) + "\\n")
+          Path("diagnostics/24A437-restore-verification.json").write_text(json.dumps(report, indent=2))
           print(json.dumps(report, indent=2))
           PY
 
@@ -155,7 +155,7 @@ jobs:
                   "Apple restore authorization/signature is not verified by this workflow."
               ]
           }
-          Path("diagnostics/24A437-CoreGraphics-provenance.json").write_text(json.dumps(report, indent=2) + "\\n")
+          Path("diagnostics/24A437-CoreGraphics-provenance.json").write_text(json.dumps(report, indent=2))
           print(json.dumps(report, indent=2))
           PY
 
