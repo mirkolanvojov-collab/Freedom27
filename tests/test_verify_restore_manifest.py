@@ -2,6 +2,7 @@ import hashlib
 import plistlib
 import tempfile
 import unittest
+import warnings
 import zipfile
 from pathlib import Path
 
@@ -65,6 +66,29 @@ class RestoreManifestTests(unittest.TestCase):
             with zipfile.ZipFile(image, "w") as archive:
                 archive.writestr("other.plist", b"x")
             with self.assertRaisesRegex(ValueError, "no root BuildManifest"):
+                verify(manifest, "iPhone17,4", "26.6.1", "23G83", image)
+
+    def test_rejects_duplicate_embedded_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self.fixture(root)
+            image = root / "fixture.ipsw"
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                with zipfile.ZipFile(image, "w") as archive:
+                    archive.writestr("BuildManifest.plist", manifest.read_bytes())
+                    archive.writestr("BuildManifest.plist", manifest.read_bytes())
+            with self.assertRaisesRegex(ValueError, "duplicate root BuildManifest"):
+                verify(manifest, "iPhone17,4", "26.6.1", "23G83", image)
+
+    def test_rejects_oversized_embedded_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self.fixture(root)
+            image = root / "fixture.ipsw"
+            with zipfile.ZipFile(image, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("BuildManifest.plist", manifest.read_bytes() + b"x" * 100000)
+            with self.assertRaisesRegex(ValueError, "differs byte-for-byte"):
                 verify(manifest, "iPhone17,4", "26.6.1", "23G83", image)
 
     def test_rejects_wrong_build(self):
