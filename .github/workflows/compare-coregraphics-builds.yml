@@ -470,6 +470,19 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Upload direct 23H24-to-23H30 raw CoreGraphics binaries
+        if: ${{ success() && hashFiles('coregraphics-26-7-patch-comparison-components/target/CoreGraphics') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coregraphics-raw-binaries-23H24-23H30
+          path: |
+            coregraphics-26-7-patch-comparison-components/target/CoreGraphics
+            coregraphics-26-7-patch-comparison-components/fixed/CoreGraphics
+            coregraphics-26-7-patch-comparison.json
+            coregraphics-26-7-function-diff.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Remove downloaded firmware and extracted binaries
         if: always()
         shell: bash
