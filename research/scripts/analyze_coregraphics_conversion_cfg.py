@@ -155,7 +155,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
     conversions = []
     for i, record in enumerate(records):
         text = record["instruction"].strip()
-        if not re.match(r"^fcvtzs\\b", text):
+        if not re.match(r"^fcvtzs\b", text):
             continue
         dom_records = [records[j] for j in sorted(dominators[i])]
         self_compares = [r for r in dom_records if SELF_COMPARE.match(r["instruction"].strip())]
