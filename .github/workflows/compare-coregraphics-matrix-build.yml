@@ -14,11 +14,11 @@ on:
           - 23G90
           - 24A437
 
-push:
-  branches:
-    - research/cve-source-reconciliation-2026-10-24
-  paths:
-    - ".github/workflows/compare-coregraphics-matrix-build.yml"
+  push:
+    branches:
+      - research/cve-source-reconciliation-2026-10-24
+    paths:
+      - ".github/workflows/compare-coregraphics-matrix-build.yml"
 
 permissions:
   contents: read
