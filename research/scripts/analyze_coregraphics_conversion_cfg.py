@@ -155,7 +155,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
     conversions = []
     for i, record in enumerate(records):
         text = record["instruction"].strip()
-        if "fcvtzs" not in text:
+        if not re.match(r"^fcvtzs\\b", text):
             continue
         dom_records = [records[j] for j in sorted(dominators[i])]
         self_compares = [r for r in dom_records if SELF_COMPARE.match(r["instruction"].strip())]
@@ -165,7 +165,9 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
 
         path_guard_nodes = _path_nan_guard_nodes(records, successors, i)
         bypass_reachable = i in _reachable_from(0, successors, blocked=set(path_guard_nodes))
-        path_guard_coverage = (not bypass_reachable) if i in reachable else False
+        # Unresolved control transfers can hide additional paths. Never
+        # report complete guard coverage when the local CFG is incomplete.
+        path_guard_coverage = (not bypass_reachable and not unresolved) if i in reachable else False
         next_record = records[i + 1] if i + 1 < len(records) else None
         next_text = next_record["instruction"].strip() if next_record else ""
         vector_narrow = re.match(r"^xtn\s+v(\d+)\.2s,\s*v(\d+)\.2d$", next_text)
