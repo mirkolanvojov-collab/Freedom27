@@ -150,6 +150,19 @@ class VerifyIpswStreamTests(unittest.TestCase):
                 sleep=lambda _: None, max_retries=1,
             )
 
+    def test_rejects_extra_bytes_beyond_declared_partial_range(self):
+        responses = [
+            FakeResponse(b"abc", 200),
+            FakeResponse(b"defX", 206, {"Content-Range": "bytes 3-5/8"}),
+        ]
+        def opener(request, timeout):
+            return responses.pop(0)
+        with self.assertRaisesRegex(RuntimeError, "exceeded declared Content-Range"):
+            stream_url_sha256(
+                "https://example.invalid/test", 8, opener=opener,
+                sleep=lambda _: None, max_retries=1,
+            )
+
     def test_rejects_invalid_expected_size_and_retry_count(self):
         with self.assertRaises(ValueError):
             stream_url_sha256("https://example.invalid/test", 0)
