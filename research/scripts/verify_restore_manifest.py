@@ -86,10 +86,18 @@ def verify(
     if ipsw_path is not None:
         image_digest, image_size = sha256_file(ipsw_path)
         with zipfile.ZipFile(ipsw_path) as archive:
-            try:
-                embedded = archive.read("BuildManifest.plist")
-            except KeyError as exc:
-                raise ValueError("restore IPSW has no root BuildManifest.plist member") from exc
+            manifest_members = [member for member in archive.infolist()
+                                if member.filename == "BuildManifest.plist"]
+            if not manifest_members:
+                raise ValueError("restore IPSW has no root BuildManifest.plist member")
+            if len(manifest_members) != 1:
+                raise ValueError("restore IPSW has duplicate root BuildManifest.plist members")
+            member = manifest_members[0]
+            if member.file_size != len(raw):
+                raise ValueError("embedded IPSW BuildManifest.plist differs byte-for-byte from the separately retrieved manifest")
+            # Bound decompression by the separately verified manifest length.
+            with archive.open(member) as stream:
+                embedded = stream.read(len(raw) + 1)
         if embedded != raw:
             raise ValueError("embedded IPSW BuildManifest.plist differs byte-for-byte from the separately retrieved manifest")
         report["restore_image"] = {
