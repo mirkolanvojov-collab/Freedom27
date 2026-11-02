@@ -1,6 +1,10 @@
 name: Acquire 23H24 OTA and record integrity
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/acquire-23h24-ota.yml
   push:
     branches:
       - research/cve-source-reconciliation-2026-10-24
