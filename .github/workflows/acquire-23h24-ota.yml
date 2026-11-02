@@ -1,0 +1,55 @@
+name: Acquire 23H24 OTA and record integrity
+
+on:
+  push:
+    branches:
+      - research/cve-source-reconciliation-2026-10-24
+    paths:
+      - .github/workflows/acquire-23h24-ota.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Resolve direct Apple CDN source
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H24 --urls > candidates.txt
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse, unquote
+          expected = "9fa3dca87b9d18a7329eada91fcd038086f20c37e1aed47f8735f0970b27cd14.aea"
+          candidates = [line.strip() for line in Path("candidates.txt").read_text().splitlines() if line.strip().startswith("https://")]
+          matches = [url for url in candidates if urlparse(url).hostname == "updates.cdn-apple.com" and unquote(urlparse(url).path.rsplit("/",1)[-1]) == expected]
+          if len(matches) != 1:
+              raise SystemExit(f"Expected exactly one matching Apple CDN archive, got {len(matches)}; refusing download")
+          Path("apple-url.txt").write_text(matches[0] + "\n")
+          print("Apple CDN hostname and exact OTA filename verified")
+          PY
+      - name: Download and hash archive without installing or extracting
+        shell: bash
+        timeout-minutes: 60
+        run: |
+          set -euo pipefail
+          url="$(cat apple-url.txt)"
+          curl --fail --location --retry 3 --retry-all-errors --connect-timeout 30 --max-time 3300 --output 23H24.aea "$url"
+          bytes="$(stat -c '%s' 23H24.aea)"
+          test "$bytes" -gt 8000000000
+          test "$bytes" -lt 9500000000
+          digest="$(sha256sum 23H24.aea | cut -d ' ' -f 1)"
+          printf 'device=iPhone17,4\nbuild_requested=23H24\nsource_host=updates.cdn-apple.com\nfilename=9fa3dca87b9d18a7329eada91fcd038086f20c37e1aed47f8735f0970b27cd14.aea\nsize_bytes=%s\nobserved_sha256=%s\nverification_scope=transport_and_observed_digest_only; no independent trusted SHA256 available\n' "$bytes" "$digest" > 23H24-integrity-record.txt
+          cat 23H24-integrity-record.txt
+          rm -f 23H24.aea
+      - name: Upload small integrity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ota-23H24-observed-integrity
+          path: 23H24-integrity-record.txt
+          if-no-files-found: warn
