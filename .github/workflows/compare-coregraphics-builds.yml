@@ -457,6 +457,19 @@ jobs:
             coregraphics-26-7-conversion-cfg-audit.json
           if-no-files-found: error
 
+      - name: Upload independently hashable CoreGraphics Mach-O files
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coregraphics-raw-binaries-23G83-23H30
+          path: |
+            coregraphics-comparison-components/target/CoreGraphics
+            coregraphics-comparison-components/fixed/CoreGraphics
+            coregraphics-comparison.json
+            diagnostics/target-restore-manifest-verification.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Remove downloaded firmware and extracted binaries
         if: always()
         shell: bash
