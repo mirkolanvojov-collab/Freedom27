@@ -24,12 +24,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker run --rm blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H24 --urls > candidates.txt
+          docker run --rm blacktop/ipsw:latest download ota --platform ios --device iPhone17,4 --build 23H24 --urls > candidates.txt 2>&1
+          echo 'Source discovery output (redacted URLs):'
+          sed -E 's#https://[^[:space:]]+#<URL-redacted>#g' candidates.txt | head -60
           python - <<'PY'
           from pathlib import Path
           from urllib.parse import urlparse, unquote
           expected = "9fa3dca87b9d18a7329eada91fcd038086f20c37e1aed47f8735f0970b27cd14.aea"
-          candidates = [line.strip() for line in Path("candidates.txt").read_text().splitlines() if line.strip().startswith("https://")]
+          import re
+          raw = Path("candidates.txt").read_text()
+          candidates = [token.rstrip("\\u0027\\\",)") for token in re.findall(r"https://[^\\s]+", raw)]
+          print(f"Discovered URL-like tokens: {len(candidates)}")
+          print("Source hosts:", sorted({urlparse(u).hostname or "" for u in candidates}))
           matches = [url for url in candidates if urlparse(url).hostname == "updates.cdn-apple.com" and unquote(urlparse(url).path.rsplit("/",1)[-1]) == expected]
           if len(matches) != 1:
               raise SystemExit(f"Expected exactly one matching Apple CDN archive, got {len(matches)}; refusing download")
