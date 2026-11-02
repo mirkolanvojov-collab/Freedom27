@@ -1,0 +1,177 @@
+name: Verify iPhone17,4 24A437 local restore provenance
+
+on:
+  push:
+    branches:
+      - research/cve-source-reconciliation-2026-10-24
+    paths:
+      - ".github/workflows/verify-24a437-local-restore.yml"
+      - "research/scripts/verify_restore_manifest.py"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/verify-24a437-local-restore.yml"
+      - "research/scripts/verify_restore_manifest.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-24a437-local-restore-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Download, hash, manifest-check, and extract CoreGraphics locally
+    runs-on: macos-15-intel
+    timeout-minutes: 210
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install ipsw
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew trust --formula blacktop/tap/ipsw-frida
+          brew install blacktop/tap/ipsw
+          ipsw version | tee ipsw-version.txt
+
+      - name: Download exact-device full restore IPSW
+        shell: bash
+        timeout-minutes: 100
+        run: |
+          set -euo pipefail
+          mkdir -p out/24A437 diagnostics
+          ipsw download ipsw --device iPhone17,4 --build 24A437 --output out/24A437 --confirm 2>&1 | tee diagnostics/24A437-download.log
+          image="$(find out/24A437 -type f -name '*.ipsw' -print -quit)"
+          test -n "$image"
+          echo "$image" > diagnostics/restore-image-path.txt
+
+      - name: Verify full-image checksum and embedded BuildManifest
+        shell: bash
+        timeout-minutes: 45
+        run: |
+          set -euo pipefail
+          image="$(cat diagnostics/restore-image-path.txt)"
+          python3 - "$image" <<'PY'
+          import hashlib, json, plistlib, sys, zipfile
+          from pathlib import Path
+
+          image = Path(sys.argv[1])
+          expected_sha256 = "a8bed747c08709a63e5b9d55fa87bfca2839245f91a82082a8c30b8833fae149"
+          expected_size = 12313212859
+          digest = hashlib.sha256()
+          size = 0
+          with image.open("rb") as stream:
+              for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                  digest.update(chunk)
+                  size += len(chunk)
+          actual_sha256 = digest.hexdigest()
+          if size != expected_size:
+              raise SystemExit(f"IPSW size mismatch: expected {expected_size}, got {size}")
+          if actual_sha256 != expected_sha256:
+              raise SystemExit(f"IPSW SHA-256 mismatch: expected {expected_sha256}, got {actual_sha256}")
+          with zipfile.ZipFile(image) as archive:
+              raw = archive.read("BuildManifest.plist")
+          manifest = plistlib.loads(raw)
+          expected = ("27.0", "24A437")
+          actual = (manifest.get("ProductVersion"), manifest.get("ProductBuildVersion"))
+          if actual != expected:
+              raise SystemExit(f"BuildManifest version/build mismatch: expected {expected}, got {actual}")
+          products = manifest.get("SupportedProductTypes", [])
+          if "iPhone17,4" not in products:
+              raise SystemExit("BuildManifest does not list iPhone17,4")
+          Path("manifests").mkdir(exist_ok=True)
+          Path("manifests/24A437-BuildManifest.plist").write_bytes(raw)
+          report = {
+              "schema_version": 1,
+              "verification": "passed",
+              "device": "iPhone17,4",
+              "product_version": "27.0",
+              "product_build": "24A437",
+              "restore_filename": image.name,
+              "restore_size_bytes": size,
+              "restore_sha256": actual_sha256,
+              "independent_catalog_checksum_match": True,
+              "build_manifest_sha256": hashlib.sha256(raw).hexdigest(),
+              "build_manifest_size_bytes": len(raw),
+              "supported_product_types": products,
+              "build_identity_count": len(manifest.get("BuildIdentities", [])),
+              "signing_status": "reported unsigned by IPSW Downloads and IPSW.dev; AppleSN currently reports signed; signing metadata is not used as an input to offline image verification",
+              "limitations": [
+                  "Catalog SHA-256 agreement plus local hashing establishes file-byte integrity against those catalog records, not Apple's cryptographic restore authorization.",
+                  "Embedded BuildManifest identity is verified; no restore is attempted and no device is accessed."
+              ]
+          }
+          Path("diagnostics/24A437-restore-verification.json").write_text(json.dumps(report, indent=2) + "\\n")
+          print(json.dumps(report, indent=2))
+          PY
+
+      - name: Extract dyld cache locally from verified IPSW
+        shell: bash
+        timeout-minutes: 60
+        run: |
+          set -euo pipefail
+          image="$(cat diagnostics/restore-image-path.txt)"
+          mkdir -p out/dyld
+          ipsw extract --dyld --dyld-arch arm64e --device iPhone17,4 --output out/dyld "$image" 2>&1 | tee diagnostics/24A437-local-dyld-extraction.log
+          cache="$(find out/dyld -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          echo "$cache" > diagnostics/dyld-cache-path.txt
+
+      - name: Extract and fingerprint CoreGraphics from verified local cache
+        shell: bash
+        timeout-minutes: 25
+        run: |
+          set -euo pipefail
+          cache="$(cat diagnostics/dyld-cache-path.txt)"
+          mkdir -p out/coregraphics
+          ipsw dyld extract "$cache" CoreGraphics --output out/coregraphics 2>&1 | tee diagnostics/24A437-coregraphics-extraction.log
+          binary="$(find out/coregraphics -type f -iname 'CoreGraphics' -print -quit)"
+          if [ -z "$binary" ]; then
+            binary="$(find out/coregraphics -type f -iname '*CoreGraphics*' -print -quit)"
+          fi
+          test -n "$binary"
+          shasum -a 256 "$binary" | tee diagnostics/24A437-CoreGraphics.sha256
+          stat -f 'size_bytes=%z' "$binary" | tee diagnostics/24A437-CoreGraphics.size.txt
+          dwarfdump --uuid "$binary" | tee diagnostics/24A437-CoreGraphics.uuid.txt
+          file "$binary" | tee diagnostics/24A437-CoreGraphics.file.txt
+          cp "$binary" out/24A437-CoreGraphics
+          python3 - "$binary" <<'PY'
+          import hashlib, json, sys
+          from pathlib import Path
+          p = Path(sys.argv[1])
+          h = hashlib.sha256(p.read_bytes()).hexdigest()
+          report = {
+              "schema_version": 1,
+              "source_build": "24A437",
+              "source_device": "iPhone17,4",
+              "source": "CoreGraphics extracted locally from dyld_shared_cache_arm64e in the full restore IPSW whose SHA-256 and embedded BuildManifest were verified in the preceding step",
+              "binary_size_bytes": p.stat().st_size,
+              "binary_sha256": h,
+              "limitations": [
+                  "This is static binary provenance only; it does not establish CVE attribution, runtime reachability, exploitability, or code execution.",
+                  "Apple restore authorization/signature is not verified by this workflow."
+              ]
+          }
+          Path("diagnostics/24A437-CoreGraphics-provenance.json").write_text(json.dumps(report, indent=2) + "\\n")
+          print(json.dumps(report, indent=2))
+          PY
+
+      - name: Upload provenance and extracted CoreGraphics evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 24A437-iPhone17,4-local-restore-provenance
+          path: |
+            diagnostics/
+            manifests/
+            out/24A437-CoreGraphics
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Remove downloaded restore image and caches
+        if: always()
+        shell: bash
+        run: rm -rf out
