@@ -111,6 +111,27 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         self.assertEqual(conversion["cfg_nan_guard_branches"][0]["address"], "0x6004")
 
 
+    def test_unresolved_branch_does_not_claim_complete_guard_cutset(self):
+        records = [
+            {"address": "0x9000", "instruction": "fcmp d0, d0"},
+            {"address": "0x9004", "instruction": "b.vs loc_9014"},
+            {"address": "0x9008", "instruction": "fcvtzs w0, d0"},
+            {"address": "0x900c", "instruction": "ret"},
+            {"address": "0x9010", "instruction": "b loc_deadbeef"},
+            {"address": "0x9014", "instruction": "ret"},
+        ]
+        report = analyze_function("_aa_moveto", "fixed", records)
+        self.assertTrue(report["unresolved_control_transfers"])
+        self.assertFalse(report["conversions"][0]["cfg_nan_guard_cutset_coverage"])
+
+    def test_conversion_name_in_operand_is_not_a_conversion(self):
+        records = [
+            {"address": "0xa000", "instruction": "bl _helper_fcvtzs"},
+            {"address": "0xa004", "instruction": "ret"},
+        ]
+        report = analyze_function("_aa_moveto", "target", records)
+        self.assertEqual(report["conversion_count"], 0)
+
     def test_bal_is_unconditional_branch_without_fallthrough(self):
         records = [
             {"address": "0x7000", "instruction": "b.al loc_7008"},
