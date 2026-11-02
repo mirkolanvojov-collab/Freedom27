@@ -2,6 +2,11 @@ name: Resolve 23H24 OTA source metadata
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - research/cve-source-reconciliation-2026-10-24
+    paths:
+      - .github/workflows/resolve-23h24-ota-source.yml
 
 permissions:
   contents: read
