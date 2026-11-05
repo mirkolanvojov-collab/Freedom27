@@ -122,3 +122,16 @@ Apple's iOS 26.7.1 security advisory (https://support.apple.com/en-us/149226; re
 ## Published affected-version applicability checkpoint (2026-11-05)
 
 Apple's iOS 26.7.1 security advisory (https://support.apple.com/en-us/149226) confirms CVE-2026-86950 is a CoreGraphics out-of-bounds write addressed by improved bounds checking and applies to iPhone 11 and later. The NVD record (https://nvd.nist.gov/vuln/detail/CVE-2026-86950, last modified October 27, 2026) lists Apple iOS 26.0 up to but excluding 26.7.1 as affected, which includes our iPhone17,4 target's iOS 26.6.1 (23G83). NVD also records the CVE in CISA's Known Exploited Vulnerabilities catalog (added September 29, 2026). This **resolves published version applicability**, not target-device exploitability. Previous local symbol fingerprint and instruction comparisons corroborate similar CoreGraphics code patterns in 23G83 and 23H24; they do not demonstrate a device crash, an out-of-bounds write, arbitrary code execution, privilege escalation, or persistence. Next research checkpoint is an evidence matrix separating documented software exposure from independently reproduced runtime behavior, without conflating a published CVE with a jailbreak capability.
+
+## Evidence provenance and unresolved target validation (2026-11-05)
+
+| Claim | Evidence class | Status / limitation |
+| --- | --- | --- |
+| iOS 26.6.1 on iPhone17,4 falls within the published affected range for CVE-2026-86950 | Apple advisory and public vulnerability catalogs | **Published applicability**, not a local runtime test |
+| CVE-2026-86950 is a CoreGraphics out-of-bounds write addressed with improved bounds checking in iOS 26.7.1 | Apple advisory, https://support.apple.com/en-us/149226 | **Vendor-confirmed** vulnerability class and fixed release |
+| 23G83 and 23H24 have matching normalized target-side instruction fingerprints for `_aa_moveto` and `_aa_lineto` | Our archived comparison artifact 13455461822 | **Locally verified static binary observation**, not proof of runtime reachability |
+| 23H24 `_aa_lineto` uses vector `fcvtzs` followed by `xtn`, while 23H30 adds scalar comparisons, NaN handling, bounds and fallback logic | Our archived address-preserving disassembly | **Locally verified code-pattern difference**, not independently demonstrated memory corruption |
+| A crafted input causes an out-of-bounds write on the user's exact 23G83 device | No Freedom27 target-device execution or controlled crash evidence | **Unverified** |
+| This vulnerability enables privilege escalation, persistence, or an untethered jailbreak on iPhone17,4 | No chain, entitlement, kernel, or reboot-persistence demonstration | **Unverified / not achieved** |
+
+**Decision:** Public affected-version applicability and local binary patch-pattern reconciliation can be marked complete as *research evidence*. Target-device exploitability and the downstream jailbreak prerequisites must remain separate, open gates. Avoid upgrading static comparison results or third-party demonstrations into claims of a Freedom27 runtime exploit. For personal device safety, Apple's recommended mitigation is to install a patched iOS release; do not treat continued exposure as evidence of jailbreak progress.
