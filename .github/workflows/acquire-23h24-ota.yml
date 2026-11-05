@@ -33,7 +33,7 @@ jobs:
           expected = "9fa3dca87b9d18a7329eada91fcd038086f20c37e1aed47f8735f0970b27cd14.aea"
           import re
           raw = Path("candidates.txt").read_text()
-          candidates = [token.rstrip("\\u0027\\\",)") for token in re.findall(r"https://[^\\s]+", raw)]
+          candidates = [token.rstrip("\\u0027\\\",)") for token in re.findall(r"https://[^\s]+", raw)]
           print(f"Discovered URL-like tokens: {len(candidates)}")
           print("Source hosts:", sorted({urlparse(u).hostname or "" for u in candidates}))
           matches = [url for url in candidates if urlparse(url).hostname == "updates.cdn-apple.com" and unquote(urlparse(url).path.rsplit("/",1)[-1]) == expected]
