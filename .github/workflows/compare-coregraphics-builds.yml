@@ -148,6 +148,31 @@ jobs:
           ipsw dyld --help > diagnostics/ipsw-dyld-inspection-help.txt 2>&1 || true
           cat diagnostics/target-dyld-cache-provenance.txt
 
+      - name: Inventory all target dyld cache components
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          root=Path("out/target")
+          files=sorted(p for p in root.rglob("*") if p.is_file() and p.name.startswith("dyld_shared_cache_arm64e"))
+          if not files:
+              raise SystemExit("No arm64e cache components found")
+          report={"device":"iPhone17,4","build":"23G83","scope":"extracted cache component inventory only; no executable linkage or runtime execution","components":[]}
+          for p in files:
+              digest=hashlib.sha256()
+              with p.open("rb") as stream:
+                  for chunk in iter(lambda:stream.read(8*1024*1024),b""):
+                      digest.update(chunk)
+              report["components"].append({"relative_path":str(p.relative_to(root)),"size_bytes":p.stat().st_size,"sha256":digest.hexdigest()})
+          report["total_component_bytes"]=sum(x["size_bytes"] for x in report["components"])
+          Path("diagnostics/target-dyld-cache-components.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({"component_count":len(files),"total_component_bytes":report["total_component_bytes"]},indent=2))
+          PY
+          ipsw dyld imports --help > diagnostics/ipsw-dyld-imports-help.txt 2>&1 || true
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
