@@ -194,6 +194,10 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
                 continue
             if compare_match.group(1) != source_register:
                 continue
+            # Diagnostic matches must precede the conversion and be reachable
+            # from the function entry; neither condition proves protection.
+            if branch_index >= i or branch_index not in reachable:
+                continue
             if re.match(r"^str\s", store_text):
                 separated_store_pairs.append(records[branch_index]["address"])
             else:
