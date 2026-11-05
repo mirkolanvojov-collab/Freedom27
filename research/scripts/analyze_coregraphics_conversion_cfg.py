@@ -182,6 +182,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
         source_match = re.match(r"^fcvtzs\s+\w+,\s*([sd]\d+)\b", text)
         source_register = source_match.group(1) if source_match else None
         separated_store_pairs = []
+        separated_adrp_pairs = []
         for branch_index in range(2, len(records)):
             branch_text = records[branch_index]["instruction"].strip()
             if not re.match(r"^b\.(?:vs|vc)\b", branch_text):
@@ -189,11 +190,14 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
             store_text = records[branch_index - 1]["instruction"].strip()
             compare_text = records[branch_index - 2]["instruction"].strip()
             compare_match = SELF_COMPARE.match(compare_text)
-            if not (re.match(r"^str\s", store_text) and compare_match):
+            if not (re.match(r"^(?:str|adrp)\s", store_text) and compare_match):
                 continue
             if compare_match.group(1) != source_register:
                 continue
-            separated_store_pairs.append(records[branch_index]["address"])
+            if re.match(r"^str\s", store_text):
+                separated_store_pairs.append(records[branch_index]["address"])
+            else:
+                separated_adrp_pairs.append(records[branch_index]["address"])
         bypass_reachable = i in _reachable_from(0, successors, blocked=set(path_guard_nodes))
         # Unresolved control transfers can hide additional paths. Never
         # report complete guard coverage when the local CFG is incomplete.
@@ -229,6 +233,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
                 "accepted_nan_successor_exclusion_pairs": len(path_guard_nodes),
                 "pairs_not_excluding_conversion": len(excluded_nan_successor),
                 "same_source_compare_branch_separated_by_store": separated_store_pairs,
+                "same_source_compare_branch_separated_by_adrp": separated_adrp_pairs,
                 "entry_bypass_after_candidate_removal": bypass_reachable,
                 "unresolved_transfer_count": len(unresolved),
                 "note": "Structural diagnostics only; no register/flag dataflow or safety proof.",
