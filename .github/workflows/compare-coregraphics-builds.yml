@@ -129,6 +129,25 @@ jobs:
           echo "disk_after_target_restore_cleanup:"
           df -h
 
+      - name: Preserve target dyld-cache provenance and available inspection commands
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          {
+            echo "build=23G83"
+            echo "device=iPhone17,4"
+            echo "cache_filename=$(basename "$cache")"
+            echo "cache_size_bytes=$(stat -f '%z' "$cache")"
+            echo "cache_sha256=$(shasum -a 256 "$cache" | awk '{print $1}')"
+            echo "cache_file_type=$(file -b "$cache")"
+            echo "scope=cache_identity_only; no executable linkage or runtime invocation established"
+          } > diagnostics/target-dyld-cache-provenance.txt
+          ipsw dyld --help > diagnostics/ipsw-dyld-inspection-help.txt 2>&1 || true
+          cat diagnostics/target-dyld-cache-provenance.txt
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
