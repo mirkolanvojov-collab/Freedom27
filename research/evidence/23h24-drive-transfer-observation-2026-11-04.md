@@ -150,3 +150,17 @@ This checkpoint deliberately separates the documented CoreGraphics vulnerability
 | Untethered persistence after reboot | No target-specific capability evidence | **Not demonstrated** |
 
 Apple describes CVE-2026-86950 as an out-of-bounds write whose impact **may** include arbitrary code execution from processing a crafted file; this statement does not imply a demonstrated Freedom27 exploit or downstream jailbreak privileges. No device test, proof of kernel access, persistence test, or exploit chain is part of the available evidence. The research result is a documented entry-point candidate, **not** a completed jailbreak primitive. For user-device security, installing an Apple-patched release mitigates the published vulnerability.
+
+## CoreGraphics execution-context and sandbox-boundary assessment (2026-11-05)
+
+**Public platform constraints:** Apple's runtime-process security guide (https://support.apple.com/guide/security/security-of-runtime-process-sec15bfe098e/web) documents app sandboxing, signed entitlements, ASLR and executable-memory restrictions. Apple's Quick Look developer documentation (https://developer.apple.com/documentation/QuickLook) documents PDF preview support, and WebKit's GPU-process architecture (https://webkit.org/blog/14445/webkit-features-in-safari-17-0/) illustrates that drawing can occur in a separate process. These are platform-level descriptions, **not** proof of the precise process handling the affected CoreGraphics rasterization path on iPhone17,4 / iOS 26.6.1.
+
+| Context claim | Evidence | Assessment |
+| --- | --- | --- |
+| CoreGraphics functionality may be reached through document or graphics rendering | Public framework descriptions and published CVE context | Plausible entry surfaces, not route-specific confirmation |
+| Specific vulnerable path's hosting process on 23G83 | No target-process trace or process identity record | **Unknown** |
+| Sandbox profile, effective privileges, and signed entitlements of that process | No verified target-process metadata | **Unknown** |
+| Exploitation would escape its sandbox or modify protected system resources | No Freedom27 execution or privilege evidence | **Not demonstrated** |
+| Persistence across device reboot | No persistence or reboot evidence | **Not demonstrated** |
+
+**Decision:** Do not infer the vulnerable function's privilege level from the CoreGraphics library name, a PDF preview feature, or a generic WebKit process diagram. Treat process identity, sandbox, and entitlements as distinct unresolved questions. Continue evidence-based static research without claiming device-level code execution or an untethered jailbreak.
