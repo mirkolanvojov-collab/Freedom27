@@ -179,7 +179,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
         # Diagnostic only: a single intervening STR does not update NZCV.
         # Match the compared source register to the conversion operand;
         # do not change the conservative cutset result.
-        source_match = re.match(r"^fcvtzs\\s+\\w+,\\s*([sd]\\d+)\\b", text)
+        source_match = re.match(r"^fcvtzs\s+\w+,\s*([sd]\d+)\b", text)
         source_register = source_match.group(1) if source_match else None
         separated_store_pairs = []
         for branch_index in range(2, len(records)):
@@ -189,7 +189,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
             store_text = records[branch_index - 1]["instruction"].strip()
             compare_text = records[branch_index - 2]["instruction"].strip()
             compare_match = SELF_COMPARE.match(compare_text)
-            if not (re.match(r"^str\\s", store_text) and compare_match):
+            if not (re.match(r"^str\s", store_text) and compare_match):
                 continue
             if compare_match.group(1) != source_register:
                 continue
