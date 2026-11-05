@@ -176,6 +176,24 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
             adjacent_pairs.append(branch_index)
             if branch_index not in path_guard_nodes:
                 excluded_nan_successor.append(branch_index)
+        # Diagnostic only: a single intervening STR does not update NZCV.
+        # Match the compared source register to the conversion operand;
+        # do not change the conservative cutset result.
+        source_match = re.match(r"^fcvtzs\\s+\\w+,\\s*([sd]\\d+)\\b", text)
+        source_register = source_match.group(1) if source_match else None
+        separated_store_pairs = []
+        for branch_index in range(2, len(records)):
+            branch_text = records[branch_index]["instruction"].strip()
+            if not re.match(r"^b\\.(?:vs|vc)\\b", branch_text):
+                continue
+            store_text = records[branch_index - 1]["instruction"].strip()
+            compare_text = records[branch_index - 2]["instruction"].strip()
+            compare_match = SELF_COMPARE.match(compare_text)
+            if not (re.match(r"^str\\s", store_text) and compare_match):
+                continue
+            if compare_match.group(1) != source_register:
+                continue
+            separated_store_pairs.append(records[branch_index]["address"])
         bypass_reachable = i in _reachable_from(0, successors, blocked=set(path_guard_nodes))
         # Unresolved control transfers can hide additional paths. Never
         # report complete guard coverage when the local CFG is incomplete.
@@ -210,6 +228,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
                 "adjacent_self_compare_nan_branch_pairs": len(adjacent_pairs),
                 "accepted_nan_successor_exclusion_pairs": len(path_guard_nodes),
                 "pairs_not_excluding_conversion": len(excluded_nan_successor),
+                "same_source_compare_branch_separated_by_store": separated_store_pairs,
                 "entry_bypass_after_candidate_removal": bypass_reachable,
                 "unresolved_transfer_count": len(unresolved),
                 "note": "Structural diagnostics only; no register/flag dataflow or safety proof.",
