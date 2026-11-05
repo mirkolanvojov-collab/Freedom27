@@ -203,13 +203,13 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
             # Require the branch's NaN successor to bypass this conversion.
             # This remains a local structural diagnostic, not NZCV provenance.
             target = _target_address(branch_text)
-            if re.match(r"^b\\.vs\\b", branch_text):
+            if re.match(r"^b\.vs\b", branch_text):
                 nan_successor = address_to_index.get(target) if target is not None else None
             else:
                 nan_successor = branch_index + 1 if branch_index + 1 < len(records) else None
             if nan_successor is not None and i not in _reachable_from(nan_successor, successors):
                 separated_nan_successor_excluding_pairs.append(records[branch_index]["address"])
-            if re.match(r"^str\\s", store_text):
+            if re.match(r"^str\s", store_text):
                 separated_store_pairs.append(records[branch_index]["address"])
             else:
                 separated_adrp_pairs.append(records[branch_index]["address"])
