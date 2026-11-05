@@ -135,3 +135,18 @@ Apple's iOS 26.7.1 security advisory (https://support.apple.com/en-us/149226) co
 | This vulnerability enables privilege escalation, persistence, or an untethered jailbreak on iPhone17,4 | No chain, entitlement, kernel, or reboot-persistence demonstration | **Unverified / not achieved** |
 
 **Decision:** Public affected-version applicability and local binary patch-pattern reconciliation can be marked complete as *research evidence*. Target-device exploitability and the downstream jailbreak prerequisites must remain separate, open gates. Avoid upgrading static comparison results or third-party demonstrations into claims of a Freedom27 runtime exploit. For personal device safety, Apple's recommended mitigation is to install a patched iOS release; do not treat continued exposure as evidence of jailbreak progress.
+
+## Jailbreak-capability evidence gates (2026-11-05)
+
+This checkpoint deliberately separates the documented CoreGraphics vulnerability from capabilities needed for a device jailbreak.
+
+| Capability gate | Evidence available | Conclusion |
+| --- | --- | --- |
+| Published affected-version applicability for iPhone17,4 on 23G83 | Apple's iOS 26.7.1 advisory (https://support.apple.com/en-us/149226) and prior version-reconciliation notes | Supported by vendor disclosure and version mapping |
+| Vulnerable-code-family and patch-pattern identification | Locally archived normalized instruction and address-preserving CoreGraphics comparisons, artifact 13455461822 | Static binary pattern relationship supported |
+| Controlled code execution on the exact iPhone17,4 / 23G83 target | No Freedom27 device execution evidence | **Not demonstrated** |
+| Escape from a renderer or application sandbox | No target-specific capability evidence | **Not demonstrated** |
+| Kernel privileges or protected-system modifications | No target-specific capability evidence | **Not demonstrated** |
+| Untethered persistence after reboot | No target-specific capability evidence | **Not demonstrated** |
+
+Apple describes CVE-2026-86950 as an out-of-bounds write whose impact **may** include arbitrary code execution from processing a crafted file; this statement does not imply a demonstrated Freedom27 exploit or downstream jailbreak privileges. No device test, proof of kernel access, persistence test, or exploit chain is part of the available evidence. The research result is a documented entry-point candidate, **not** a completed jailbreak primitive. For user-device security, installing an Apple-patched release mitigates the published vulnerability.
