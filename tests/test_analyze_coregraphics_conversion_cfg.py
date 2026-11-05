@@ -182,6 +182,34 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         conversion = analyze_function("_aa_quadto", "fixed", records)["conversions"][0]
         self.assertEqual(conversion["cfg_guard_candidate_diagnostics"]["same_source_compare_branch_separated_by_store"], [])
 
+    def test_adrp_separated_same_source_branch_is_diagnostic_only(self):
+        records = [
+            {"address": "0xf000", "instruction": "fcmp d0, d0"},
+            {"address": "0xf004", "instruction": "adrp x8, 0x10000"},
+            {"address": "0xf008", "instruction": "b.vs loc_f014"},
+            {"address": "0xf00c", "instruction": "fcvtzs w9, d0"},
+            {"address": "0xf010", "instruction": "ret"},
+            {"address": "0xf014", "instruction": "mov w9, #0"},
+            {"address": "0xf018", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]
+        diagnostics = conversion["cfg_guard_candidate_diagnostics"]
+        self.assertEqual(diagnostics["same_source_compare_branch_separated_by_adrp"], ["0xf008"])
+        self.assertEqual(diagnostics["same_source_compare_branch_separated_by_store"], [])
+        self.assertFalse(conversion["cfg_nan_guard_cutset_coverage"])
+
+    def test_adrp_separated_different_source_branch_is_not_matched(self):
+        records = [
+            {"address": "0xf100", "instruction": "fcmp d1, d1"},
+            {"address": "0xf104", "instruction": "adrp x8, 0x10000"},
+            {"address": "0xf108", "instruction": "b.vs loc_f114"},
+            {"address": "0xf10c", "instruction": "fcvtzs w9, d0"},
+            {"address": "0xf110", "instruction": "ret"},
+            {"address": "0xf114", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]
+        self.assertEqual(conversion["cfg_guard_candidate_diagnostics"]["same_source_compare_branch_separated_by_adrp"], [])
+
     def test_conversion_name_in_operand_is_not_a_conversion(self):
         records = [
             {"address": "0xa000", "instruction": "bl _helper_fcvtzs"},
