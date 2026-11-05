@@ -124,6 +124,36 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         self.assertTrue(report["unresolved_control_transfers"])
         self.assertFalse(report["conversions"][0]["cfg_nan_guard_cutset_coverage"])
 
+    def test_diagnostics_for_excluding_nan_branch(self):
+        records = [
+            {"address": "0xb000", "instruction": "fcmp d0, d0"},
+            {"address": "0xb004", "instruction": "b.vs loc_b010"},
+            {"address": "0xb008", "instruction": "fcvtzs w0, d0"},
+            {"address": "0xb00c", "instruction": "ret"},
+            {"address": "0xb010", "instruction": "ret"},
+        ]
+        result = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]
+        diagnostics = result["cfg_guard_candidate_diagnostics"]
+        self.assertEqual(diagnostics["adjacent_self_compare_nan_branch_pairs"], 1)
+        self.assertEqual(diagnostics["accepted_nan_successor_exclusion_pairs"], 1)
+        self.assertEqual(diagnostics["pairs_not_excluding_conversion"], 0)
+        self.assertTrue(result["cfg_nan_guard_cutset_coverage"])
+
+    def test_diagnostics_for_non_excluding_nan_branch(self):
+        records = [
+            {"address": "0xc000", "instruction": "fcmp d0, d0"},
+            {"address": "0xc004", "instruction": "b.vs loc_c00c"},
+            {"address": "0xc008", "instruction": "nop"},
+            {"address": "0xc00c", "instruction": "fcvtzs w0, d0"},
+            {"address": "0xc010", "instruction": "ret"},
+        ]
+        result = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]
+        diagnostics = result["cfg_guard_candidate_diagnostics"]
+        self.assertEqual(diagnostics["adjacent_self_compare_nan_branch_pairs"], 1)
+        self.assertEqual(diagnostics["accepted_nan_successor_exclusion_pairs"], 0)
+        self.assertEqual(diagnostics["pairs_not_excluding_conversion"], 1)
+        self.assertFalse(result["cfg_nan_guard_cutset_coverage"])
+
     def test_conversion_name_in_operand_is_not_a_conversion(self):
         records = [
             {"address": "0xa000", "instruction": "bl _helper_fcvtzs"},
