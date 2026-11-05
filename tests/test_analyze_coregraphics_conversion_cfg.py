@@ -167,6 +167,7 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         conversion = analyze_function("_aa_quadto", "fixed", records)["conversions"][0]
         diagnostics = conversion["cfg_guard_candidate_diagnostics"]
         self.assertEqual(diagnostics["same_source_compare_branch_separated_by_store"], ["0xd008"])
+        self.assertEqual(diagnostics["same_source_separated_nan_successor_excluding_pairs"], ["0xd008"])
         self.assertEqual(diagnostics["adjacent_self_compare_nan_branch_pairs"], 0)
         self.assertFalse(conversion["cfg_nan_guard_cutset_coverage"])
 
@@ -195,6 +196,7 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         conversion = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]
         diagnostics = conversion["cfg_guard_candidate_diagnostics"]
         self.assertEqual(diagnostics["same_source_compare_branch_separated_by_adrp"], ["0xf008"])
+        self.assertEqual(diagnostics["same_source_separated_nan_successor_excluding_pairs"], ["0xf008"])
         self.assertEqual(diagnostics["same_source_compare_branch_separated_by_store"], [])
         self.assertFalse(conversion["cfg_nan_guard_cutset_coverage"])
 
@@ -234,6 +236,19 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         ]
         conversion = analyze_function("_aa_clip_edge", "fixed", records)["conversions"][0]
         self.assertEqual(conversion["cfg_guard_candidate_diagnostics"]["same_source_compare_branch_separated_by_adrp"], [])
+
+    def test_separated_nan_successor_that_rejoins_conversion_is_not_excluding(self):
+        records = [
+            {"address": "0x13000", "instruction": "fcmp d0, d0"},
+            {"address": "0x13004", "instruction": "adrp x8, 0x20000"},
+            {"address": "0x13008", "instruction": "b.vs loc_13010"},
+            {"address": "0x1300c", "instruction": "nop"},
+            {"address": "0x13010", "instruction": "fcvtzs w9, d0"},
+            {"address": "0x13014", "instruction": "ret"},
+        ]
+        diagnostics = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]["cfg_guard_candidate_diagnostics"]
+        self.assertEqual(diagnostics["same_source_compare_branch_separated_by_adrp"], ["0x13008"])
+        self.assertEqual(diagnostics["same_source_separated_nan_successor_excluding_pairs"], [])
 
     def test_conversion_name_in_operand_is_not_a_conversion(self):
         records = [
