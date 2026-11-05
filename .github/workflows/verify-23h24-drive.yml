@@ -35,24 +35,23 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import hashlib
-          import struct
-          with Path("23H24.aea").open("rb") as stream:
-              header = stream.read(12)
-              if len(header) != 12 or header[:4] != b"AEA1":
-                  raise SystemExit("Not an AEA1 prologue")
-              profile = int.from_bytes(header[4:7], "little")
-              auth_size = struct.unpack("<I", header[8:12])[0]
-              if profile > 5 or auth_size > 16 * 1024 * 1024:
-                  raise SystemExit("Unexpected AEA profile or auth-data size")
-              auth = stream.read(auth_size)
-              if len(auth) != auth_size:
-                  raise SystemExit("Truncated AEA auth data")
-          Path("23H24-aea-header.txt").write_text(
-              f"magic=AEA1\nprofile_id={profile}\nauth_data_size={auth_size}\n"
-              f"auth_data_sha256={hashlib.sha256(auth).hexdigest()}\n"
-              "verification_scope=structure only; Apple provenance and build unverified\n"
+          path = Path("23H24.aea")
+          with path.open("rb") as stream:
+              header = stream.read(64)
+          if len(header) != 64:
+              raise SystemExit("Archive too short to inspect")
+          # Only enforce the documented magic here; profile/header layouts
+          # require a verified parser, not guesses about field offsets.
+          if header[:4] != b"AEA1":
+              raise SystemExit(f"Unexpected archive magic: {header[:4].hex()}")
+          report = (
+              "magic=AEA1\n"
+              f"first_64_bytes_sha256={hashlib.sha256(header).hexdigest()}\n"
+              f"first_16_bytes_hex={header[:16].hex()}\n"
+              "verification_scope=magic and opaque header sample only; no profile, signature, decryption or internal build verification\n"
           )
-          print(Path("23H24-aea-header.txt").read_text())
+          Path("23H24-aea-header.txt").write_text(report)
+          print(report)
           PY
           printf 'claimed_device=iPhone17,4\nclaimed_build=23H24\nsource=shared_google_drive_file\nsize_bytes=%s\nobserved_sha256=%s\nverification_scope=download_and_observed_hash_only; firmware identity and authenticity NOT independently verified\n' "$bytes" "$digest" > 23H24-drive-integrity.txt
           cat 23H24-drive-integrity.txt
