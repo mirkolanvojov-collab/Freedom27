@@ -169,7 +169,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
         excluded_nan_successor = []
         for branch_index in range(1, len(records)):
             branch_text = records[branch_index]["instruction"].strip()
-            if not re.match(r"^b\\.(?:vs|vc)\\b", branch_text):
+            if not re.match(r"^b\.(?:vs|vc)\b", branch_text):
                 continue
             if not SELF_COMPARE.match(records[branch_index - 1]["instruction"].strip()):
                 continue
