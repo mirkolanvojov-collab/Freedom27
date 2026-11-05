@@ -210,6 +210,31 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         conversion = analyze_function("_aa_moveto", "fixed", records)["conversions"][0]
         self.assertEqual(conversion["cfg_guard_candidate_diagnostics"]["same_source_compare_branch_separated_by_adrp"], [])
 
+    def test_adrp_branch_after_conversion_is_not_a_guard_diagnostic(self):
+        records = [
+            {"address": "0x11000", "instruction": "fcvtzs w9, d0"},
+            {"address": "0x11004", "instruction": "fcmp d0, d0"},
+            {"address": "0x11008", "instruction": "adrp x8, 0x20000"},
+            {"address": "0x1100c", "instruction": "b.vs loc_11014"},
+            {"address": "0x11010", "instruction": "ret"},
+            {"address": "0x11014", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_clip_edge", "fixed", records)["conversions"][0]
+        self.assertEqual(conversion["cfg_guard_candidate_diagnostics"]["same_source_compare_branch_separated_by_adrp"], [])
+
+    def test_unreachable_adrp_branch_is_not_a_guard_diagnostic(self):
+        records = [
+            {"address": "0x12000", "instruction": "b loc_12014"},
+            {"address": "0x12004", "instruction": "fcmp d0, d0"},
+            {"address": "0x12008", "instruction": "adrp x8, 0x20000"},
+            {"address": "0x1200c", "instruction": "b.vs loc_12018"},
+            {"address": "0x12010", "instruction": "nop"},
+            {"address": "0x12014", "instruction": "fcvtzs w9, d0"},
+            {"address": "0x12018", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_clip_edge", "fixed", records)["conversions"][0]
+        self.assertEqual(conversion["cfg_guard_candidate_diagnostics"]["same_source_compare_branch_separated_by_adrp"], [])
+
     def test_conversion_name_in_operand_is_not_a_conversion(self):
         records = [
             {"address": "0xa000", "instruction": "bl _helper_fcvtzs"},
