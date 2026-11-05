@@ -164,6 +164,18 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
         float_compares = [r for r in dom_records if re.match(r"^fcmp\b", r["instruction"].strip())]
 
         path_guard_nodes = _path_nan_guard_nodes(records, successors, i)
+        # Diagnostic-only counters: never promote structural matches to safety claims.
+        adjacent_pairs = []
+        excluded_nan_successor = []
+        for branch_index in range(1, len(records)):
+            branch_text = records[branch_index]["instruction"].strip()
+            if not re.match(r"^b\\.(?:vs|vc)\\b", branch_text):
+                continue
+            if not SELF_COMPARE.match(records[branch_index - 1]["instruction"].strip()):
+                continue
+            adjacent_pairs.append(branch_index)
+            if branch_index not in path_guard_nodes:
+                excluded_nan_successor.append(branch_index)
         bypass_reachable = i in _reachable_from(0, successors, blocked=set(path_guard_nodes))
         # Unresolved control transfers can hide additional paths. Never
         # report complete guard coverage when the local CFG is incomplete.
@@ -194,6 +206,14 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
             "dominating_float_compares": [{"address": r["address"], "instruction": r["instruction"]} for r in float_compares],
             "structural_nan_guard_in_dominators": bool(self_compares and nan_branches),
             "cfg_nan_guard_cutset_coverage": path_guard_coverage,
+            "cfg_guard_candidate_diagnostics": {
+                "adjacent_self_compare_nan_branch_pairs": len(adjacent_pairs),
+                "accepted_nan_successor_exclusion_pairs": len(path_guard_nodes),
+                "pairs_not_excluding_conversion": len(excluded_nan_successor),
+                "entry_bypass_after_candidate_removal": bypass_reachable,
+                "unresolved_transfer_count": len(unresolved),
+                "note": "Structural diagnostics only; no register/flag dataflow or safety proof.",
+            },
             "cfg_nan_guard_branches": [
                 {"address": records[j]["address"], "instruction": records[j]["instruction"]}
                 for j in path_guard_nodes
