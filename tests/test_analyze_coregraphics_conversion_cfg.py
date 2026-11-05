@@ -154,6 +154,34 @@ class CoreGraphicsConversionCfgTests(unittest.TestCase):
         self.assertEqual(diagnostics["pairs_not_excluding_conversion"], 1)
         self.assertFalse(result["cfg_nan_guard_cutset_coverage"])
 
+    def test_source_matched_nan_branch_separated_by_store_is_diagnostic_only(self):
+        records = [
+            {"address": "0xd000", "instruction": "fcmp d0, d0"},
+            {"address": "0xd004", "instruction": "str q6, [sp, #0x30]"},
+            {"address": "0xd008", "instruction": "b.vs loc_d014"},
+            {"address": "0xd00c", "instruction": "fcvtzs w8, d0"},
+            {"address": "0xd010", "instruction": "ret"},
+            {"address": "0xd014", "instruction": "mov w8, #0"},
+            {"address": "0xd018", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_quadto", "fixed", records)["conversions"][0]
+        diagnostics = conversion["cfg_guard_candidate_diagnostics"]
+        self.assertEqual(diagnostics["same_source_compare_branch_separated_by_store"], ["0xd008"])
+        self.assertEqual(diagnostics["adjacent_self_compare_nan_branch_pairs"], 0)
+        self.assertFalse(conversion["cfg_nan_guard_cutset_coverage"])
+
+    def test_separated_branch_with_different_source_not_matched(self):
+        records = [
+            {"address": "0xe000", "instruction": "fcmp d1, d1"},
+            {"address": "0xe004", "instruction": "str q6, [sp, #0x30]"},
+            {"address": "0xe008", "instruction": "b.vs loc_e014"},
+            {"address": "0xe00c", "instruction": "fcvtzs w8, d0"},
+            {"address": "0xe010", "instruction": "ret"},
+            {"address": "0xe014", "instruction": "ret"},
+        ]
+        conversion = analyze_function("_aa_quadto", "fixed", records)["conversions"][0]
+        self.assertEqual(conversion["cfg_guard_candidate_diagnostics"]["same_source_compare_branch_separated_by_store"], [])
+
     def test_conversion_name_in_operand_is_not_a_conversion(self):
         records = [
             {"address": "0xa000", "instruction": "bl _helper_fcvtzs"},
