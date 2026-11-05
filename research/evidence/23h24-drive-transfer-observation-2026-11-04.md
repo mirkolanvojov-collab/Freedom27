@@ -39,3 +39,11 @@ The subsequent live `ipsw download ota --platform ios --device iPhone17,4 --buil
 | Decryption and CoreGraphics extraction | Requires legitimate key/tooling and archive bytes; successful transfer alone is insufficient | Unverified |
 
 Do not compare the GitHub artifact ZIP digest with the firmware SHA-256: these identify different objects. Do not claim a cryptographic signature from an AEA magic check; some AEA encryption profiles are unsigned. The next meaningful archive-side operation is to inspect the first bytes and authenticated metadata of the *existing* Drive file without treating the filename or uploader's label as proof of origin. Keep PR #37 draft and avoid repeated multi-gigabyte transfers solely to re-establish the same observed hash.
+
+## Independent Apple CDN comparison (2026-11-05)
+
+GitHub Actions run [42102662794](https://github.com/mirkolanvojov-collab/Freedom27/actions/runs/42102662794), job 127509224136, completed successfully using the live-then-AppleDB metadata discovery workflow. Its source validation required build `23H24`, device `iPhone17,4` (for historical metadata), Apple CDN host `updates.cdn-apple.com`, and exact filename `9fa3dca87b9d18a7329eada91fcd038086f20c37e1aed47f8735f0970b27cd14.aea`.
+
+The Apple CDN transfer completed and reported **8,724,152,320 bytes** and SHA-256 **`4d26644c2e7876c022f40a6e2459b1e3ae32027fedbd297bab82379bb40c6a4a`**. These independently observed values exactly match the prior Google Drive transfer in run 41904780241. Integrity artifact `ota-23H24-observed-integrity`, ID **13450657001**, contains the source-discovery and transport reports (not the firmware bytes).
+
+**Revised assessment:** The Google Drive archive's byte identity with the independently downloaded Apple CDN archive is strongly corroborated by matching full-file SHA-256 digests. The prior live-only OTA lookup failure is resolved through historical metadata discovery. This is evidence of Apple CDN provenance for those bytes, but is **not** an independent published Apple SHA-256, signed firmware-manifest verification, decryption, extracted build metadata verification, or CoreGraphics binary comparison. The source and transport gates are resolved; AEA header/cryptographic content gates remain open. Preserve PR #37 as draft.
