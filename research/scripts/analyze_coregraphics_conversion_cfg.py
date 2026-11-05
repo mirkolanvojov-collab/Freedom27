@@ -184,7 +184,7 @@ def analyze_function(symbol: str, side: str, records: list[dict[str, str]]) -> d
         separated_store_pairs = []
         for branch_index in range(2, len(records)):
             branch_text = records[branch_index]["instruction"].strip()
-            if not re.match(r"^b\\.(?:vs|vc)\\b", branch_text):
+            if not re.match(r"^b\.(?:vs|vc)\b", branch_text):
                 continue
             store_text = records[branch_index - 1]["instruction"].strip()
             compare_text = records[branch_index - 2]["instruction"].strip()
