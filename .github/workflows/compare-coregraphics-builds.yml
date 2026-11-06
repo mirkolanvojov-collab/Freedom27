@@ -251,6 +251,26 @@ jobs:
           print(json.dumps(report,indent=2))
           PY
 
+      - name: Audit imported CoreGraphics API symbol families
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          names = ("QuartzCore", "CoreText", "ImageIO", "UIKitCore", "WebKit")
+          # These public API prefixes are lexical hints, not proof of a dylib provider.
+          prefixes = ("_CG", "_CGBitmap", "_CGContext", "_CGPath", "_CGImage", "_CGColor")
+          result = {"build":"23G83","scope":"lexical imported symbol family counts; provider and call-target unresolved","images":[]}
+          for name in names:
+              p = Path(f"diagnostics/target-bind-{name}.txt")
+              lines = [x.strip() for x in p.read_text(errors="replace").splitlines() if x.startswith("_")]
+              matches = [x for x in lines if x.startswith(prefixes)]
+              result["images"].append({"image":name,"cg_prefix_matches":len(matches),"cg_prefix_examples":matches[:20],"unique_cg_prefix_matches":len(set(matches))})
+          Path("diagnostics/target-cg-api-symbol-families.json").write_text(json.dumps(result,indent=2)+"\n")
+          print(json.dumps(result,indent=2))
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
