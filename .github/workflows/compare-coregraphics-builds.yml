@@ -182,7 +182,14 @@ jobs:
           test -n "$cache"
           # Read-only query. Retain the entire split cache set beside the main cache.
           # Command failures are preserved in diagnostics and fail the step.
-          ipsw dyld imports "$cache" CoreGraphics > diagnostics/target-coregraphics-imports.txt 2> diagnostics/target-coregraphics-imports-stderr.txt
+          if ipsw dyld imports "$cache" CoreGraphics > diagnostics/target-coregraphics-imports.txt 2> diagnostics/target-coregraphics-imports-stderr.txt; then
+            echo "query_exit_status=0" > diagnostics/target-coregraphics-imports-status.txt
+          else
+            code=$?
+            echo "query_exit_status=$code" > diagnostics/target-coregraphics-imports-status.txt
+            echo "CoreGraphics reverse-dependency query failed with status $code" >&2
+            exit "$code"
+          fi
           {
             echo "build=23G83"
             echo "device=iPhone17,4"
