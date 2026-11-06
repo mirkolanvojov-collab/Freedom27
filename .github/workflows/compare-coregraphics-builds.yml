@@ -271,6 +271,22 @@ jobs:
           print(json.dumps(result,indent=2))
           PY
 
+      - name: Inspect target CoreGraphics export names
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          # Record CLI capabilities first; do not assume export subcommand syntax.
+          ipsw dyld --help > diagnostics/target-dyld-command-help.txt 2>&1
+          if ipsw dyld macho --help > diagnostics/target-dyld-macho-help.txt 2>&1; then
+            echo "macho_help=available" > diagnostics/target-export-inspection-status.txt
+          else
+            echo "macho_help=unavailable" > diagnostics/target-export-inspection-status.txt
+          fi
+          echo "Export-provider attribution is pending CLI capability review; no runtime inference." > diagnostics/target-export-inspection-scope.txt
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
