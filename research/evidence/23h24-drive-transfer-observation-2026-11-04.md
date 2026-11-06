@@ -202,3 +202,17 @@ Downloaded and inspected the diagnostics ZIP **13462738307** from successful CI 
 ## Verified complete target dyld component inventory (2026-11-06)
 
 Downloaded and directly parsed `coregraphics-comparison-diagnostics` artifact **13465993399** from successful run **42132581759**. The `target-dyld-cache-components.json` contains **86** enumerated files totaling **6,277,272,443 bytes (5.846 GiB)**, with a separate SHA-256 for each. Entries include numbered `dyld_shared_cache_arm64e.*` components, `.atlas`, and `.symbols`. The main `dyld_shared_cache_arm64e` component is **622,592 bytes**, hash `d8e44d7473e546b64a0f21ff7648c28fe2166784cad9d47522592a9c7f7751b7`, so that digest is not a whole-cache digest. The archive's `ipsw-dyld-imports-help.txt` documents syntax `ipsw dyld imports <DSC> [DYLIB]` and an optional `--filter` flag. This is verified tool capability, **not a completed dependency analysis**. The 86 recorded per-component hashes are provenance observations for this CI extraction, not proof of host process invocation or entitlements. Next CI step can run read-only imports against the target cache while retaining all its subcache files together and clearly distinguish dylib importers from executable process hosts.
+
+## Reverse dependency interpretation and evidence gates (2026-11-06)
+
+The read-only `ipsw dyld imports <DSC> CoreGraphics` query was introduced in commit `f00862b7ccb0c99c2bb8f7933017b96c888e75aa`, with explicit exit-status diagnostics in `2760fba31702c3a0c1c9c39b9e7b8d68ae48d7f0`. At this checkpoint run **42150575657** was in progress and its import query had not completed; **no importer names are yet verified**.
+
+Interpretation protocol for the forthcoming artifact:
+
+1. Check `target-coregraphics-imports-status.txt` first. A nonzero status means the query failed; empty stdout is not evidence of zero dependencies.
+2. Preserve stdout and stderr verbatim, noting whether `CoreGraphics` resolves to a concrete cache dylib or whether the command requires a full install name such as `/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics`.
+3. Classify reported entries as **static dylib reverse dependencies** only. A dylib listed as an importer does not establish a running executable, invocation of a vulnerable rasterization path, or sandbox identity.
+4. For process attribution, obtain separately verified executable linkage, runtime loading/trace evidence, and process identity. None is presently available from the static dyld import query alone.
+5. Do not infer exploitation, kernel privileges, untethered persistence, or a working jailbreak from the importer list. Those are independent unverified capability gates.
+
+A successful query with zero matches is also scope-limited: dyld import metadata cannot rule out indirect, dynamic, or runtime calls.
