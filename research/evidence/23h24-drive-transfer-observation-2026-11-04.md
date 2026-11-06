@@ -228,3 +228,17 @@ This closes the static CoreGraphics reverse-import **inventory milestone**, but 
 Reparsed the raw `target-coregraphics-imports.txt` inside run **42150658901**, artifact **13474002553**. The `In DSC (Dylibs)` section contains **1,268 paths, all unique**; the `In FileSystem DMG (Apps)` section contains **905 paths, all unique**. The combined **2,173 paths** have no repeated paths within either section. Within the filesystem section, **355** paths contain `.appex/`, **568** contain `.app/`, and **26** start with `/usr/libexec/`. These are overlapping lexical path categories, not mutually exclusive execution roles.
 
 The CLI's `imports` help explicitly describes reverse importers and provides an `--image` option for imported bind symbols of a specified image. The existing reverse-import report does **not** prove direct symbol-level call sites, runtime loading, or vulnerable rasterization invocation. Next discriminating evidence should inspect imported bind symbols for selected candidate images, check exact dylib install-name matches, and keep static linkage separate from observed process execution. No runtime or jailbreak capability gate is resolved by this audit.
+
+## Selected framework imported-bind symbol results (2026-11-06)
+
+Directly inspected `coregraphics-comparison-diagnostics` artifact **13495045001** from successful run **42197369523**. All five `ipsw dyld imports <DSC> --image <framework-path>` queries recorded `success` and had empty stderr. Each output is a list of imported symbol names, **not** a mapping from symbols to providing dylibs or proof of direct CoreGraphics imports.
+
+| Selected image | Nonempty symbol lines | Lines containing literal `CoreGraphics` |
+| --- | ---: | ---: |
+| QuartzCore | 1,373 | 0 |
+| CoreText | 739 | 0 |
+| ImageIO | 1,061 | 0 |
+| UIKitCore | 3,506 | 73 |
+| WebKit | 6,640 | 1 |
+
+UIKitCore examples include Swift mangled `CoreGraphics` namespace symbols such as `_$s12CoreGraphics14CGPathFillRuleOMa`; the WebKit example is a SwiftUI symbol whose signature includes `CoreGraphics7CGFloat`. These string matches **do not prove** a direct import from the CoreGraphics dylib, a call to an affected `aa_*` function, or execution of the vulnerable code path. Absence of the literal namespace in the other three lists does not disprove a CoreGraphics dependency: C symbols and indirect dependencies need not contain that string. The 5 reports are symbol inventories, and provider resolution / bind-target attribution remains unresolved.
