@@ -256,3 +256,9 @@ Run **42202238453** completed successfully. The `Inspect selected target importe
 | WebKit | 6,640 | 1 | 0 |
 
 **Interpretation:** The five imported-symbol inventories contain no literal `_aa_` symbol names. This is a narrowly scoped negative string-match finding, not proof that any image lacks a static or runtime route to CoreGraphics's internal rasterizer. Imported symbol names alone do not identify provider libraries, direct call sites, or live execution. Further research requires provider resolution and separately verified call-path evidence; no jailbreak capability gate is satisfied by this report.
+
+## Verified CG-prefixed imported API family audit (2026-11-06)
+
+Run **42256845687** completed successfully, including `Audit imported CoreGraphics API symbol families` and diagnostic upload. The generated `target-cg-api-symbol-families.json` printed in job **128026182833** reports the following lexical `_CG*` imported-symbol counts: **QuartzCore 481**, **CoreText 172**, **ImageIO 267**, **UIKitCore 405**, **WebKit 111**, totaling **1,436 across the five image-specific lists**. This is not a deduplicated cross-framework union. Example imported names include `_CGBitmapContextCreate`, `_CGBitmapContextCreateImage`, and `_CGAffineTransformConcat`.
+
+**Interpretation:** These are imported API symbol names only; they do not by themselves establish the actual exporting dylib for every symbol, any direct call into internal `_aa_*` functions, vulnerable path reachability, active process identity, or exploitability. The next evidence gate is provider resolution and defensible call-path attribution, not an inference from the presence of public API names.
