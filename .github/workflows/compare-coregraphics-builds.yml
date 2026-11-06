@@ -198,6 +198,37 @@ jobs:
             echo "stdout_bytes=$(wc -c < diagnostics/target-coregraphics-imports.txt | tr -d ' ')"
           } > diagnostics/target-coregraphics-imports-provenance.txt
 
+      - name: Inspect selected target imported bind symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          # This is static Mach-O bind metadata, not runtime call evidence.
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          targets = [
+              "/System/Library/Frameworks/QuartzCore.framework/QuartzCore",
+              "/System/Library/Frameworks/CoreText.framework/CoreText",
+              "/System/Library/Frameworks/ImageIO.framework/ImageIO",
+              "/System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore",
+              "/System/Library/Frameworks/WebKit.framework/WebKit",
+          ]
+          Path("diagnostics/target-import-bind-images.json").write_text(json.dumps(targets,indent=2)+"\n")
+          PY
+          while IFS= read -r image; do
+            name="$(basename "$image")"
+            if ipsw dyld imports "$cache" --image "$image" > "diagnostics/target-bind-${name}.txt" 2> "diagnostics/target-bind-${name}-stderr.txt"; then
+              echo "$name success" >> diagnostics/target-bind-status.txt
+            else
+              code=$?
+              echo "$name failed_exit_$code" >> diagnostics/target-bind-status.txt
+            fi
+          done < <(python3 -c 'import json; print("\n".join(json.load(open("diagnostics/target-import-bind-images.json"))))')
+          echo "Static imported-bind inspection; failures recorded individually; no runtime attribution." > diagnostics/target-bind-scope.txt
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
