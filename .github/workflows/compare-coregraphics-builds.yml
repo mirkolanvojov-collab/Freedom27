@@ -229,6 +229,28 @@ jobs:
           done < <(python3 -c 'import json; print("\n".join(json.load(open("diagnostics/target-import-bind-images.json"))))')
           echo "Static imported-bind inspection; failures recorded individually; no runtime attribution." > diagnostics/target-bind-scope.txt
 
+      - name: Summarize target imported bind symbol evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          names = ("QuartzCore", "CoreText", "ImageIO", "UIKitCore", "WebKit")
+          report = {"build":"23G83","device":"iPhone17,4","scope":"static imported-symbol names only; no provider or runtime attribution","images":[]}
+          status = Path("diagnostics/target-bind-status.txt").read_text().splitlines()
+          statuses = dict(line.split(" ", 1) for line in status if " " in line)
+          for name in names:
+              path = Path(f"diagnostics/target-bind-{name}.txt")
+              lines = [x.strip() for x in path.read_text(errors="replace").splitlines() if x.strip()] if path.exists() else []
+              symbols = [x for x in lines if x.startswith("_")]
+              cg = [x for x in symbols if "CoreGraphics" in x]
+              aa = [x for x in symbols if "_aa_" in x]
+              report["images"].append({"image":name,"query_status":statuses.get(name,"missing"),"nonempty_lines":len(lines),"symbol_like_lines":len(symbols),"literal_coregraphics_matches":len(cg),"literal_aa_matches":len(aa),"coregraphics_examples":cg[:10],"aa_examples":aa[:10]})
+          Path("diagnostics/target-bind-summary.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps(report,indent=2))
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
