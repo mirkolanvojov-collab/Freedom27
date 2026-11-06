@@ -173,6 +173,24 @@ jobs:
           PY
           ipsw dyld imports --help > diagnostics/ipsw-dyld-imports-help.txt 2>&1 || true
 
+      - name: Inspect target CoreGraphics reverse dylib dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          # Read-only query. Retain the entire split cache set beside the main cache.
+          # Command failures are preserved in diagnostics and fail the step.
+          ipsw dyld imports "$cache" CoreGraphics > diagnostics/target-coregraphics-imports.txt 2> diagnostics/target-coregraphics-imports-stderr.txt
+          {
+            echo "build=23G83"
+            echo "device=iPhone17,4"
+            echo "query=ipsw dyld imports <DSC> CoreGraphics"
+            echo "scope=static reverse dylib dependencies; not process identity or execution"
+            echo "stdout_bytes=$(wc -c < diagnostics/target-coregraphics-imports.txt | tr -d ' ')"
+          } > diagnostics/target-coregraphics-imports-provenance.txt
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
