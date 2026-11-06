@@ -242,3 +242,17 @@ Directly inspected `coregraphics-comparison-diagnostics` artifact **13495045001*
 | WebKit | 6,640 | 1 |
 
 UIKitCore examples include Swift mangled `CoreGraphics` namespace symbols such as `_$s12CoreGraphics14CGPathFillRuleOMa`; the WebKit example is a SwiftUI symbol whose signature includes `CoreGraphics7CGFloat`. These string matches **do not prove** a direct import from the CoreGraphics dylib, a call to an affected `aa_*` function, or execution of the vulnerable code path. Absence of the literal namespace in the other three lists does not disprove a CoreGraphics dependency: C symbols and indirect dependencies need not contain that string. The 5 reports are symbol inventories, and provider resolution / bind-target attribution remains unresolved.
+
+## Automated imported-bind audit verified (2026-11-06)
+
+Run **42202238453** completed successfully. The `Inspect selected target imported bind symbols` and `Summarize target imported bind symbol evidence` steps both succeeded; artifact **13497171351** (`coregraphics-comparison-diagnostics`) contains the generated `target-bind-summary.json`. Independently checked the printed JSON in the CI job log. All five query statuses were `success`:
+
+| Image | Imported-symbol lines | Literal `CoreGraphics` matches | Literal `_aa_` matches |
+| --- | ---: | ---: | ---: |
+| QuartzCore | 1,373 | 0 | 0 |
+| CoreText | 739 | 0 | 0 |
+| ImageIO | 1,061 | 0 | 0 |
+| UIKitCore | 3,506 | 73 | 0 |
+| WebKit | 6,640 | 1 | 0 |
+
+**Interpretation:** The five imported-symbol inventories contain no literal `_aa_` symbol names. This is a narrowly scoped negative string-match finding, not proof that any image lacks a static or runtime route to CoreGraphics's internal rasterizer. Imported symbol names alone do not identify provider libraries, direct call sites, or live execution. Further research requires provider resolution and separately verified call-path evidence; no jailbreak capability gate is satisfied by this report.
