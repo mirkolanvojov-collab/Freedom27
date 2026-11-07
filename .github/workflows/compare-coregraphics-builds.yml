@@ -351,6 +351,19 @@ jobs:
           print(json.dumps({"counts":{k:len(v) for k,v in groups.items()},"aa_examples":groups["aa_internal"][:10],"scope":report["scope"]},indent=2))
           PY
 
+      - name: Inspect dyld disassembly options for call-path analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          ipsw dyld disass --help > diagnostics/target-dyld-disass-help.txt 2>&1
+          ipsw dyld a2f --help > diagnostics/target-dyld-a2f-help.txt 2>&1
+          echo "=== disassembly help ==="
+          sed -n '1,110p' diagnostics/target-dyld-disass-help.txt
+          echo "=== address-to-function help ==="
+          sed -n '1,90p' diagnostics/target-dyld-a2f-help.txt
+          echo "Read-only CLI capability inspection; no call-edge or exploitability inference." > diagnostics/target-callpath-inspection-scope.txt
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
