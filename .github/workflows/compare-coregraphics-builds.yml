@@ -286,6 +286,11 @@ jobs:
             echo "macho_help=unavailable" > diagnostics/target-export-inspection-status.txt
           fi
           echo "Export-provider attribution is pending CLI capability review; no runtime inference." > diagnostics/target-export-inspection-scope.txt
+          echo "=== dyld command help (first 100 lines) ==="
+          sed -n '1,100p' diagnostics/target-dyld-command-help.txt
+          echo "=== dyld macho help (first 100 lines) ==="
+          sed -n '1,100p' diagnostics/target-dyld-macho-help.txt
+          cat diagnostics/target-export-inspection-status.txt
 
       - name: Download and verify fixed-build OTA
         shell: bash
