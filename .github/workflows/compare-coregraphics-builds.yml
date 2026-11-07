@@ -364,6 +364,41 @@ jobs:
           sed -n '1,90p' diagnostics/target-dyld-a2f-help.txt
           echo "Read-only CLI capability inspection; no call-edge or exploitability inference." > diagnostics/target-callpath-inspection-scope.txt
 
+      - name: Collect bounded target CoreGraphics call-site disassembly
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/target-call-sites
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("diagnostics/target-call-sites/README.txt")
+          p.write_text("Read-only bounded disassembly. Branch tokens are syntactic candidates only; no interprocedural call edges are established by this report.\n")
+          PY
+          for entry in 'CGContextDrawPath:0x18430a5bc' 'CGPathApply:0x18430ab5c' 'aa_render:0x18430c5e8'; do
+            label="${entry%%:*}"
+            addr="${entry#*:}"
+            if ipsw dyld disass "$cache" --vaddr "$addr" --count 96 --quiet > "diagnostics/target-call-sites/${label}.txt" 2> "diagnostics/target-call-sites/${label}.stderr"; then
+              echo "${label}=success"
+            else
+              echo "${label}=failed"
+            fi
+          done
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          base=Path("diagnostics/target-call-sites")
+          result={}
+          for p in sorted(base.glob("*.txt")):
+              if p.name=="README.txt":continue
+              lines=p.read_text(errors="replace").splitlines()
+              branches=[s[:250] for s in lines if re.search(r"\b(?:bl|blr|br)\b",s,re.I)]
+              result[p.stem]={"lines":len(lines),"branch_syntax_matches":len(branches),"examples":branches[:12],"stderr":(base/(p.stem+".stderr")).read_text(errors="replace")[:1000]}
+          (base/"summary.json").write_text(json.dumps(result,indent=2)+"\n")
+          print(json.dumps({k:{"lines":v["lines"],"branch_syntax_matches":v["branch_syntax_matches"],"stderr":v["stderr"][:120]} for k,v in result.items()},indent=2))
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
