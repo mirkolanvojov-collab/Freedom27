@@ -30,14 +30,18 @@ class CompatibilityClaim:
 
     @classmethod
     def from_mapping(cls, item: dict[str, Any]) -> "CompatibilityClaim":
+        def text_field(name: str) -> str:
+            value = item.get(name, "")
+            return value.strip() if isinstance(value, str) else ""
+
         return cls(
-            device_family=str(item.get("device_family", "")).strip(),
-            model_identifier=str(item.get("model_identifier", "")).strip(),
-            os_version=str(item.get("os_version", "")).strip(),
-            build=str(item.get("build", "")).strip(),
-            status=str(item.get("status", "")).strip(),
-            evidence_url=str(item.get("evidence_url", "")).strip(),
-            notes=str(item.get("notes", "")).strip(),
+            device_family=text_field("device_family"),
+            model_identifier=text_field("model_identifier"),
+            os_version=text_field("os_version"),
+            build=text_field("build"),
+            status=text_field("status"),
+            evidence_url=text_field("evidence_url"),
+            notes=text_field("notes"),
         )
 
     def validate(self) -> list[str]:
@@ -49,12 +53,14 @@ class CompatibilityClaim:
             errors.append(f"status must be one of: {', '.join(sorted(VALID_STATUSES))}")
         if self.status == "verified":
             try:
-                parsed = urlparse(self.evidence_url)
-                valid_url = (
-                    parsed.scheme == "https" and bool(parsed.hostname)
+                parsed = urlparse(self.evidence_url) if isinstance(self.evidence_url, str) else None
+                valid_url = bool(
+                    parsed and parsed.scheme == "https" and parsed.hostname
                     and not parsed.username and not parsed.password
                 )
-            except ValueError:
+                if valid_url:
+                    _ = parsed.port  # Reject malformed port values.
+            except (AttributeError, TypeError, ValueError):
                 valid_url = False
             if not valid_url:
                 errors.append("verified claims require a valid HTTPS evidence_url")
@@ -68,16 +74,18 @@ class CompatibilityClaim:
 def validate_claims(items: Iterable[dict[str, Any]]) -> list[str]:
     """Validate claims and reject malformed or duplicate device/version/build tuples."""
     errors: list[str] = []
-    seen: set[tuple[str, str, str, str]] = set()
+    seen: set[tuple[str, str, str]] = set()
     for index, item in enumerate(items):
         if not isinstance(item, dict):
             errors.append(f"claim[{index}]: must be an object")
             continue
         claim = CompatibilityClaim.from_mapping(item)
         errors.extend(f"claim[{index}]: {error}" for error in claim.validate())
-        key = (claim.model_identifier, claim.os_version, claim.build, claim.status)
+        # A target tuple must have one authoritative row. Allowing the same build
+        # to appear once as "researching" and again as "verified" hides conflicts.
+        key = (claim.model_identifier, claim.os_version, claim.build)
         if key in seen:
-            errors.append(f"claim[{index}]: duplicate model/version/build/status tuple")
+            errors.append(f"claim[{index}]: duplicate model/version/build tuple")
         seen.add(key)
     return errors
 

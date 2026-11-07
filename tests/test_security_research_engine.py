@@ -29,7 +29,8 @@ class SecurityResearchEngineTests(unittest.TestCase):
         self.assertEqual(self.make_hypothesis().validate(TARGET), [])
 
     def test_invalid_or_non_http_source_url_fails_closed(self):
-        for url in ("not-a-url", "file:///tmp/research", "https:///missing-host"):
+        for url in ("not-a-url", "file:///tmp/research", "https:///missing-host",
+                    "https://user:pass@example.com/research", "https://example.com:bad/research"):
             with self.subTest(url=url):
                 h = self.make_hypothesis(source_urls=(url,))
                 self.assertIn("source URLs must be absolute HTTP(S) URLs", h.validate(TARGET))

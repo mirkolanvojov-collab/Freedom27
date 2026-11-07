@@ -9,7 +9,8 @@
       "status": "not-supported",
       "summary": "No public jailbreak tool is currently documented for iPhone 16 Plus on iOS 26.6.1 (23G83).",
       "evidence_url": "https://theapplewiki.com/wiki/Jailbreak/26.x",
-      "notes": "The public compatibility table lists no tool for iOS 26.6.1 on iPhone 16 Plus. This is a public-tool availability finding, not proof that the OS contains no exploitable vulnerability. Recheck primary project releases and exact-build support before any future installation attempt."
+      "notes": "The public compatibility table lists no tool for iOS 26.6.1 on iPhone 16 Plus. This is a public-tool availability finding, not proof that the OS contains no exploitable vulnerability. Recheck primary project releases and exact-build support before any future installation attempt.",
+      "device_model": "iPhone 16 Plus"
     }
   ]
 }

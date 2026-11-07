@@ -1,0 +1,67 @@
+name: Verify user-provided 23H24 Google Drive archive
+on:
+  push:
+    branches: [research/cve-source-reconciliation-2026-10-24]
+    paths: [.github/workflows/verify-23h24-drive.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Download shared archive (untrusted until verified)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'gdown==5.2.0'
+          gdown --id '1ajZxumaLnWy4W4HMSVJrC22U2oUEp5np' --output 23H24.aea
+      - name: Record size and observed SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          bytes="$(stat -c '%s' 23H24.aea)"
+          if [ "$bytes" -le 8000000000 ] || [ "$bytes" -ge 9500000000 ]; then
+            echo "Unexpected archive size: $bytes" >&2
+            exit 1
+          fi
+          digest="$(sha256sum 23H24.aea | cut -d ' ' -f 1)"
+          expected="4d26644c2e7876c022f40a6e2459b1e3ae32027fedbd297bab82379bb40c6a4a"
+          if [ "$digest" != "$expected" ]; then
+            echo "Archive digest differs from previously observed transfer" >&2
+            exit 1
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          path = Path("23H24.aea")
+          with path.open("rb") as stream:
+              header = stream.read(64)
+          if len(header) != 64:
+              raise SystemExit("Archive too short to inspect")
+          # Only enforce the documented magic here; profile/header layouts
+          # require a verified parser, not guesses about field offsets.
+          if header[:4] != b"AEA1":
+              raise SystemExit(f"Unexpected archive magic: {header[:4].hex()}")
+          report = (
+              "magic=AEA1\n"
+              f"first_64_bytes_sha256={hashlib.sha256(header).hexdigest()}\n"
+              f"first_16_bytes_hex={header[:16].hex()}\n"
+              "verification_scope=magic and opaque header sample only; no profile, signature, decryption or internal build verification\n"
+          )
+          Path("23H24-aea-header.txt").write_text(report)
+          print(report)
+          PY
+          printf 'claimed_device=iPhone17,4\nclaimed_build=23H24\nsource=shared_google_drive_file\nsize_bytes=%s\nobserved_sha256=%s\nverification_scope=download_and_observed_hash_only; firmware identity and authenticity NOT independently verified\n' "$bytes" "$digest" > 23H24-drive-integrity.txt
+          cat 23H24-drive-integrity.txt
+          rm -f 23H24.aea
+      - name: Upload integrity record only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 23H24-drive-integrity
+          path: |
+            23H24-drive-integrity.txt
+            23H24-aea-header.txt
+          if-no-files-found: warn

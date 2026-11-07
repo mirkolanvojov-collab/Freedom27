@@ -44,6 +44,12 @@ class CompatibilityTests(unittest.TestCase):
             target_build="21A000",
         ))
 
+    def test_verified_claim_rejects_malformed_https_port(self):
+        claim = CompatibilityClaim(
+            component="example", status="verified",
+            source_url="https://example.org:bad/research", build_number="21A000"
+        )
+        self.assertFalse(claim_is_usable(claim, target_build="21A000"))
     def test_verified_claim_requires_valid_https_source_and_exact_target_build(self):
         invalid = CompatibilityClaim(
             component="example", status="verified",

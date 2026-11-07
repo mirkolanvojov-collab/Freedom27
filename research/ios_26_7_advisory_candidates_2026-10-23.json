@@ -11,12 +11,13 @@
     "title": "About the security content of iOS 26.7 and iPadOS 26.7",
     "url": "https://support.apple.com/en-us/149041",
     "published": "2026-09-14",
-    "reviewed": "2026-10-23",
+    "reviewed": "2026-10-24",
     "verified_against": [
       "https://support.apple.com/en-us/148282",
-      "https://support.apple.com/en-us/149041"
+      "https://support.apple.com/en-us/149041",
+      "https://support.apple.com/en-us/149226"
     ],
-    "last_verification": "2026-10-23"
+    "last_verification": "2026-10-24"
   },
   "policy": {
     "device_accessed": false,
@@ -175,6 +176,26 @@
       "chain_status": "not_established",
       "priority": "medium",
       "reason": "Apple's advisory identifies an out-of-bounds write, but target-build applicability and a usable primitive remain unestablished."
+    },
+    {
+      "id": "CVE-2026-86950",
+      "component": "CoreGraphics",
+      "published_impact": "Processing a maliciously crafted file may lead to arbitrary code execution; Apple reports possible exploitation in highly targeted attacks on versions before iOS 27",
+      "fix_summary": "Out-of-bounds write addressed with improved bounds checking",
+      "fixed_release": "iOS 26.7.1",
+      "target_applicability": "public_version_range_includes_26_6_1_exact_build_unverified",
+      "reproduction_status": "not_reproduced_by_Freedom27",
+      "chain_status": "not_established",
+      "priority": "high",
+      "reason": "Public NVD affected-software range includes iOS 26.6.1, and public patch analysis describes the CoreGraphics bounds fix between iOS 26.7 and 26.7.1. Exact build 23G83 code mapping, reachability, Freedom27 reproduction, and a complete chain remain unestablished.",
+      "source_url": "https://support.apple.com/en-us/149226",
+      "version_evidence": {
+        "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86950",
+        "source_type": "NVD affected-software configuration",
+        "stated_range": "Apple iOS/iPadOS versions below 26.7.1",
+        "interpretation": "The published version range includes iOS 26.6.1; exact build 23G83 and device-specific behavior have not been independently verified.",
+        "checked_on": "2026-10-24"
+      }
     }
   ],
   "required_evidence_for_upgrade": [
