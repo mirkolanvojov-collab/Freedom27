@@ -292,6 +292,38 @@ jobs:
           sed -n '1,100p' diagnostics/target-dyld-macho-help.txt
           cat diagnostics/target-export-inspection-status.txt
 
+      - name: Probe target CoreGraphics Mach-O symbol table
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          image="/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics"
+          if ipsw dyld macho "$cache" "$image" --symbols > diagnostics/target-coregraphics-macho-symbols.txt 2> diagnostics/target-coregraphics-macho-symbols-stderr.txt; then
+            echo "symbols_query=success" > diagnostics/target-coregraphics-macho-status.txt
+          else
+            code=$?
+            echo "symbols_query=failed_exit_$code" > diagnostics/target-coregraphics-macho-status.txt
+          fi
+          if ipsw dyld macho "$cache" "$image" --loads > diagnostics/target-coregraphics-macho-loads.txt 2> diagnostics/target-coregraphics-macho-loads-stderr.txt; then
+            echo "loads_query=success" >> diagnostics/target-coregraphics-macho-status.txt
+          else
+            code=$?
+            echo "loads_query=failed_exit_$code" >> diagnostics/target-coregraphics-macho-status.txt
+          fi
+          cat diagnostics/target-coregraphics-macho-status.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("diagnostics/target-coregraphics-macho-symbols.txt")
+          lines=p.read_text(errors="replace").splitlines() if p.exists() else []
+          for term in ("_CGContext", "_CGPath", "_aa_"):
+              hits=[line for line in lines if term in line]
+              print(f"coregraphics_symbol_table_term={term} matches={len(hits)}")
+              for line in hits[:5]:
+                  print(line[:300])
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
