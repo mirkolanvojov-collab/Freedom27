@@ -324,6 +324,33 @@ jobs:
                   print(line[:300])
           PY
 
+      - name: Summarize target CoreGraphics symbol ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          path=Path("diagnostics/target-coregraphics-macho-symbols.txt")
+          status=Path("diagnostics/target-coregraphics-macho-status.txt").read_text()
+          if "symbols_query=success" not in status:
+              raise SystemExit("Cannot summarize failed symbol query")
+          lines=path.read_text(errors="replace").splitlines()
+          groups={"aa_internal":[],"CGContext":[],"CGPath":[]}
+          for line in lines:
+              m=re.search(r"^\s*(0x[0-9a-fA-F]+):\s+.*?\t([^\t]+)",line)
+              if not m:
+                  continue
+              address,symbol=m.group(1),m.group(2).strip()
+              if symbol.startswith("_aa_"): groups["aa_internal"].append({"address":address,"symbol":symbol})
+              if symbol.startswith("_CGContext"): groups["CGContext"].append({"address":address,"symbol":symbol})
+              if symbol.startswith("_CGPath"): groups["CGPath"].append({"address":address,"symbol":symbol})
+          report={"build":"23G83","image":"/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics","scope":"symbol presence and image ownership only; no call edges or runtime attribution","groups":groups}
+          out=Path("diagnostics/target-coregraphics-symbol-ownership.json")
+          out.write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({"counts":{k:len(v) for k,v in groups.items()},"aa_examples":groups["aa_internal"][:10],"scope":report["scope"]},indent=2))
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
