@@ -399,6 +399,36 @@ jobs:
           print(json.dumps({k:{"lines":v["lines"],"branch_syntax_matches":v["branch_syntax_matches"],"stderr":v["stderr"][:120]} for k,v in result.items()},indent=2))
           PY
 
+      - name: Probe public CoreGraphics drawing entrypoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/public-drawing-probes
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          image="/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics"
+          for symbol in _CGContextDrawPath _CGContextFillPath _CGContextStrokePath _CGPathApply; do
+            if ipsw dyld disass "$cache" --symbol "$symbol" --symbol-image "$image" --count 128 --quiet > "diagnostics/public-drawing-probes/${symbol}.txt" 2> "diagnostics/public-drawing-probes/${symbol}.stderr"; then
+              echo "public_symbol_probe=${symbol} status=success"
+            else
+              code=$?
+              echo "public_symbol_probe=${symbol} status=failed_exit_${code}"
+            fi
+          done
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          base=Path("diagnostics/public-drawing-probes")
+          summary={}
+          for p in sorted(base.glob("*.txt")):
+              lines=p.read_text(errors="replace").splitlines()
+              # Report syntax only; do not infer destination ownership from printed names.
+              branches=[line.strip()[:300] for line in lines if re.search(r"\b(?:bl|blr|br)\b",line,re.I)]
+              summary[p.stem]={"output_lines":len(lines),"branch_syntax_matches":len(branches),"branch_examples":branches[:15],"stderr":(base/(p.stem+".stderr")).read_text(errors="replace")[:1000]}
+          (base/"summary.json").write_text(json.dumps(summary,indent=2)+"\n")
+          print(json.dumps({k:{"output_lines":v["output_lines"],"branch_syntax_matches":v["branch_syntax_matches"],"stderr":v["stderr"][:120]} for k,v in summary.items()},indent=2))
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
