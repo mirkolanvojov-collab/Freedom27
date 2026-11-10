@@ -376,7 +376,7 @@ jobs:
           p=Path("diagnostics/target-call-sites/README.txt")
           p.write_text("Read-only bounded disassembly. Branch tokens are syntactic candidates only; no interprocedural call edges are established by this report.\n")
           PY
-          for entry in 'CGContextDrawPath:0x18430a5bc' 'CGPathApply:0x18430ab5c' 'aa_render:0x18430c5e8'; do
+          for entry in 'aa_moveto:0x18430a5bc' 'aa_lineto:0x18430ab5c' 'aa_render:0x18430c5e8'; do
             label="${entry%%:*}"
             addr="${entry#*:}"
             if ipsw dyld disass "$cache" --vaddr "$addr" --count 96 --quiet > "diagnostics/target-call-sites/${label}.txt" 2> "diagnostics/target-call-sites/${label}.stderr"; then
