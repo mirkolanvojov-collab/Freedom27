@@ -576,6 +576,28 @@ jobs:
           print("Unresolved means not in the selected symbol-family inventory, not necessarily an unknown function.")
           PY
 
+      - name: Resolve verified call destinations with dyld a2f
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          export CACHE="$cache"
+          python3 - <<'PY'
+          import json,os,subprocess
+          from pathlib import Path
+          base=Path("diagnostics/public-drawing-probes")
+          inventory=json.loads((base/"direct-call-target-inventory.json").read_text())
+          results=[]
+          for item in inventory["unresolved_targets"]:
+              addr=item["target"]
+              p=subprocess.run(["ipsw","dyld","a2f",os.environ["CACHE"],addr,"--json"],capture_output=True,text=True,timeout=90)
+              results.append({"target":addr,"occurrences":item["occurrences"],"exit_code":p.returncode,"stdout":p.stdout[:4000],"stderr":p.stderr[:1000]})
+          (base/"unresolved-a2f-results.json").write_text(json.dumps(results,indent=2)+"\n")
+          print(json.dumps(results,indent=2))
+          print("Address-to-function results require interpretation; lookup does not establish reachability beyond the verified direct call.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
