@@ -429,6 +429,51 @@ jobs:
           print(json.dumps({k:{"output_lines":v["output_lines"],"branch_syntax_matches":v["branch_syntax_matches"],"stderr":v["stderr"][:120]} for k,v in summary.items()},indent=2))
           PY
 
+      - name: Classify public drawing branch destinations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          base=Path("diagnostics/public-drawing-probes")
+          ownership=Path("diagnostics/target-coregraphics-symbol-ownership.json")
+          symbols=json.loads(ownership.read_text())["groups"]
+          by_addr={}
+          for group,entries in symbols.items():
+              for entry in entries:
+                  by_addr.setdefault(int(entry["address"],16),[]).append({"symbol":entry["symbol"],"group":group})
+          # Only classify instruction lines with a recognizable mnemonic field.
+          # A register target cannot be resolved by static immediate matching.
+          branch_re=re.compile(r"\b(bl|blr|br|b(?:\.[a-z]+)?)\s+([^\s,;]+)",re.I)
+          address_re=re.compile(r"^(?:#)?(0x[0-9a-f]+)$",re.I)
+          report={"scope":"bounded 128-instruction public entrypoint windows; direct immediate targets resolved only against three selected symbol families","functions":{}}
+          for p in sorted(base.glob("*.txt")):
+              rows=[]
+              for line in p.read_text(errors="replace").splitlines():
+                  m=branch_re.search(line)
+                  if not m:continue
+                  mnemonic,operand=m.group(1).lower(),m.group(2)
+                  entry={"instruction":line.strip()[:400],"mnemonic":mnemonic,"operand":operand}
+                  if mnemonic in ("blr","br") or re.fullmatch(r"[wx][0-9]+",operand,re.I):
+                      entry["classification"]="indirect_register_unresolved"
+                  elif (a:=address_re.match(operand)):
+                      addr=int(a.group(1),16)
+                      entry["target_address"]=hex(addr)
+                      entry["known_symbols"]=by_addr.get(addr,[])
+                      entry["classification"]="direct_known_symbol" if entry["known_symbols"] else "direct_address_unresolved_symbol"
+                  else:
+                      entry["classification"]="operand_unparsed"
+                  rows.append(entry)
+              counts={}
+              for row in rows:counts[row["classification"]]=counts.get(row["classification"],0)+1
+              report["functions"][p.stem]={"counts":counts,"branches":rows}
+          out=base/"branch-destination-classification.json"
+          out.write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({name:data["counts"] for name,data in report["functions"].items()},indent=2))
+          print("Classification is syntactic; no cross-function reachability or exploitability is inferred.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
