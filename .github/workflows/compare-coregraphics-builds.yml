@@ -507,6 +507,49 @@ jobs:
           print("Audit is a reclassification of prior regex candidates, NOT independent validation of instruction boundaries or target reachability.")
           PY
 
+      - name: Validate direct-call instruction encoding
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          base=Path("diagnostics/public-drawing-probes")
+          prior=json.loads((base/"branch-destination-classification.json").read_text())["functions"]
+          # ipsw output: 0xADDRESS:  XX XX XX XX   bl<TAB>0xTARGET
+          instruction=re.compile(r"^\s*(0x[0-9a-f]+):\s+((?:[0-9a-f]{2}\s+){4})\s*(bl)\s+(0x[0-9a-f]+)(?:\s|$)",re.I)
+          report={"method":"independent AArch64 BL immediate encoding verification of previously identified lines","functions":{}}
+          for name,data in sorted(prior.items()):
+              verified=[];rejected=[]
+              for row in data["branches"]:
+                  if row["mnemonic"]!="bl":continue
+                  line=row["instruction"]
+                  m=instruction.match(line)
+                  if not m:
+                      rejected.append({"line":line,"reason":"instruction_format_unrecognized"})
+                      continue
+                  pc=int(m.group(1),16)
+                  raw=bytes.fromhex(m.group(2))
+                  word=int.from_bytes(raw,"little")
+                  if word>>26!=0b100101:
+                      rejected.append({"line":line,"reason":"encoding_not_BL"})
+                      continue
+                  imm=word&0x3ffffff
+                  if imm&(1<<25):imm-=1<<26
+                  computed=(pc+(imm<<2))&((1<<64)-1)
+                  printed=int(m.group(4),16)
+                  if computed!=printed:
+                      rejected.append({"line":line,"reason":"computed_target_mismatch","computed":hex(computed),"printed":hex(printed)})
+                      continue
+                  verified.append({"source":hex(pc),"target":hex(computed),"known_symbols":row.get("known_symbols",[]),"encoding":raw.hex()})
+              report["functions"][name]={"verified_bl":verified,"rejected_bl":rejected,"verified_count":len(verified),"rejected_count":len(rejected)}
+          (base/"verified-direct-calls.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({name:{"verified_count":v["verified_count"],"rejected_count":v["rejected_count"],"known_symbol_targets":[x for x in v["verified_bl"] if x["known_symbols"]]} for name,v in report["functions"].items()},indent=2))
+          if any(v["rejected_count"] for v in report["functions"].values()):
+              raise SystemExit("Direct-call validation found mismatches; inspect verified-direct-calls.json")
+          print("All parsed BL immediate encodings match displayed targets; this does not establish further call-chain reachability.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
