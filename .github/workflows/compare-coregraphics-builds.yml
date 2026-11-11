@@ -550,6 +550,32 @@ jobs:
           print("All parsed BL immediate encodings match displayed targets; this does not establish further call-chain reachability.")
           PY
 
+      - name: Inventory unresolved verified direct-call destinations
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from collections import Counter,defaultdict
+          from pathlib import Path
+          base=Path("diagnostics/public-drawing-probes")
+          data=json.loads((base/"verified-direct-calls.json").read_text())["functions"]
+          unresolved=defaultdict(list)
+          known=[]
+          for function,entry in data.items():
+              for call in entry["verified_bl"]:
+                  record={"caller_window":function,"source":call["source"],"target":call["target"]}
+                  if call["known_symbols"]:
+                      known.append({**record,"symbols":call["known_symbols"]})
+                  else:
+                      unresolved[call["target"]].append(record)
+          inventory={"scope":"verified BL calls within four bounded public function windows","verified_calls":sum(x["verified_count"] for x in data.values()),"known_symbol_calls":len(known),"unresolved_call_occurrences":sum(map(len,unresolved.values())),"distinct_unresolved_targets":len(unresolved),"known":known,"unresolved_targets":[{"target":addr,"occurrences":len(records),"call_sites":records} for addr,records in sorted(unresolved.items(),key=lambda x:(-len(x[1]),int(x[0],16)))]}
+          (base/"direct-call-target-inventory.json").write_text(json.dumps(inventory,indent=2)+"\n")
+          print(json.dumps({k:inventory[k] for k in ("verified_calls","known_symbol_calls","unresolved_call_occurrences","distinct_unresolved_targets")},indent=2))
+          print("Top unresolved targets:",json.dumps(inventory["unresolved_targets"][:12],indent=2))
+          print("Unresolved means not in the selected symbol-family inventory, not necessarily an unknown function.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
