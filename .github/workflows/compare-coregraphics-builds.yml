@@ -474,6 +474,39 @@ jobs:
           print("Classification is syntactic; no cross-function reachability or exploitability is inferred.")
           PY
 
+      - name: Audit branch classifier against raw disassembly
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,re
+          from pathlib import Path
+          base=Path("diagnostics/public-drawing-probes")
+          old=json.loads((base/"branch-destination-classification.json").read_text())["functions"]
+          report={}
+          # The previous regex searched anywhere in a line. This audit retains
+          # every candidate for manual review rather than certifying call edges.
+          for p in sorted(base.glob("*.txt")):
+              lines=p.read_text(errors="replace").splitlines()
+              previous=old[p.stem]["branches"]
+              counts={"bl_direct_call":0,"blr_indirect_call":0,"br_indirect_jump":0,"b_direct_jump":0,"b_conditional_jump":0,"other_or_unverified":0}
+              samples={k:[] for k in counts}
+              for item in previous:
+                  mnemonic=item["mnemonic"]
+                  if mnemonic=="bl": kind="bl_direct_call"
+                  elif mnemonic=="blr": kind="blr_indirect_call"
+                  elif mnemonic=="br": kind="br_indirect_jump"
+                  elif mnemonic=="b": kind="b_direct_jump"
+                  elif mnemonic.startswith("b."): kind="b_conditional_jump"
+                  else: kind="other_or_unverified"
+                  counts[kind]+=1
+                  if len(samples[kind])<8:samples[kind].append(item["instruction"])
+              report[p.stem]={"previous_candidate_count":len(previous),"candidate_instruction_types":counts,"examples":samples,"raw_disassembly_first_lines":lines[:8],"known_symbol_candidate_examples":[x for x in previous if x["classification"]=="direct_known_symbol"][:12]}
+          (base/"branch-parser-audit.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({k:{"previous_candidate_count":v["previous_candidate_count"],"candidate_instruction_types":v["candidate_instruction_types"],"known_symbol_candidate_examples":v["known_symbol_candidate_examples"]} for k,v in report.items()},indent=2))
+          print("Audit is a reclassification of prior regex candidates, NOT independent validation of instruction boundaries or target reachability.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
