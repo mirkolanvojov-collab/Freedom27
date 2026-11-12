@@ -668,6 +668,41 @@ jobs:
           print(json.dumps({"validated_calls":len(calls),"unique_targets":len(targets),"lookups":lookups},indent=2))
           PY
 
+      - name: Inspect CG Path apply direct callees
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          mkdir -p diagnostics/cg-path-apply
+          ipsw dyld disass "$cache" --vaddr 0x184317494 --count 320 --quiet > diagnostics/cg-path-apply/disassembly.txt 2> diagnostics/cg-path-apply/disassembly.stderr
+          export CACHE="$cache"
+          python3 - <<'PY'
+          import json,re,os,subprocess
+          from pathlib import Path
+          base=Path("diagnostics/cg-path-apply")
+          rx=re.compile(r"^\s*(0x[0-9a-f]+):\s+((?:[0-9a-f]{2}\s+){4})\s*bl\s+(0x[0-9a-f]+)(?:\s|$)",re.I)
+          calls=[]
+          for line in (base/"disassembly.txt").read_text(errors="replace").splitlines():
+              m=rx.match(line)
+              if not m:continue
+              pc=int(m.group(1),16);word=int.from_bytes(bytes.fromhex(m.group(2)),"little")
+              if word>>26!=0b100101:continue
+              imm=word&0x3ffffff
+              if imm&(1<<25):imm-=1<<26
+              dest=(pc+(imm<<2))&((1<<64)-1)
+              if dest==int(m.group(3),16):calls.append({"source":hex(pc),"target":hex(dest)})
+          targets=sorted({c["target"] for c in calls})
+          lookups={}
+          for addr in targets[:32]:
+              p=subprocess.run(["ipsw","dyld","a2f",os.environ["CACHE"],addr,"--json"],capture_output=True,text=True,timeout=60)
+              lookups[addr]={"exit_code":p.returncode,"stdout":p.stdout[:2000],"stderr":p.stderr[:500]}
+          report={"function":"CG::Path::apply","start":"0x184317494","known_size_bytes":1256,"window_instructions":320,"validated_direct_calls":calls,"unique_targets":targets,"lookups":lookups}
+          (base/"report.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({"validated_calls":len(calls),"distinct_targets":len(targets),"lookups":lookups},indent=2))
+          print("Static bounded instruction analysis only; no dynamic reachability inferred.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
