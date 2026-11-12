@@ -598,6 +598,41 @@ jobs:
           print("Address-to-function results require interpretation; lookup does not establish reachability beyond the verified direct call.")
           PY
 
+      - name: Inspect draw-path helper and unresolved address coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          mkdir -p diagnostics/draw-path-followup
+          ipsw dyld disass "$cache" --vaddr 0x184316404 --count 160 --quiet > diagnostics/draw-path-followup/draw-path.txt 2> diagnostics/draw-path-followup/draw-path.stderr
+          export CACHE="$cache"
+          python3 - <<'PY'
+          import json,re,subprocess,os
+          from pathlib import Path
+          base=Path("diagnostics/draw-path-followup")
+          lines=(base/"draw-path.txt").read_text(errors="replace").splitlines()
+          rx=re.compile(r"^\s*(0x[0-9a-f]+):\s+((?:[0-9a-f]{2}\s+){4})\s*bl\s+(0x[0-9a-f]+)(?:\s|$)",re.I)
+          calls=[]
+          for line in lines:
+              m=rx.match(line)
+              if not m:continue
+              pc=int(m.group(1),16);word=int.from_bytes(bytes.fromhex(m.group(2)),"little")
+              if word>>26!=0b100101:continue
+              imm=word&0x3ffffff
+              if imm&(1<<25):imm-=1<<26
+              dest=(pc+(imm<<2))&((1<<64)-1)
+              if dest!=int(m.group(3),16):continue
+              calls.append({"source":hex(pc),"target":hex(dest)})
+          report={"function":"_draw_path","start":"0x184316404","sample_instruction_count":160,"validated_direct_calls":calls,"unique_targets":sorted({x["target"] for x in calls}),"lookup":{}}
+          for addr in report["unique_targets"][:20]:
+              p=subprocess.run(["ipsw","dyld","a2f",os.environ["CACHE"],addr,"--json"],capture_output=True,text=True,timeout=60)
+              report["lookup"][addr]={"exit_code":p.returncode,"stdout":p.stdout[:2000],"stderr":p.stderr[:500]}
+          (base/"draw-path-callees.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({"validated_calls":len(calls),"unique_targets":len(report["unique_targets"]),"lookups":report["lookup"]},indent=2))
+          print("Bounded static disassembly does not establish dynamic execution or aa_* reachability.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
