@@ -633,6 +633,41 @@ jobs:
           print("Bounded static disassembly does not establish dynamic execution or aa_* reachability.")
           PY
 
+      - name: Inspect CGPathApplyWithBlock2 call destinations
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache="$(find out/target -type f -name 'dyld_shared_cache_arm64e' -print -quit)"
+          test -n "$cache"
+          mkdir -p diagnostics/path-apply-followup
+          ipsw dyld disass "$cache" --vaddr 0x184302fe8 --count 48 --quiet > diagnostics/path-apply-followup/disassembly.txt 2> diagnostics/path-apply-followup/disassembly.stderr
+          export CACHE="$cache"
+          python3 - <<'PY'
+          import json,re,os,subprocess
+          from pathlib import Path
+          base=Path("diagnostics/path-apply-followup")
+          lines=(base/"disassembly.txt").read_text(errors="replace").splitlines()
+          pattern=re.compile(r"^\s*(0x[0-9a-f]+):\s+((?:[0-9a-f]{2}\s+){4})\s*bl\s+(0x[0-9a-f]+)(?:\s|$)",re.I)
+          calls=[]
+          for line in lines:
+              m=pattern.match(line)
+              if not m:continue
+              pc=int(m.group(1),16);word=int.from_bytes(bytes.fromhex(m.group(2)),"little")
+              if word>>26!=0b100101:continue
+              imm=word&0x3ffffff
+              if imm&(1<<25):imm-=1<<26
+              dest=(pc+(imm<<2))&((1<<64)-1)
+              if dest==int(m.group(3),16):calls.append({"source":hex(pc),"target":hex(dest)})
+          targets=sorted({c["target"] for c in calls})
+          lookups={}
+          for addr in targets:
+              p=subprocess.run(["ipsw","dyld","a2f",os.environ["CACHE"],addr,"--json"],capture_output=True,text=True,timeout=60)
+              lookups[addr]={"exit_code":p.returncode,"stdout":p.stdout[:2000],"stderr":p.stderr[:500]}
+          report={"start":"0x184302fe8","function":"_CGPathApplyWithBlock2","function_size_bytes":180,"instruction_window":48,"validated_direct_calls":calls,"lookups":lookups}
+          (base/"report.json").write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({"validated_calls":len(calls),"unique_targets":len(targets),"lookups":lookups},indent=2))
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
