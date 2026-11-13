@@ -12,6 +12,7 @@ class SafeTestPlannerTests(unittest.TestCase):
         self.assertFalse(valid_https_source("http://example.org/report"))
         self.assertFalse(valid_https_source("file:///tmp/payload"))
         self.assertFalse(valid_https_source("https://user:pass@example.org/"))
+        self.assertFalse(valid_https_source("https://example.org:bad/report"))
 
     def test_plan_is_not_ready_without_sources(self):
         hypothesis = Hypothesis(

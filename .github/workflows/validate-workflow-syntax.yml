@@ -1,0 +1,32 @@
+name: Validate GitHub Actions workflow syntax
+
+on:
+  push:
+    branches:
+      - research/cve-source-reconciliation-2026-10-24
+    paths:
+      - ".github/workflows/compare-coregraphics-builds.yml"
+      - ".github/workflows/validate-workflow-syntax.yml"
+      - ".github/workflows/reconcile-coregraphics-23g83-23g90.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/compare-coregraphics-builds.yml"
+      - ".github/workflows/validate-workflow-syntax.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Validate workflow files
+        uses: reviewdog/action-actionlint@v1
+        with:
+          actionlint_flags: .github/workflows/compare-coregraphics-builds.yml .github/workflows/reconcile-coregraphics-23g83-23g90.yml
+          fail_level: none

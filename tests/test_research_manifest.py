@@ -41,6 +41,10 @@ class ResearchManifestTests(unittest.TestCase):
         item = {**VALID, "source_url": "http://example.org"}
         self.assertTrue(any("valid HTTPS URL" in e for e in validate_manifest([item])))
 
+    def test_malformed_https_port_is_rejected(self):
+        item = {**VALID, "source_url": "https://example.org:bad/research"}
+        self.assertTrue(any("valid HTTPS URL" in e for e in validate_manifest([item])))
+
     def test_https_without_host_or_with_credentials_is_rejected(self):
         for source in ("https://", "https://user:pass@example.org/research"):
             with self.subTest(source=source):
