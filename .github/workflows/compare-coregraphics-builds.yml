@@ -707,6 +707,29 @@ jobs:
           print("Static bounded instruction analysis only; no dynamic reachability inferred.")
           PY
 
+      - name: Audit unresolved CG Path call targets against cache inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/unresolved-call-targets
+          python3 - <<'PY'
+          import json,os,subprocess
+          from pathlib import Path
+          root=Path("out/target")
+          caches=sorted(p for p in root.rglob("dyld_shared_cache_arm64e*") if p.is_file())
+          targets=["0x186bee600","0x186beec60","0x186bed8f0","0x186bee570"]
+          report={"cache_files":[{"path":str(p),"size_bytes":p.stat().st_size} for p in caches],"target_addresses":targets,"primary_cache_lookups":{}}
+          primary=next((p for p in caches if p.name=="dyld_shared_cache_arm64e"),None)
+          if primary is None:raise SystemExit("Primary dyld cache not found")
+          for address in targets:
+              proc=subprocess.run(["ipsw","dyld","a2f",str(primary),address,"--json"],capture_output=True,text=True,timeout=60)
+              report["primary_cache_lookups"][address]={"exit_code":proc.returncode,"stdout":proc.stdout[:2000],"stderr":proc.stderr[:1000]}
+          out=Path("diagnostics/unresolved-call-targets/report.json")
+          out.write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps(report,indent=2))
+          print("A failed a2f lookup is not evidence that an address lacks executable code; mapping requires separate verification.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
