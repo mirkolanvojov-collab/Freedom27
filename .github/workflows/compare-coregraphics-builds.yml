@@ -730,6 +730,49 @@ jobs:
           print("A failed a2f lookup is not evidence that an address lacks executable code; mapping requires separate verification.")
           PY
 
+      - name: Inspect dyld cache mapping intervals for unresolved calls
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/cache-mapping-coverage
+          python3 - <<'PY'
+          import json,struct
+          from pathlib import Path
+          root=Path("out/target")
+          files=sorted(p for p in root.rglob("dyld_shared_cache_arm64e*") if p.is_file())
+          targets=[0x186bee600,0x186beec60,0x186bed8f0,0x186bee570]
+          report={"method":"dyld_cache_header mappingOffset/mappingCount; dyld_cache_mapping_info 32-byte records","files":[],"targets":{}}
+          mappings=[]
+          for path in files:
+              item={"file":str(path),"size":path.stat().st_size}
+              with path.open("rb") as fp:
+                  header=fp.read(32)
+                  if len(header)<24 or not header.startswith(b"dyld_v"):
+                      item["error"]="missing dyld cache magic"
+                  else:
+                      offset,count=struct.unpack_from("<II",header,16)
+                      item.update(mapping_offset=offset,mapping_count=count)
+                      if count>4096 or offset<32 or offset+count*32>item["size"]:
+                          item["error"]="mapping table outside file or unreasonable count"
+                      else:
+                          fp.seek(offset)
+                          for index in range(count):
+                              data=fp.read(32)
+                              if len(data)!=32:break
+                              address,size,file_offset,max_prot,init_prot=struct.unpack("<QQQII",data)
+                              if size==0 or address+size>2**64:continue
+                              mappings.append({"file":str(path),"index":index,"start":hex(address),"end_exclusive":hex(address+size),"file_offset":file_offset,"max_prot":max_prot,"init_prot":init_prot})
+              report["files"].append(item)
+          for address in targets:
+              hits=[m for m in mappings if int(m["start"],16)<=address<int(m["end_exclusive"],16)]
+              report["targets"][hex(address)]={"mapped_by_legacy_mapping_table":bool(hits),"mapping_hits":hits}
+          report["parsed_mapping_count"]=len(mappings)
+          out=Path("diagnostics/cache-mapping-coverage/report.json")
+          out.write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps({"parsed_mapping_count":len(mappings),"target_coverage":report["targets"],"file_errors":[f for f in report["files"] if "error" in f]},indent=2))
+          print("Legacy mapping tables are not necessarily complete for modern subcache layouts; negative coverage is inconclusive.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
