@@ -328,3 +328,16 @@ Workflow **43659136798**, job **132644375138**, step 27 passed. The target cache
 ## Dyld subcache mapping coverage (2026-11-15)
 
 Workflow **43740744759**, job **132893219848**, step 28 completed successfully. The header mapping inspection parsed **107 mapping records**. All four sampled unresolved call destinations (`0x186bee600`, `0x186beec60`, `0x186bed8f0`, `0x186bee570`) fall within the **readable/executable** mapping `[0x186bc4000, 0x186c08000)` in `dyld_shared_cache_arm64e.02`, mapping index 0, file offset 0, with `max_prot=5` and `init_prot=5`. The `ipsw dyld a2f` failures therefore **must not be interpreted as unmapped addresses**. This mapping evidence does not establish symbol names, exact instruction contents, or a runtime path to `_aa_` routines. The wildcard inventory also included auxiliary `.a2s` and `.atlas` files, which correctly failed the dyld magic check; these are not evidence of corrupted subcaches.
+
+## Mapped branch-stub byte samples (2026-11-15)
+
+Workflow **43763682475**, job **132963995440**, step 29 passed and read 32 bytes at each of the four addresses from the executable `dyld_shared_cache_arm64e.02` mapping. Samples:
+
+| Address | File offset | First four little-endian AArch64 words | Preliminary interpretation |
+| --- | ---: | --- | --- |
+| `0x186bee600` | 173568 | `d0503930 91399210 d61f0200 d4200020` | ADRP, ADD, BR, BRK-like padding |
+| `0x186beec60` | 175200 | `f0042430 91073210 d61f0200 d4200020` | ADRP, ADD, BR, BRK-like padding |
+| `0x186bed8f0` | 170224 | `90fe48f0 911ce210 d61f0200 d4200020` | ADRP, ADD, BR, BRK-like padding |
+| `0x186bee570` | 173424 | `d033d0f1 912b0231 f9400230 d71f0a11` | ADRP, ADD, LDR, authenticated indirect branch |
+
+These patterns are **consistent with branch stubs** and help explain why `ipsw dyld a2f` returned `address not in any dylib`. Independent disassembly and resolution of final branch destinations remain outstanding. No runtime reachability, exploit primitive, or jailbreak is established.
