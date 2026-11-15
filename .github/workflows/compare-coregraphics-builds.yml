@@ -773,6 +773,46 @@ jobs:
           print("Legacy mapping tables are not necessarily complete for modern subcache layouts; negative coverage is inconclusive.")
           PY
 
+      - name: Read mapped bytes at unresolved CG call destinations
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/mapped-call-bytes
+          python3 - <<'PY'
+          import json,struct
+          from pathlib import Path
+          root=Path("out/target")
+          targets=[0x186bee600,0x186beec60,0x186bed8f0,0x186bee570]
+          result={"addresses":{},"method":"dyld cache legacy mapping address-to-file offset; raw 32-byte sample; little-endian 32-bit AArch64 words"}
+          for address in targets:
+              hits=[]
+              for p in sorted(root.rglob("dyld_shared_cache_arm64e*")):
+                  if not p.is_file() or not (p.name=="dyld_shared_cache_arm64e" or p.name.rsplit(".",1)[-1].isdigit()):continue
+                  with p.open("rb") as fh:
+                      header=fh.read(32)
+                      if not header.startswith(b"dyld_v"):continue
+                      offset,count=struct.unpack_from("<II",header,16)
+                      if offset<32 or count>4096 or offset+32*count>p.stat().st_size:continue
+                      fh.seek(offset)
+                      for idx in range(count):
+                          base,size,file_offset,max_prot,init_prot=struct.unpack("<QQQII",fh.read(32))
+                          if not(base<=address<base+size):continue
+                          location=file_offset+address-base
+                          if location+32>p.stat().st_size:
+                              hits.append({"file":str(p),"mapping_index":idx,"error":"sample exceeds file"});continue
+                          pos=fh.tell()
+                          fh.seek(location)
+                          data=fh.read(32)
+                          fh.seek(pos)
+                          hits.append({"file":str(p),"mapping_index":idx,"file_offset":location,"max_prot":max_prot,"init_prot":init_prot,"hex_bytes":data.hex(),"aarch64_words":[hex(x) for x in struct.unpack("<8I",data)]})
+              result["addresses"][hex(address)]=hits
+          out=Path("diagnostics/mapped-call-bytes/report.json")
+          out.write_text(json.dumps(result,indent=2)+"\n")
+          print(json.dumps(result,indent=2))
+          if any(not v for v in result["addresses"].values()):raise SystemExit("At least one target lacks readable mapping")
+          print("Raw bytes are not proof of valid instructions or dynamic execution.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
