@@ -813,6 +813,73 @@ jobs:
           print("Raw bytes are not proof of valid instructions or dynamic execution.")
           PY
 
+      - name: Decode unresolved branch-stub destinations
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/branch-stub-destinations
+          python3 - <<'PY'
+          import json,struct
+          from pathlib import Path
+          root=Path("out/target")
+          targets=[0x186bee600,0x186beec60,0x186bed8f0,0x186bee570]
+          caches=sorted(p for p in root.rglob("dyld_shared_cache_arm64e*") if p.is_file() and (p.name=="dyld_shared_cache_arm64e" or p.name.rsplit(".",1)[-1].isdigit()))
+          maps=[]
+          for p in caches:
+              with p.open("rb") as fp:
+                  h=fp.read(32)
+                  if not h.startswith(b"dyld_v"):continue
+                  off,n=struct.unpack_from("<II",h,16)
+                  if off<32 or n>4096 or off+32*n>p.stat().st_size:continue
+                  fp.seek(off)
+                  for _ in range(n):
+                      base,size,file_off,maxprot,initprot=struct.unpack("<QQQII",fp.read(32))
+                      maps.append((base,base+size,p,file_off,initprot))
+          def read_at(addr,n):
+              for start,end,p,off,prot in maps:
+                  if start<=addr and addr+n<=end and off+addr-start+n<=p.stat().st_size:
+                      with p.open("rb") as fp:
+                          fp.seek(off+addr-start)
+                          return fp.read(n),str(p),prot
+              return None,None,None
+          def sx(value,bits):
+              return value-(1<<bits) if value&(1<<(bits-1)) else value
+          report={}
+          for pc in targets:
+              data,source,prot=read_at(pc,16)
+              if data is None:
+                  report[hex(pc)]={"error":"unreadable mapping"};continue
+              a,b,c,d=struct.unpack("<4I",data)
+              entry={"file":source,"words":[hex(x) for x in (a,b,c,d)],"verified_adrp":(a&0x9f000000)==0x90000000,"verified_add":(b&0xffc00000)==0x91000000,"third_word":hex(c)}
+              if entry["verified_adrp"] and entry["verified_add"] and (a&31)==(b&31) and ((b>>5)&31)==(a&31):
+                  imm=sx(((a>>5)&0x7ffff)<<2|((a>>29)&3),21)<<12
+                  page=(pc&~0xfff)+imm
+                  dest=page+((b>>10)&0xfff)<<(12 if b&(1<<22) else 0)
+                  entry.update(page_base=hex(page),computed_address=hex(dest))
+                  if c==0xd61f0200 and (b&31)==16:
+                      entry["kind"]="direct_register_branch_stub"
+                      entry["branch_destination"]=hex(dest)
+                      payload,mapped,protection=read_at(dest,16)
+                      entry["destination_bytes"]=payload.hex() if payload else None
+                      entry["destination_cache_file"]=mapped
+                  elif (c&0xffc00000)==0xf9400000 and ((c>>5)&31)==(b&31):
+                      entry["kind"]="pointer_load_branch_stub"
+                      slot=dest+((c>>10)&0xfff)*8
+                      entry["pointer_slot"]=hex(slot)
+                      payload,mapped,protection=read_at(slot,8)
+                      entry["pointer_slot_bytes"]=payload.hex() if payload else None
+                      entry["pointer_slot_cache_file"]=mapped
+                      entry["pointer_raw_value"]=hex(struct.unpack("<Q",payload)[0]) if payload else None
+                      entry["warning"]="Raw pointer may require dyld slide, chained fixup or pointer authentication interpretation"
+                  else:entry["kind"]="unclassified"
+              else:entry["kind"]="unclassified"
+              report[hex(pc)]=entry
+          out=Path("diagnostics/branch-stub-destinations/report.json")
+          out.write_text(json.dumps(report,indent=2)+"\n")
+          print(json.dumps(report,indent=2))
+          if any("error" in x for x in report.values()):raise SystemExit("Unreadable stub")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
