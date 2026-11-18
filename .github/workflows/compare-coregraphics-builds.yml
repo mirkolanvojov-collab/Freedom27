@@ -880,6 +880,40 @@ jobs:
           if any("error" in x for x in report.values()):raise SystemExit("Unreadable stub")
           PY
 
+      - name: Identify decoded branch destinations and pointer-slot coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/decoded-destination-identity
+          python3 - <<'PY'
+          import json,subprocess,struct
+          from pathlib import Path
+          root=Path("out/target")
+          primary=next((p for p in root.rglob("dyld_shared_cache_arm64e") if p.is_file()),None)
+          if primary is None:raise SystemExit("Primary cache missing")
+          destinations=["0x227314e64","0x18f0751cc","0x183509738"]
+          result={"cache":str(primary),"destinations":{},"pointer_slot":{"address":"0x1ee60cac0","mapping_hits":[]}}
+          for addr in destinations:
+              p=subprocess.run(["ipsw","dyld","a2f",str(primary),addr,"--json"],capture_output=True,text=True,timeout=90)
+              result["destinations"][addr]={"exit_code":p.returncode,"stdout":p.stdout[:3000],"stderr":p.stderr[:1500]}
+          target=int(result["pointer_slot"]["address"],16)
+          for path in sorted(root.rglob("dyld_shared_cache_arm64e*")):
+              if not path.is_file() or not (path.name=="dyld_shared_cache_arm64e" or path.name.rsplit(".",1)[-1].isdigit()):continue
+              with path.open("rb") as fp:
+                  header=fp.read(32)
+                  if not header.startswith(b"dyld_v"):continue
+                  offset,count=struct.unpack_from("<II",header,16)
+                  if offset<32 or count>4096 or offset+32*count>path.stat().st_size:continue
+                  fp.seek(offset)
+                  for index in range(count):
+                      base,size,fileoff,maxprot,initprot=struct.unpack("<QQQII",fp.read(32))
+                      if base<=target<base+size:
+                          result["pointer_slot"]["mapping_hits"].append({"file":str(path),"index":index,"base":hex(base),"end_exclusive":hex(base+size),"file_offset":fileoff+target-base,"max_prot":maxprot,"init_prot":initprot})
+          Path("diagnostics/decoded-destination-identity/report.json").write_text(json.dumps(result,indent=2)+"\n")
+          print(json.dumps(result,indent=2))
+          print("Symbol lookups and legacy mappings are static observations, not runtime call-chain verification.")
+          PY
+
       - name: Download and verify fixed-build OTA
         shell: bash
         timeout-minutes: 45
