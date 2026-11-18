@@ -341,3 +341,15 @@ Workflow **43763682475**, job **132963995440**, step 29 passed and read 32 bytes
 | `0x186bee570` | 173424 | `d033d0f1 912b0231 f9400230 d71f0a11` | ADRP, ADD, LDR, authenticated indirect branch |
 
 These patterns are **consistent with branch stubs** and help explain why `ipsw dyld a2f` returned `address not in any dylib`. Independent disassembly and resolution of final branch destinations remain outstanding. No runtime reachability, exploit primitive, or jailbreak is established.
+
+## Branch-stub destination decoding (2026-11-18)
+
+Workflow **43767515218**, job **132975927518**, step 30 completed successfully. Decoding mapped AArch64 stubs yielded three direct register-branch destinations with readable bytes in other dyld cache subcaches:
+
+| Stub address | Decoded destination | Destination subcache | First 16 destination bytes |
+| --- | --- | --- | --- |
+| `0x186bee600` | `0x227314e64` | `.44` | `7f2303d5f44fbea9fd7b01a9fd430091` |
+| `0x186beec60` | `0x18f0751cc` | `.05` | `7f2303d5ff4301d1f44f03a9fd7b04a9` |
+| `0x186bed8f0` | `0x183509738` | `.01` | `7f2303d5f44fbea9fd7b01a9fd430091` |
+
+The pointer-based stub `0x186bee570` produced computed pointer-slot address `0x1ee60cac0`, but the current cache mapping reader returned no pointer-slot bytes. This is **not** proof the pointer slot is invalid at runtime. The computed destinations are not yet associated with named functions, and the pointer stub may require fixup/slide/authentication interpretation. No dynamic exploit or runtime reachability was demonstrated.
