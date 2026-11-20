@@ -114,6 +114,27 @@ class EvidenceCheckTests(unittest.TestCase):
             errors = check_evidence(root)
             self.assertTrue(any("registry root must be an object" in e for e in errors))
 
+    def test_unhashable_registry_id_is_reported_without_crashing(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            malformed = {"id": ["bad"], "title": "Malformed ID",
+                         "source_url": "https://example.org/advisory",
+                         "status": "unverified", "summary": "Research only."}
+            self.make_root(root, entries=[malformed])
+            errors = check_evidence(root)
+            self.assertTrue(any("missing non-empty id" in error for error in errors))
+
+    def test_malformed_https_port_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.make_root(root, rows=[{
+                "device_family": "iPhone test", "variant": "base", "os_family": "iOS 27",
+                "status": "verified", "notes": "Reviewed source",
+                "evidence_url": "https://example.org:bad/source",
+                "model_identifier": "iPhone1,1", "os_version": "27.0", "build": "24A1"
+            }])
+            errors = check_evidence(root)
+            self.assertTrue(any("requires an HTTPS evidence_url" in error for error in errors))
     def test_non_object_allowed_values_is_reported_without_crashing(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

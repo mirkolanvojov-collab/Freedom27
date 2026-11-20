@@ -9,10 +9,29 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 ALLOWED = {"not-investigated", "researching", "theoretical", "experimental", "verified", "not-supported"}
 
+
+def _text(value: object) -> str:
+    """Normalize only actual strings; null and other types stay missing."""
+    return value.strip() if isinstance(value, str) else ""
+
+def _valid_evidence_url(value: object) -> bool:
+    """Accept only well-formed HTTPS evidence URLs without embedded credentials."""
+    try:
+        parsed = urlparse(value) if isinstance(value, str) else None
+        if not (
+            parsed and parsed.scheme == "https" and parsed.hostname
+            and not parsed.username and not parsed.password
+        ):
+            return False
+        _ = parsed.port
+        return True
+    except ValueError:
+        return False
 
 def _read(path: Path) -> Any:
     with path.open("r", encoding="utf-8") as stream:
@@ -42,31 +61,33 @@ def assess_target(root: Path = ROOT) -> dict[str, Any]:
         input_errors.append("target status claims must be a list")
         claims = []
     identity = {
-        "device_model": str(profile.get("device_model", "")),
-        "model_identifier": str(profile.get("model_identifier", "")),
-        "os_version": str(profile.get("exact_os_version", "")),
-        "build_number": str(profile.get("build_number", "")),
+        "device_model": _text(profile.get("device_model")),
+        "model_identifier": _text(profile.get("model_identifier")),
+        "os_version": _text(profile.get("exact_os_version")),
+        "build_number": _text(profile.get("build_number")),
     }
     errors = input_errors + [f"{key} is missing" for key, value in identity.items() if not value]
     matches = []
     for item in claims:
         if not isinstance(item, dict):
             continue
-        if all(str(item.get(key, "")) == identity[key] for key in ("model_identifier", "os_version", "build_number")):
+        if all(_text(item.get(key)) == identity[key] for key in ("device_model", "model_identifier", "os_version", "build_number")):
             matches.append(item)
 
     valid = []
     for item in matches:
-        status = str(item.get("status", ""))
-        url = str(item.get("evidence_url", ""))
-        notes = str(item.get("notes", ""))
+        status = _text(item.get("status"))
+        url = _text(item.get("evidence_url"))
+        notes = _text(item.get("notes"))
         if status not in ALLOWED:
             errors.append(f"matching claim has invalid status: {status}")
             continue
-        if status in {"verified", "not-supported"} and (not url.startswith("https://") or not notes):
+        if status in {"verified", "not-supported"} and (not _valid_evidence_url(url) or not notes):
             errors.append(f"{status} claim requires an HTTPS evidence URL and review notes")
             continue
-        valid.append(item)
+        # Store the normalized status used by validation so whitespace cannot
+        # leak back into the report or evade conflict detection.
+        valid.append({**item, "status": status})
 
     # Conflicting exact-build claims are not silently resolved by choosing one.
     statuses = {item["status"] for item in valid}

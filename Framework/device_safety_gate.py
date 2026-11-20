@@ -42,6 +42,8 @@ def _verified_attestation(value: Any, target: dict[str, Any]) -> bool:
             and bool(parsed.hostname)
             and not parsed.username and not parsed.password
         )
+        if valid_url:
+            _ = parsed.port  # Reject malformed port values.
     except ValueError:
         valid_url = False
     note = value.get("evidence_note")

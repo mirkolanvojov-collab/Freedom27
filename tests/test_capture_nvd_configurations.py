@@ -56,14 +56,15 @@ class NvdCaptureTests(unittest.TestCase):
             self.assertEqual(summary["failed_record_count"], 1)
 
     def test_invalid_identifier_is_rejected(self):
-        with tempfile.TemporaryDirectory() as temp:
-            with self.assertRaises(ValueError):
-                MODULE.capture_records(
-                    cve_ids=["not-a-cve"],
-                    output_dir=Path(temp),
-                    request_json=lambda _url, _key: (200, {}, None),
-                    sleep=lambda _seconds: None,
-                )
+        for invalid in ("not-a-cve", "CVE-2026-nope", "CVE-2026-123"):
+            with self.subTest(invalid=invalid), tempfile.TemporaryDirectory() as temp:
+                with self.assertRaises(ValueError):
+                    MODULE.capture_records(
+                        cve_ids=[invalid],
+                        output_dir=Path(temp),
+                        request_json=lambda _url, _key: (200, {}, None),
+                        sleep=lambda _seconds: None,
+                    )
 
 
 if __name__ == "__main__":

@@ -16,10 +16,13 @@ VERIFIED_STATUSES = {"experimental", "verified"}
 def _https_url(value: Any) -> bool:
     try:
         parsed = urlparse(value) if isinstance(value, str) else None
-        return bool(
+        if not (
             parsed and parsed.scheme == "https" and parsed.hostname
             and not parsed.username and not parsed.password
-        )
+        ):
+            return False
+        _ = parsed.port  # Reject malformed port values.
+        return True
     except ValueError:
         return False
 
@@ -119,7 +122,7 @@ def check_evidence(root: Path = ROOT) -> list[str]:
     if not isinstance(registry_entries_for_ids, list):
         errors.append("vulnerability registry entries must be a list")
         registry_entries_for_ids = []
-    registry_ids = {entry.get("id") for entry in registry_entries_for_ids if isinstance(entry, dict)}
+    registry_ids = {entry["id"] for entry in registry_entries_for_ids if isinstance(entry, dict) and isinstance(entry.get("id"), str)}
     if ledger_ids != registry_ids:
         errors.append("evidence ledger IDs must match vulnerability registry IDs exactly")
     entries = registry.get("entries")
@@ -143,7 +146,7 @@ def check_evidence(root: Path = ROOT) -> list[str]:
         if not _https_url(entry.get("source_url")):
             errors.append(f"{prefix} source_url must be HTTPS")
         title_summary = (str(entry.get("title", "")) + " " + str(entry.get("summary", ""))).lower()
-        if entry_id in {"apple-cve-2026-28968-kernel-lead", "apple-cve-2026-86886-tcc-lead"}:
+        if isinstance(entry_id, str) and entry_id in {"apple-cve-2026-28968-kernel-lead", "apple-cve-2026-86886-tcc-lead"}:
             if entry.get("status") != "unverified":
                 errors.append(f"{prefix} CVE research lead must remain unverified")
             if "not" not in title_summary and "not equivalent" not in title_summary and "not a public jailbreak" not in title_summary:

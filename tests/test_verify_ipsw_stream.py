@@ -150,12 +150,37 @@ class VerifyIpswStreamTests(unittest.TestCase):
                 sleep=lambda _: None, max_retries=1,
             )
 
+    def test_rejects_extra_bytes_beyond_declared_partial_range(self):
+        responses = [
+            FakeResponse(b"abc", 200),
+            FakeResponse(b"defX", 206, {"Content-Range": "bytes 3-5/8"}),
+        ]
+        def opener(request, timeout):
+            return responses.pop(0)
+        with self.assertRaisesRegex(RuntimeError, "exceeded declared Content-Range"):
+            stream_url_sha256(
+                "https://example.invalid/test", 8, opener=opener,
+                sleep=lambda _: None, max_retries=1,
+            )
+
     def test_rejects_invalid_expected_size_and_retry_count(self):
         with self.assertRaises(ValueError):
             stream_url_sha256("https://example.invalid/test", 0)
         with self.assertRaises(ValueError):
             stream_url_sha256("https://example.invalid/test", 6, max_retries=-1)
 
+    def test_rejects_non_https_or_credentialed_source_before_request(self):
+        def should_not_open(*_args, **_kwargs):
+            self.fail("opener must not be called for an invalid URL")
+        for url in (
+            "http://example.invalid/test",
+            "file:///tmp/firmware.ipsw",
+            "https://user:pass@example.invalid/test",
+            "https://example.invalid:bad/test",
+        ):
+            with self.subTest(url=url):
+                with self.assertRaisesRegex(ValueError, "valid HTTPS URL"):
+                    stream_url_sha256(url, 6, opener=should_not_open, sleep=lambda _: None)
     def test_interrupted_read_resumes_from_bytes_already_hashed(self):
         class InterruptedResponse(FakeResponse):
             def __init__(self):

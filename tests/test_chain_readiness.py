@@ -41,6 +41,7 @@ class ChainReadinessTests(unittest.TestCase):
             "source_revision": "a" * 40,
             "evidence_note": "Primary-source scope reviewed and independently reproduced.",
             "independent_reproduction": True,
+            "scope_confirmed": True,
         }
         key = "Phone|OS|BUILD"
         evidence = {"target_evidence": {key: {
@@ -49,6 +50,47 @@ class ChainReadinessTests(unittest.TestCase):
         report = assess(target, evidence)
         self.assertTrue(report["ready_for_implementation_claim"])
         self.assertEqual(report["missing_gate_count"], 0)
+
+    def test_independent_reproduction_without_scope_confirmation_is_rejected(self):
+        target = {
+            "device_model": "Phone", "model_identifier": "Phone1,1",
+            "exact_os_version": "OS", "build_number": "BUILD",
+        }
+        record = {
+            "target": target,
+            "source_url": "https://example.org/research",
+            "source_revision": "a" * 40,
+            "evidence_note": "A result was reproduced, but exact affected scope was not confirmed.",
+            "independent_reproduction": True,
+            "scope_confirmed": False,
+        }
+        key = "Phone|OS|BUILD"
+        evidence = {"target_evidence": {key: {
+            gate_id: dict(record) for gate_id, _ in REQUIRED_GATES
+        }}}
+        report = assess(target, evidence)
+        self.assertFalse(report["ready_for_implementation_claim"])
+        self.assertEqual(report["missing_gate_count"], len(REQUIRED_GATES))
+    def test_malformed_https_port_is_rejected(self):
+        target = {
+            "device_model": "Phone", "model_identifier": "Phone1,1",
+            "exact_os_version": "OS", "build_number": "BUILD",
+        }
+        record = {
+            "target": target,
+            "source_url": "https://example.org:bad/research",
+            "source_revision": "a" * 40,
+            "evidence_note": "Evidence was reviewed.",
+            "independent_reproduction": True,
+            "scope_confirmed": True,
+        }
+        key = "Phone|OS|BUILD"
+        evidence = {"target_evidence": {key: {
+            gate_id: dict(record) for gate_id, _ in REQUIRED_GATES
+        }}}
+        report = assess(target, evidence)
+        self.assertFalse(report["ready_for_implementation_claim"])
+        self.assertEqual(report["missing_gate_count"], len(REQUIRED_GATES))
 
     def test_malformed_roots_fail_closed(self):
         report = assess([], [])

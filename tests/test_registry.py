@@ -25,6 +25,15 @@ class RegistryTests(unittest.TestCase):
         }
         self.assertTrue(validate_entry(entry))
 
+    def test_malformed_https_port_is_rejected(self):
+        entry = {
+            "id": "public-advisory-example",
+            "title": "Public advisory",
+            "source_url": "https://example.org:bad/advisory",
+            "status": "unverified",
+        }
+        self.assertTrue(any("valid HTTPS URL" in error for error in validate_entry(entry)))
+
     def test_unhashable_status_and_invalid_https_url_are_rejected(self):
         entry = {
             "id": "public-advisory-example",
